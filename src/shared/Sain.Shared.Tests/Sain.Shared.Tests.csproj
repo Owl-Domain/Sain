@@ -1,0 +1,16 @@
+<Project Sdk="MSTest.Sdk/3.6.1">
+
+  <!-- Project -->
+  <PropertyGroup Label="project">
+    <TargetFrameworks>net9.0</TargetFrameworks>
+    <LangVersion>13</LangVersion>
+    <Nullable>enable</Nullable>
+
+    <AssemblyName>Sain.Shared.Tests</AssemblyName>
+    <RootNamespace>Sain.Shared.Tests</RootNamespace>
+
+    <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
+    <TestingExtensionsProfile>None</TestingExtensionsProfile>
+  </PropertyGroup>
+
+</Project>

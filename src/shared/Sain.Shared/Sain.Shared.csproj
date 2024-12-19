@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+ <!-- Project -->
+  <PropertyGroup Label="project">
+    <TargetFrameworks>net8.0; net7.0; netstandard2.1</TargetFrameworks>
+    <LangVersion>13</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</IsAotCompatible>
+
+    <AssemblyName>Sain.Shared</AssemblyName>
+    <RootNamespace>Sain.Shared</RootNamespace>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <!-- Project references -->
+  <ItemGroup Label="project">
+    <ProjectReference Include="../Sain.Shared.Abstractions/Sain.Shared.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>
