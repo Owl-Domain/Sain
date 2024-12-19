@@ -1,0 +1,67 @@
+namespace Sain.Shared.Contexts;
+
+/// <summary>
+///   Represents the base implementation for a application's context.
+/// </summary>
+public abstract class BaseContext : IContext
+{
+   #region Fields
+   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+   private IApplicationContext? _application;
+   private bool _initialised;
+   #endregion
+
+   #region Properties
+   /// <inheritdoc/>
+   public abstract bool IsAvailable { get; }
+
+   /// <summary>The context of the application that the context belongs to.</summary>
+   /// <exception cref="InvalidOperationException">Thrown if the property is accessed when the context has not been initialised.</exception>
+   [NotNull]
+   protected IApplicationContext? Application
+   {
+      get => _application ?? throw new InvalidOperationException($"The context doesn't belong to an application yet, wait for it to be initialised.");
+      private set => _application = value;
+   }
+   #endregion
+
+   #region Methods
+   /// <inheritdoc/>
+   public async Task InitialiseAsync(IApplicationContext application)
+   {
+      if (_initialised && _application != application)
+         throw new ArgumentException($"The context has already been initialised for a different application.", nameof(application));
+
+      if (_initialised is false && IsAvailable)
+      {
+         Application = application;
+         await InitialiseAsync();
+         _initialised = true;
+      }
+   }
+
+   /// <summary>Initialises the context.</summary>
+   /// <returns>A task representing the asynchronous operation.</returns>
+   protected abstract Task InitialiseAsync();
+
+   /// <inheritdoc/>
+   public async Task CleanupAsync(IApplicationContext application)
+   {
+      if (_initialised)
+      {
+         Debug.Assert(IsAvailable);
+
+         if (Application != application)
+            throw new ArgumentException($"The context has already been initialised for a different application.", nameof(application));
+
+         _initialised = false;
+         await CleanupAsync();
+         Application = null;
+      }
+   }
+
+   /// <summary>Cleans up the context.</summary>
+   /// <returns>A task representing the asynchronous operation.</returns>
+   protected abstract Task CleanupAsync();
+   #endregion
+}
