@@ -5,6 +5,11 @@ namespace Sain.Shared.Applications;
 /// </summary>
 public interface IApplicationContext
 {
+   #region Properties
+   /// <summary>The application's context group for audio.</summary>
+   IAudioContextGroup Audio { get; }
+   #endregion
+
    #region Methods
    /// <summary>Gets the context of the given type <typeparamref name="T"/>.</summary>
    /// <typeparam name="T">The type of the context to get.</typeparam>
