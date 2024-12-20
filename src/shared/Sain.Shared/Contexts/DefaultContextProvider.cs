@@ -9,6 +9,14 @@ public sealed class DefaultContextProvider : BaseContextProvider
    /// <inheritdoc/>
    public override bool TryProvide<T>([MaybeNullWhen(false)] out T context)
    {
+      Type type = typeof(T);
+
+      if (type == typeof(IDispatcherContext))
+      {
+         context = (T)(IContext)new DispatcherContext();
+         return true;
+      }
+
       context = default;
       return false;
    }

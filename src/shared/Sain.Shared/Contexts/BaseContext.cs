@@ -13,7 +13,7 @@ public abstract class BaseContext : IContext
 
    #region Properties
    /// <inheritdoc/>
-   public abstract bool IsAvailable { get; }
+   public virtual bool IsAvailable => true;
 
    /// <summary>The application that the context belongs to.</summary>
    /// <exception cref="InvalidOperationException">Thrown if the property is accessed when the context has not been initialised.</exception>

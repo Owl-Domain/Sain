@@ -34,7 +34,7 @@ public interface IApplication
 
    /// <summary>Represents the event that is raised when the application has processed all awaiting events.</summary>
    /// <remarks>This is the event that should be used for polling any events that may be required by context providers.</remarks>
-   event ApplicationEventHandler? Idle;
+   event ApplicationEventHandler? Iteration;
    #endregion
 
    #region Methods

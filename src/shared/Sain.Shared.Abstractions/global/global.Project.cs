@@ -7,3 +7,4 @@ global using Sain.Shared.Audio.Capture;
 global using Sain.Shared.Audio.Playback;
 global using Sain.Shared.Contexts;
 global using Sain.Shared.Devices;
+global using Sain.Shared.Dispatch;

@@ -34,7 +34,7 @@ public sealed class Application(IApplicationContext context, IReadOnlyCollection
    public event ApplicationEventHandler? Stopped;
 
    /// <inheritdoc/>
-   public event ApplicationEventHandler? Idle;
+   public event ApplicationEventHandler? Iteration;
    #endregion
 
    #region Methods
@@ -63,10 +63,12 @@ public sealed class Application(IApplicationContext context, IReadOnlyCollection
 
          while (_shouldBeRunning)
          {
-            // Todo(Nightowl): Add dispatcher processing here;
+            Context.Dispatcher.Process();
 
+            Iteration?.Invoke(this);
 
-            Idle?.Invoke(this);
+            if (Thread.Yield() is false)
+               Thread.Sleep(1);
          }
 
          State = ApplicationState.Stopping;

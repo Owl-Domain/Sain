@@ -11,10 +11,13 @@ public sealed class ApplicationContext : IApplicationContext
 
    #region Properties
    /// <inheritdoc/>
+   public IReadOnlyCollection<IContext> Contexts { get; }
+
+   /// <inheritdoc/>
    public IAudioContextGroup Audio { get; }
 
    /// <inheritdoc/>
-   public IReadOnlyCollection<IContext> Contexts { get; }
+   public IDispatcherContext Dispatcher { get; }
    #endregion
 
    #region Constructors
@@ -27,6 +30,8 @@ public sealed class ApplicationContext : IApplicationContext
       IAudioPlaybackContext audioPlayback = GetContext<IAudioPlaybackContext>();
       IAudioCaptureContext audioCapture = GetContext<IAudioCaptureContext>();
       Audio = new AudioContextGroup(audioPlayback, audioCapture);
+
+      Dispatcher = GetContext<IDispatcherContext>();
    }
    #endregion
 

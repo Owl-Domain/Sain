@@ -11,6 +11,9 @@ public interface IApplicationContext
 
    /// <summary>The application's context group for audio.</summary>
    IAudioContextGroup Audio { get; }
+
+   /// <summary>The application's context for the dispatcher.</summary>
+   IDispatcherContext Dispatcher { get; }
    #endregion
 
    #region Methods
