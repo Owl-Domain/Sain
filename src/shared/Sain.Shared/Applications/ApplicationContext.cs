@@ -7,23 +7,22 @@ public sealed class ApplicationContext : IApplicationContext
 {
    #region Fields
    private bool _initialised;
-   private readonly IReadOnlyCollection<IContext> _contexts;
-   private readonly IReadOnlyCollection<IContextProvider> _usedProviders;
    #endregion
 
    #region Properties
    /// <inheritdoc/>
    public IAudioContextGroup Audio { get; }
+
+   /// <inheritdoc/>
+   public IReadOnlyCollection<IContext> Contexts { get; }
    #endregion
 
    #region Constructors
    /// <summary>Creates a new instance of the <see cref="ApplicationContext"/>.</summary>
    /// <param name="contexts">The contexts that are available to the application.</param>
-   /// <param name="usedProviders">The provides that have been used to provide the given <paramref name="contexts"/>.</param>
-   public ApplicationContext(IReadOnlyCollection<IContext> contexts, IReadOnlyCollection<IContextProvider> usedProviders)
+   public ApplicationContext(IReadOnlyCollection<IContext> contexts)
    {
-      _contexts = contexts;
-      _usedProviders = usedProviders;
+      Contexts = contexts;
 
       IAudioPlaybackContext audioPlayback = GetContext<IAudioPlaybackContext>();
       IAudioCaptureContext audioCapture = GetContext<IAudioCaptureContext>();
@@ -44,7 +43,7 @@ public sealed class ApplicationContext : IApplicationContext
    /// <inheritdoc/>
    public bool TryGetContext<T>([MaybeNullWhen(false)] out T context) where T : notnull, IContext
    {
-      foreach (IContext current in _contexts)
+      foreach (IContext current in Contexts)
       {
          if (current is T typed)
          {
@@ -58,39 +57,27 @@ public sealed class ApplicationContext : IApplicationContext
    }
 
    /// <inheritdoc/>
-   public async Task InitialiseAsync()
+   public async Task InitialiseAsync(IApplication application)
    {
       if (_initialised)
          return;
 
-      foreach (IContextProvider provider in _usedProviders)
-         await provider.BeforeContextsInitialisedAsync(this);
-
-      foreach (IContext context in _contexts)
-         await context.InitialiseAsync(this);
-
-      foreach (IContextProvider provider in _usedProviders)
-         await provider.AfterContextsInitialisedAsync(this);
+      foreach (IContext context in Contexts)
+         await context.InitialiseAsync(application);
 
       _initialised = true;
    }
 
    /// <inheritdoc/>
-   public async Task CleanupAsync()
+   public async Task CleanupAsync(IApplication application)
    {
       if (_initialised is false)
          return;
 
       _initialised = false;
 
-      foreach (IContextProvider provider in _usedProviders)
-         await provider.BeforeContextsCleanedUpAsync(this);
-
-      foreach (IContext context in _contexts)
-         await context.CleanupAsync(this);
-
-      foreach (IContextProvider provider in _usedProviders)
-         await provider.AfterContextsCleanedUpAsync(this);
+      foreach (IContext context in Contexts)
+         await context.CleanupAsync(application);
    }
    #endregion
 }

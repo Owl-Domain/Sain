@@ -42,8 +42,8 @@ public sealed class ApplicationBuilder : IApplicationBuilder
       if (HasContext<IAudioPlaybackContext>() is false) _providedContexts.Add(new UnavailableAudioPlaybackContext());
       if (HasContext<IAudioCaptureContext>() is false) _providedContexts.Add(new UnavailableAudioCaptureContext());
 
-      ApplicationContext context = new(_providedContexts, _usedProviders);
-      Application application = new(context);
+      ApplicationContext context = new(_providedContexts);
+      Application application = new(context, _usedProviders);
 
       return application;
    }

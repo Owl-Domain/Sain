@@ -6,6 +6,9 @@ namespace Sain.Shared.Applications;
 public interface IApplicationContext
 {
    #region Properties
+   /// <summary>The collection of the available contexts.</summary>
+   IReadOnlyCollection<IContext> Contexts { get; }
+
    /// <summary>The application's context group for audio.</summary>
    IAudioContextGroup Audio { get; }
    #endregion
@@ -29,11 +32,13 @@ public interface IApplicationContext
    bool TryGetContext<T>([MaybeNullWhen(false)] out T context) where T : notnull, IContext;
 
    /// <summary>Initialises the application context.</summary>
+   /// <param name="application">The application that the context belongs to.</param>
    /// <returns>A task representing the asynchronous operation.</returns>
-   Task InitialiseAsync();
+   Task InitialiseAsync(IApplication application);
 
    /// <summary>Cleans up the application context.</summary>
+   /// <param name="application">The application that the context belongs to.</param>
    /// <returns>A task representing the asynchronous operation.</returns>
-   Task CleanupAsync();
+   Task CleanupAsync(IApplication application);
    #endregion
 }

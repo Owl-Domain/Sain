@@ -7,7 +7,7 @@ public abstract class BaseContext : IContext
 {
    #region Fields
    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-   private IApplicationContext? _application;
+   private IApplication? _application;
    private bool _initialised;
    #endregion
 
@@ -15,19 +15,27 @@ public abstract class BaseContext : IContext
    /// <inheritdoc/>
    public abstract bool IsAvailable { get; }
 
-   /// <summary>The context of the application that the context belongs to.</summary>
+   /// <summary>The application that the context belongs to.</summary>
    /// <exception cref="InvalidOperationException">Thrown if the property is accessed when the context has not been initialised.</exception>
    [NotNull]
-   protected IApplicationContext? Application
+   protected IApplication? Application
    {
       get => _application ?? throw new InvalidOperationException($"The context doesn't belong to an application yet, wait for it to be initialised.");
       private set => _application = value;
+   }
+
+   /// <summary>The context of the application that the context belongs to.</summary>
+   /// <exception cref="InvalidOperationException">Thrown if the property is accessed when the context has not been initialised.</exception>
+   [NotNull]
+   protected IApplicationContext? Context
+   {
+      get => _application?.Context ?? throw new InvalidOperationException($"The context doesn't belong to an application yet, wait for it to be initialised.");
    }
    #endregion
 
    #region Methods
    /// <inheritdoc/>
-   public async Task InitialiseAsync(IApplicationContext application)
+   public async Task InitialiseAsync(IApplication application)
    {
       if (_initialised && _application != application)
          throw new ArgumentException($"The context has already been initialised for a different application.", nameof(application));
@@ -45,7 +53,7 @@ public abstract class BaseContext : IContext
    protected abstract Task InitialiseAsync();
 
    /// <inheritdoc/>
-   public async Task CleanupAsync(IApplicationContext application)
+   public async Task CleanupAsync(IApplication application)
    {
       if (_initialised)
       {

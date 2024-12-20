@@ -15,24 +15,15 @@ public interface IContextProvider
    /// </returns>
    bool TryProvide<T>([MaybeNullWhen(false)] out T context) where T : notnull, IContext;
 
-   /// <summary>Called before any of the contexts from this provider are initialised.</summary>
-   /// <param name="context">The context of the application in which the provided context has been initialised.</param>
+   /// <summary>Called when the context provider has been attached to the given <paramref name="application"/>.</summary>
+   /// <param name="application">The application that the context provider has been attached to.</param>
    /// <returns>A task representing the asynchronous operation.</returns>
-   Task BeforeContextsInitialisedAsync(IApplicationContext context);
+   /// <remarks>A context provider can be attached to multiple applications at once.</remarks>
+   Task AttachAsync(IApplication application);
 
-   /// <summary>Called after all of the contexts from this provider are initialised.</summary>
-   /// <param name="context">The context of the application in which the provided context has been initialised.</param>
+   /// <summary>Called when the context provider has been detached from the given <paramref name="application"/>.</summary>
+   /// <param name="application">The application that the context provider has been detached from.</param>
    /// <returns>A task representing the asynchronous operation.</returns>
-   Task AfterContextsInitialisedAsync(IApplicationContext context);
-
-   /// <summary>Called before any of the contexts from this provider have been cleaned up.</summary>
-   /// <param name="context">The context of the application in which the provided context has been initialised.</param>
-   /// <returns>A task representing the asynchronous operation.</returns>
-   Task BeforeContextsCleanedUpAsync(IApplicationContext context);
-
-   /// <summary>Called after all of the contexts from this provider have been cleaned up.</summary>
-   /// <param name="context">The context of the application in which the provided context has been initialised.</param>
-   /// <returns>A task representing the asynchronous operation.</returns>
-   Task AfterContextsCleanedUpAsync(IApplicationContext context);
+   Task DetachAsync(IApplication application);
    #endregion
 }
