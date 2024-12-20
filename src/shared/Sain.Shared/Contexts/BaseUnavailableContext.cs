@@ -12,9 +12,9 @@ public abstract class BaseUnavailableContext : BaseContext
 
    #region Methods
    /// <inheritdoc/>
-   protected sealed override Task InitialiseAsync() => Task.CompletedTask;
+   protected sealed override void Initialise() { }
 
    /// <inheritdoc/>
-   protected sealed override Task CleanupAsync() => Task.CompletedTask;
+   protected sealed override void Cleanup() { }
    #endregion
 }

@@ -38,11 +38,9 @@ public interface IApplication
    #endregion
 
    #region Methods
-   /// <summary>Runs the application with the given <paramref name="arguments"/>.</summary>
-   /// <param name="arguments">The arguments that have been passed in to the application.</param>
-   /// <returns>A task representing the asynchronous operation.</returns>
+   /// <summary>Runs the application.</summary>
    /// <exception cref="InvalidOperationException">Thrown if the application is already running or it hasn't fully stopped yet.</exception>
-   Task RunAsync(params string[] arguments);
+   void Run();
 
    /// <summary>Stops the application.</summary>
    void Stop();

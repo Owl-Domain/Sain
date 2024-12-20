@@ -17,13 +17,11 @@ public interface IContextProvider
 
    /// <summary>Called when the context provider has been attached to the given <paramref name="application"/>.</summary>
    /// <param name="application">The application that the context provider has been attached to.</param>
-   /// <returns>A task representing the asynchronous operation.</returns>
    /// <remarks>A context provider can be attached to multiple applications at once.</remarks>
-   Task AttachAsync(IApplication application);
+   void Attach(IApplication application);
 
    /// <summary>Called when the context provider has been detached from the given <paramref name="application"/>.</summary>
    /// <param name="application">The application that the context provider has been detached from.</param>
-   /// <returns>A task representing the asynchronous operation.</returns>
-   Task DetachAsync(IApplication application);
+   void Detach(IApplication application);
    #endregion
 }

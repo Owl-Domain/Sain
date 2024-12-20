@@ -62,19 +62,19 @@ public sealed class ApplicationContext : IApplicationContext
    }
 
    /// <inheritdoc/>
-   public async Task InitialiseAsync(IApplication application)
+   public void Initialise(IApplication application)
    {
       if (_initialised)
          return;
 
       foreach (IContext context in Contexts)
-         await context.InitialiseAsync(application);
+         context.Initialise(application);
 
       _initialised = true;
    }
 
    /// <inheritdoc/>
-   public async Task CleanupAsync(IApplication application)
+   public void Cleanup(IApplication application)
    {
       if (_initialised is false)
          return;
@@ -82,7 +82,7 @@ public sealed class ApplicationContext : IApplicationContext
       _initialised = false;
 
       foreach (IContext context in Contexts)
-         await context.CleanupAsync(application);
+         context.Cleanup(application);
    }
    #endregion
 }

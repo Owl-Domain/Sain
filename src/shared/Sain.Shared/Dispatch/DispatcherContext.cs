@@ -166,7 +166,7 @@ public sealed class DispatcherContext : BaseContext, IDispatcherContext
 
    #region Methods
    /// <inheritdoc/>
-   protected override Task InitialiseAsync()
+   protected override void Initialise()
    {
 #if NET5_0_OR_GREATER
       foreach (DispatchPriority priority in Enum.GetValues<DispatchPriority>())
@@ -181,17 +181,10 @@ public sealed class DispatcherContext : BaseContext, IDispatcherContext
          _queues.Add(priority, queue);
       }
 #endif
-
-      return Task.CompletedTask;
    }
 
    /// <inheritdoc/>
-   protected override Task CleanupAsync()
-   {
-      _queues.Clear();
-
-      return Task.CompletedTask;
-   }
+   protected override void Cleanup() => _queues.Clear();
 
    /// <inheritdoc/>
    public void Process()

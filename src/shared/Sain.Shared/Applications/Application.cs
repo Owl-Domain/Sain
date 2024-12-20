@@ -39,7 +39,7 @@ public sealed class Application(IApplicationContext context, IReadOnlyCollection
 
    #region Methods
    /// <inheritdoc/>
-   public async Task RunAsync(params string[] arguments)
+   public void Run()
    {
       if (State is not ApplicationState.Stopped)
          throw new InvalidOperationException($"The application is either currently running or has not fully stopped yet, meaning it cannot be started again.");
@@ -49,15 +49,16 @@ public sealed class Application(IApplicationContext context, IReadOnlyCollection
 
       try
       {
+         _shouldBeRunning = true;
+
          foreach (IContextProvider provider in _usedProviders)
-            await provider.AttachAsync(this);
+            provider.Attach(this);
 
          Starting?.Invoke(this);
-         await Context.InitialiseAsync(this);
+         Context.Initialise(this);
          hasInitialised = true;
 
          State = ApplicationState.Running;
-         _shouldBeRunning = true;
 
          Started?.Invoke(this);
 
@@ -80,14 +81,14 @@ public sealed class Application(IApplicationContext context, IReadOnlyCollection
          {
             State = ApplicationState.Stopped;
             if (hasInitialised)
-               await Context.CleanupAsync(this);
+               Context.Cleanup(this);
 
             Stopped?.Invoke(this);
          }
          finally
          {
             foreach (IContextProvider provider in _usedProviders)
-               await provider.DetachAsync(this);
+               provider.Detach(this);
          }
       }
    }

@@ -36,12 +36,10 @@ public interface IApplicationContext
 
    /// <summary>Initialises the application context.</summary>
    /// <param name="application">The application that the context belongs to.</param>
-   /// <returns>A task representing the asynchronous operation.</returns>
-   Task InitialiseAsync(IApplication application);
+   void Initialise(IApplication application);
 
    /// <summary>Cleans up the application context.</summary>
    /// <param name="application">The application that the context belongs to.</param>
-   /// <returns>A task representing the asynchronous operation.</returns>
-   Task CleanupAsync(IApplication application);
+   void Cleanup(IApplication application);
    #endregion
 }

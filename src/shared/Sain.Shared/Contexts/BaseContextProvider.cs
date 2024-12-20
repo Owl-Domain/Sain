@@ -10,9 +10,9 @@ public abstract class BaseContextProvider : IContextProvider
    public abstract bool TryProvide<T>([MaybeNullWhen(false)] out T context) where T : notnull, IContext;
 
    /// <inheritdoc/>
-   public virtual Task AttachAsync(IApplication application) => Task.CompletedTask;
+   public virtual void Attach(IApplication application) { }
 
    /// <inheritdoc/>
-   public virtual Task DetachAsync(IApplication application) => Task.CompletedTask;
+   public virtual void Detach(IApplication application) { }
    #endregion
 }

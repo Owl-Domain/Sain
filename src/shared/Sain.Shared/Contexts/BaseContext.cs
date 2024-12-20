@@ -35,7 +35,7 @@ public abstract class BaseContext : IContext
 
    #region Methods
    /// <inheritdoc/>
-   public async Task InitialiseAsync(IApplication application)
+   public void Initialise(IApplication application)
    {
       if (_initialised && _application != application)
          throw new ArgumentException($"The context has already been initialised for a different application.", nameof(application));
@@ -43,17 +43,16 @@ public abstract class BaseContext : IContext
       if (_initialised is false && IsAvailable)
       {
          Application = application;
-         await InitialiseAsync();
+         Initialise();
          _initialised = true;
       }
    }
 
    /// <summary>Initialises the context.</summary>
-   /// <returns>A task representing the asynchronous operation.</returns>
-   protected abstract Task InitialiseAsync();
+   protected abstract void Initialise();
 
    /// <inheritdoc/>
-   public async Task CleanupAsync(IApplication application)
+   public void Cleanup(IApplication application)
    {
       if (_initialised)
       {
@@ -63,14 +62,13 @@ public abstract class BaseContext : IContext
             throw new ArgumentException($"The context has already been initialised for a different application.", nameof(application));
 
          _initialised = false;
-         await CleanupAsync();
+         Cleanup();
          Application = null;
       }
    }
 
    /// <summary>Cleans up the context.</summary>
-   /// <returns>A task representing the asynchronous operation.</returns>
-   protected abstract Task CleanupAsync();
+   protected abstract void Cleanup();
    #endregion
 
    #region Helpers
