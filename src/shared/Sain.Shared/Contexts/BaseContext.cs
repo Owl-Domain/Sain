@@ -64,4 +64,19 @@ public abstract class BaseContext : IContext
    /// <returns>A task representing the asynchronous operation.</returns>
    protected abstract Task CleanupAsync();
    #endregion
+
+   #region Helpers
+   /// <summary>Throws an exception if the context is unavailable.</summary>
+   /// <exception cref="InvalidOperationException">Thrown if the context is unavailable.</exception>
+   protected void ThrowIfUnavailable()
+   {
+      if (IsAvailable is false)
+         ThrowForUnavailable();
+   }
+
+   /// <summary>Throws an exception indicating that the context is unavailable.</summary>
+   /// <exception cref="InvalidOperationException">Thrown to show that the context is unavailable.</exception>
+   [DoesNotReturn, MethodImpl(MethodImplOptions.NoInlining)]
+   protected static void ThrowForUnavailable() => throw new InvalidOperationException("The context is marked as unavailable and cannot be used.");
+   #endregion
 }

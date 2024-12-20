@@ -14,7 +14,7 @@ public interface IApplicationContext
    /// <summary>Gets the context of the given type <typeparamref name="T"/>.</summary>
    /// <typeparam name="T">The type of the context to get.</typeparam>
    /// <returns>The obtained context.</returns>
-   T GetContext<T>() where T : class, IContext;
+   T GetContext<T>() where T : notnull, IContext;
 
    /// <summary>Tries to get the context of the given type <typeparamref name="T"/>.</summary>
    /// <typeparam name="T">The type of the context to try and get.</typeparam>
@@ -26,7 +26,7 @@ public interface IApplicationContext
    ///   <see langword="true"/> if the <paramref name="context"/>
    ///   could be obtained, <see langword="false"/> otherwise.
    /// </returns>
-   bool TryGetContext<T>([NotNullWhen(true)] out T? context) where T : class, IContext;
+   bool TryGetContext<T>([MaybeNullWhen(false)] out T context) where T : notnull, IContext;
 
    /// <summary>Initialises the application context.</summary>
    /// <returns>A task representing the asynchronous operation.</returns>
