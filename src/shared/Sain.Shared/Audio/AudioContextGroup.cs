@@ -10,6 +10,7 @@ public sealed class AudioContextGroup(IAudioPlaybackContext playback, IAudioCapt
    #region Properties
    /// <inheritdoc/>
    public IAudioPlaybackContext Playback { get; } = playback;
+
    /// <inheritdoc/>
    public IAudioCaptureContext Capture { get; } = capture;
    #endregion
