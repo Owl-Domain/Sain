@@ -147,10 +147,10 @@ public enum PhysicalKeyKind : ushort
    /// <remarks>This is typically next to the numbers on the top row of the keyboard.</remarks>
    Equals,
 
-   /// <summary>The left bracket key on the keyboard.</summary>
+   /// <summary>The left bracket '(' key on the keyboard.</summary>
    LeftBracket,
 
-   /// <summary>The right bracket key on the keyboard.</summary>
+   /// <summary>The right bracket ')' key on the keyboard.</summary>
    RightBracket,
 
    /// <summary>The backslash key on the keyboard.</summary>
@@ -389,11 +389,11 @@ public enum PhysicalKeyKind : ushort
    /// <remarks>I no longer understand what I am writing.</remarks>
    KeypadTriple0,
 
-   /// <summary>The left (opening?) parenthesis key on the keypad.</summary>
-   KeypadLeftParenthesis,
+   /// <summary>The left bracket '(' key on the keypad.</summary>
+   KeypadLeftBracket,
 
-   /// <summary>The right (closing?) parenthesis key on the keypad.</summary>
-   KeypadRightParenthesis,
+   /// <summary>The right bracket ')' key on the keypad.</summary>
+   KeypadRightBracket,
 
    /// <summary>The left (opening?) brace key on the keypad.</summary>
    KeypadLeftBrace,
@@ -910,17 +910,17 @@ public static class PhysicalKeyKindExtensions
    }
 
    /// <summary>Checks whether the given key <paramref name="kind"/> is either one of the left or right control keys.</summary>
-   /// <param name="kind">The key modifiers to check.</param>
+   /// <param name="kind">The kind of the physical key to check.</param>
    /// <returns><see langword="true"/> if the given key <paramref name="kind"/> is either one of the left or right control keys, <see langword="false"/> otherwise.</returns>
    public static bool IsControl(this PhysicalKeyKind kind) => kind is PhysicalKeyKind.LeftControl or PhysicalKeyKind.RightControl;
 
    /// <summary>Checks whether the given key <paramref name="kind"/> is either one of the left or right shift keys.</summary>
-   /// <param name="kind">The key modifiers to check.</param>
+   /// <param name="kind">The kind of the physical key to check.</param>
    /// <returns><see langword="true"/> if the given key <paramref name="kind"/> is either one of the left or right shift keys, <see langword="false"/> otherwise.</returns>
    public static bool IsShift(this PhysicalKeyKind kind) => kind is PhysicalKeyKind.LeftShift or PhysicalKeyKind.RightShift;
 
    /// <summary>Checks whether the given key <paramref name="kind"/> is either one of the left or right alt keys.</summary>
-   /// <param name="kind">The key modifiers to check.</param>
+   /// <param name="kind">The kind of the physical key to check.</param>
    /// <returns><see langword="true"/> if the given key <paramref name="kind"/> is either one of the left or right alt keys, <see langword="false"/> otherwise.</returns>
    public static bool IsAlt(this PhysicalKeyKind kind) => kind is PhysicalKeyKind.LeftAlt or PhysicalKeyKind.RightAlt;
 

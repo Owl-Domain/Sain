@@ -13,7 +13,7 @@ public interface IMouseDevice : IDevice
    ///   collection than the mouse actually has, and it should therefore not be used for representing
    ///   the physical state of the mouse, instead it should only be used for collecting input.
    /// </remarks>
-   IReadOnlyCollection<IMouseButton> Buttons { get; }
+   IReadOnlyCollection<IMouseButtonState> Buttons { get; }
 
    /// <summary>The position of the mouse in the virtual screen space.</summary>
    /// <exception cref="NotSupportedException">
@@ -53,22 +53,22 @@ public interface IMouseDevice : IDevice
    /// <returns><see langword="true"/> if making the mouse cursor invisible was successful, <see langword="false"/> otherwise.</returns>
    bool HideCursor();
 
-   /// <summary>Checks whether the given button <paramref name="kind"/> is currently up.</summary>
-   /// <param name="kind">The kind of the mouse button to check.</param>
+   /// <summary>Checks whether the given mouse <paramref name="button"/> is currently up.</summary>
+   /// <param name="button">The mouse button to check.</param>
    /// <returns>
-   ///   <see langword="true"/> if the given mouse button <paramref name="kind"/> is
+   ///   <see langword="true"/> if the given mouse <paramref name="button"/> is
    ///   currently up, <see langword="false"/>, <see langword="false"/> otherwise.
    /// </returns>
    /// <remarks>The mouse button being up means that it is not currently being pressed down.</remarks>
-   bool IsButtonUp(MouseButtonKind kind);
+   bool IsButtonUp(MouseButton button);
 
-   /// <summary>Checks whether the given button <paramref name="kind"/> is currently pressed down.</summary>
-   /// <param name="kind">The kind of the mouse button to check.</param>
+   /// <summary>Checks whether the given mouse <paramref name="button"/> is currently pressed down.</summary>
+   /// <param name="button">The mouse button to check.</param>
    /// <returns>
-   ///   <see langword="true"/> if the given mouse button <paramref name="kind"/> is
+   ///   <see langword="true"/> if the given mouse <paramref name="button"/> is
    ///   currently pressed down, <see langword="false"/>, <see langword="false"/> otherwise.
    /// </returns>
-   bool IsButtonDown(MouseButtonKind kind);
+   bool IsButtonDown(MouseButton button);
 
    /// <summary>Refreshes the internal state of the mouse.</summary>
    /// <remarks>This should also happen automatically whenever mouse events are processed, so you shouldn't have to manually call it.</remarks>
@@ -90,5 +90,24 @@ public static class IMouseDeviceExtensions
    ///   given <paramref name="isVisible"/> value, <see langword="false"/> otherwise.
    /// </returns>
    public static bool SetCursorVisibility(this IMouseDevice mouse, bool isVisible) => isVisible ? mouse.ShowCursor() : mouse.HideCursor();
+
+   /// <summary>Checks whether the given mouse button <paramref name="kind"/> is currently up.</summary>
+   /// <param name="device">The mouse device to check the button <paramref name="kind"/> on.</param>
+   /// <param name="kind">The kind of the mouse button to check.</param>
+   /// <returns>
+   ///   <see langword="true"/> if the given mouse button <paramref name="kind"/> is
+   ///   currently up, <see langword="false"/>, <see langword="false"/> otherwise.
+   /// </returns>
+   /// <remarks>The mouse button being up means that it is not currently being pressed down.</remarks>
+   public static bool IsButtonUp(this IMouseDevice device, MouseButtonKind kind) => device.IsButtonUp(new(kind));
+
+   /// <summary>Checks whether the given mouse button <paramref name="kind"/> is currently pressed down.</summary>
+   /// <param name="device">The mouse device to check the button <paramref name="kind"/> on.</param>
+   /// <param name="kind">The kind of the mouse button to check.</param>
+   /// <returns>
+   ///   <see langword="true"/> if the given mouse button <paramref name="kind"/> is
+   ///   currently pressed down, <see langword="false"/>, <see langword="false"/> otherwise.
+   /// </returns>
+   public static bool IsButtonDown(this IMouseDevice device, MouseButtonKind kind) => device.IsButtonDown(new(kind));
    #endregion
 }
