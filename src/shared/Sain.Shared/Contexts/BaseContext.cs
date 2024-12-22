@@ -15,6 +15,9 @@ public abstract class BaseContext : IContext
    /// <inheritdoc/>
    public virtual bool IsAvailable => true;
 
+   /// <summary>Whether the context has been initialised.</summary>
+   protected virtual bool IsInitialised => _initialised;
+
    /// <summary>The application that the context belongs to.</summary>
    /// <exception cref="InvalidOperationException">Thrown if the property is accessed when the context has not been initialised.</exception>
    [NotNull]

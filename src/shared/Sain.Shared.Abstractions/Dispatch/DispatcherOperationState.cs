@@ -13,4 +13,7 @@ public enum DispatcherOperationState : byte
 
    /// <summary>The operation has finished processing.</summary>
    Finished,
+
+   /// <summary>The operation threw an exception during processing.</summary>
+   Failed,
 }
