@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+ <!-- Project -->
+  <PropertyGroup Label="project">
+    <TargetFrameworks>net8.0; net7.0; netstandard2.1</TargetFrameworks>
+    <LangVersion>13</LangVersion>
+    <Nullable>enable</Nullable>
+
+    <AssemblyName>Sain.SaneUI</AssemblyName>
+    <RootNamespace>Sain.SaneUI</RootNamespace>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <!-- Project references -->
+  <ItemGroup Label="project">
+    <ProjectReference Include="../Sain.SaneUI.Abstractions/Sain.SaneUI.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

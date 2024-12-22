@@ -6,8 +6,8 @@
     <LangVersion>13</LangVersion>
     <Nullable>enable</Nullable>
 
-    <AssemblyName>Sain.Shared.Tests</AssemblyName>
-    <RootNamespace>Sain.Shared.Tests</RootNamespace>
+    <AssemblyName>Sain.SaneUI.Tests</AssemblyName>
+    <RootNamespace>Sain.SaneUI.Tests</RootNamespace>
 
     <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
     <TestingExtensionsProfile>None</TestingExtensionsProfile>
@@ -15,7 +15,7 @@
 
   <!-- Project references -->
   <ItemGroup Label="projects">
-    <ProjectReference Include="../Sain.Shared/Sain.Shared.csproj" />
+    <ProjectReference Include="../Sain.SaneUI/Sain.SaneUI.csproj" />
   </ItemGroup>
 
 </Project>
