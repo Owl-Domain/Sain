@@ -8,3 +8,8 @@ global using Sain.Shared.Audio.Playback;
 global using Sain.Shared.Contexts;
 global using Sain.Shared.Devices;
 global using Sain.Shared.Dispatch;
+
+
+#if NET7_0_OR_GREATER
+global using System.Numerics;
+#endif
