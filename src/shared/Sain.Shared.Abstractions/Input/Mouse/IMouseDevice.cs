@@ -15,18 +15,27 @@ public interface IMouseDevice : IDevice
    /// </remarks>
    IReadOnlyCollection<IMouseButton> Buttons { get; }
 
-   /// <summary>The horizontal position of the mouse in the virtual screen space.</summary>
-   double X { get; }
-
-   /// <summary>The vertical position of the mouse in the virtual screen space.</summary>
-   double Y { get; }
+   /// <summary>The position of the mouse in the virtual screen space.</summary>
+   /// <exception cref="NotSupportedException">
+   ///   Thrown if setting the mouse position is not supported, if you want to
+   ///   check for this you should use <see cref="TrySetPosition(Point)"/> instead.
+   /// </exception>
+   Point Position { get; set; }
 
    /// <summary>Whether the mouse events for this mouse device are captured.</summary>
    /// <remarks>Capturing mouse events means that only the current application (and only the window that currently has mouse focus) will receive mouse events.</remarks>
    bool IsCaptured { get; }
+
+   /// <summary>Whether the mouse cursor is currently visible.</summary>
+   bool IsCursorVisible { get; }
    #endregion
 
    #region Methods
+   /// <summary>Tries to set the mouse position in the virtual screen space.</summary>
+   /// <param name="position">The position to move the mouse to.</param>
+   /// <returns><see langword="true"/> if setting the mouse position was successful, <see langword="false"/> otherwise.</returns>
+   bool TrySetPosition(Point position);
+
    /// <summary>Starts capturing mouse events from this mouse device.</summary>
    /// <returns><see langword="true"/> if capturing was successfully enabled, <see langword="false"/> otherwise.</returns>
    /// <remarks>Capturing mouse events means that only the current application will receive mouse events.</remarks>
@@ -35,6 +44,14 @@ public interface IMouseDevice : IDevice
    /// <summary>stops capturing mouse events from this mouse device.</summary>
    /// <remarks>Capturing mouse events means that only the current application will receive mouse events.</remarks>
    void StopCapture();
+
+   /// <summary>Makes the mouse cursor visible.</summary>
+   /// <returns><see langword="true"/> if making the mouse cursor visible was successful, <see langword="false"/> otherwise.</returns>
+   bool ShowCursor();
+
+   /// <summary>Makes the mouse cursor invisible.</summary>
+   /// <returns><see langword="true"/> if making the mouse cursor invisible was successful, <see langword="false"/> otherwise.</returns>
+   bool HideCursor();
 
    /// <summary>Checks whether the given button <paramref name="kind"/> is currently up.</summary>
    /// <param name="kind">The kind of the mouse button to check.</param>
@@ -52,5 +69,26 @@ public interface IMouseDevice : IDevice
    ///   currently pressed down, <see langword="false"/>, <see langword="false"/> otherwise.
    /// </returns>
    bool IsButtonDown(MouseButtonKind kind);
+
+   /// <summary>Refreshes the internal state of the mouse.</summary>
+   /// <remarks>This should also happen automatically whenever mouse events are processed, so you shouldn't have to manually call it.</remarks>
+   void Refresh();
+   #endregion
+}
+
+/// <summary>
+///   Contains various extension methods related to the <see cref="IMouseDevice"/>.
+/// </summary>
+public static class IMouseDeviceExtensions
+{
+   #region Methods
+   /// <summary>Sets the visible of the cursor for the given <paramref name="mouse"/>.</summary>
+   /// <param name="mouse">The mouse device to set the visibility of the cursor for.</param>
+   /// <param name="isVisible">Whether the mouse cursor should be visible.</param>
+   /// <returns>
+   ///   <see langword="true"/> if the visibility state was successfully set to the
+   ///   given <paramref name="isVisible"/> value, <see langword="false"/> otherwise.
+   /// </returns>
+   public static bool SetCursorVisibility(this IMouseDevice mouse, bool isVisible) => isVisible ? mouse.ShowCursor() : mouse.HideCursor();
    #endregion
 }
