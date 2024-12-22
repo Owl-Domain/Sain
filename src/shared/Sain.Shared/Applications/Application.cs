@@ -1,14 +1,15 @@
+using System.Linq;
+
 namespace Sain.Shared.Applications;
 
 /// <summary>
 ///   Represents a Sain application.
 /// </summary>
 /// <param name="context">The context of the application.</param>
-/// <param name="usedProviders">The provides that have been used to provide the available contexts.</param>
-public sealed class Application(IApplicationContext context, IReadOnlyCollection<IContextProvider> usedProviders) : IApplication
+public sealed class Application(IApplicationContext context) : IApplication
 {
    #region Fields
-   private readonly IReadOnlyCollection<IContextProvider> _usedProviders = usedProviders;
+   private readonly IReadOnlyCollection<IContextProvider> _usedProviders = [.. context.Contexts.Select(c => c.Provider).Where(p => p is not null).Distinct()!];
    private volatile bool _shouldBeRunning;
    #endregion
 

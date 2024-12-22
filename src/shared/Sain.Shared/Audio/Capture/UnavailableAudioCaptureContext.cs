@@ -7,6 +7,9 @@ public sealed class UnavailableAudioCaptureContext : BaseUnavailableContext, IAu
 {
    #region Properties
    /// <inheritdoc/>
+   public override string Kind => CoreContextKinds.AudioCapture;
+
+   /// <inheritdoc/>
    public IDeviceCollection<IAudioCaptureDevice> Devices
    {
       get

@@ -11,7 +11,7 @@ public sealed class DefaultContextProvider : BaseContextProvider
    {
       Type type = typeof(T);
 
-      if (type == typeof(IDispatcherContext))
+      if (type == typeof(IDispatcherContext) || type == typeof(DefaultDispatcherContext))
       {
          context = (T)(IContext)new DefaultDispatcherContext();
          return true;

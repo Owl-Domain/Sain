@@ -1,0 +1,18 @@
+namespace Sain.Shared.Contexts;
+
+/// <summary>
+///   Represents the different kinds of contexts that are available by default.
+/// </summary>
+public static class CoreContextKinds
+{
+   #region Constants
+   /// <summary>The kind of the <see cref="IAudioPlaybackContext"/>.</summary>
+   public const string AudioPlayback = "core.audio.playback";
+
+   /// <summary>The kind of the <see cref="IAudioCaptureContext"/>.</summary>
+   public const string AudioCapture = "core.audio.capture";
+
+   /// <summary>The kind of the <see cref="IDispatcherContext"/>.</summary>
+   public const string Dispatcher = "core.dispatcher";
+   #endregion
+}

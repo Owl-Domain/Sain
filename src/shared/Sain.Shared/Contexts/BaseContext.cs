@@ -3,7 +3,8 @@ namespace Sain.Shared.Contexts;
 /// <summary>
 ///   Represents the base implementation for a application's context.
 /// </summary>
-public abstract class BaseContext : IContext
+/// <param name="provider">The context provider that the context comes from.</param>
+public abstract class BaseContext(IContextProvider? provider = null) : IContext
 {
    #region Fields
    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -12,6 +13,12 @@ public abstract class BaseContext : IContext
    #endregion
 
    #region Properties
+   /// <inheritdoc/>
+   public IContextProvider? Provider { get; } = provider;
+
+   /// <inheritdoc/>
+   public abstract string Kind { get; }
+
    /// <inheritdoc/>
    public virtual bool IsAvailable => true;
 

@@ -6,6 +6,12 @@ namespace Sain.Shared.Contexts;
 public interface IContext
 {
    #region Properties
+   /// <summary>The provider that the context comes from.</summary>
+   IContextProvider? Provider { get; }
+
+   /// <summary>The kind of the context.</summary>
+   string Kind { get; }
+
    /// <summary>Whether the context is available for the application to use.</summary>
    bool IsAvailable { get; }
    #endregion

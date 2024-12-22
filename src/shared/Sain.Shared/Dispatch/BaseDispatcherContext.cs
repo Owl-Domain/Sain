@@ -3,7 +3,8 @@ namespace Sain.Shared.Dispatch;
 /// <summary>
 ///   Represents the base implementation for the application's dispatcher context.
 /// </summary>
-public abstract class BaseDispatcherContext : BaseContext, IDispatcherContext
+/// <param name="provider">The context provider that the context comes from.</param>
+public abstract class BaseDispatcherContext(IContextProvider? provider = null) : BaseContext(provider), IDispatcherContext
 {
    #region Nested types
    /// <summary>
@@ -212,6 +213,11 @@ public abstract class BaseDispatcherContext : BaseContext, IDispatcherContext
       protected override Task<TResult> ProcessCore() => callback.Invoke(argument).AsTask();
    }
    #endregion
+   #endregion
+
+   #region Properties
+   /// <inheritdoc/>
+   public override string Kind => CoreContextKinds.Dispatcher;
    #endregion
 
    #region Methods

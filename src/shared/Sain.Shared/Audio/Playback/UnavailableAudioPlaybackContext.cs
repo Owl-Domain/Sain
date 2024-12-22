@@ -7,6 +7,9 @@ public sealed class UnavailableAudioPlaybackContext : BaseUnavailableContext, IA
 {
    #region Properties
    /// <inheritdoc/>
+   public override string Kind => CoreContextKinds.AudioPlayback;
+
+   /// <inheritdoc/>
    public IDeviceCollection<IAudioPlaybackDevice> Devices
    {
       get

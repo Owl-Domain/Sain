@@ -7,8 +7,7 @@ public sealed class ApplicationBuilder : IApplicationBuilder
 {
    #region Fields
    private readonly HashSet<IContextProvider> _availableProviders = [];
-   private readonly HashSet<IContextProvider> _usedProviders = [];
-   private readonly HashSet<IContext> _providedContexts = [];
+   private readonly Dictionary<string, IContext> _providedContexts = [];
    #endregion
 
    #region Methods
@@ -20,46 +19,42 @@ public sealed class ApplicationBuilder : IApplicationBuilder
    }
 
    /// <inheritdoc/>
-   public IApplicationBuilder WithContext<T>() where T : notnull, IContext
+   public IApplicationBuilder WithContext(IContext context)
+   {
+      if (_providedContexts.TryAdd(context.Kind, context) is false)
+         throw new ArgumentException($"A context of the same kind ({context.Kind}) has already been included.", nameof(context));
+
+      return this;
+   }
+
+   /// <inheritdoc/>
+   public IApplicationBuilder WithContext<T>(Action<T>? customise = null) where T : notnull, IContext
    {
       foreach (IContextProvider provider in _availableProviders)
       {
          if (provider.TryProvide<T>(out T? context))
          {
-            _usedProviders.Add(provider);
-            _providedContexts.Add(context);
+            WithContext(context);
+            customise?.Invoke(context);
 
             return this;
          }
       }
 
-      throw new InvalidOperationException($"Could not find any contexts for the requested type ({typeof(T)}).");
+      throw new InvalidOperationException($"A context of the requested type ({typeof(T)}) could not be obtained.");
    }
 
    /// <inheritdoc/>
    public IApplication Build()
    {
-      if (HasContext<IAudioPlaybackContext>() is false) _providedContexts.Add(new UnavailableAudioPlaybackContext());
-      if (HasContext<IAudioCaptureContext>() is false) _providedContexts.Add(new UnavailableAudioCaptureContext());
-      if (HasContext<IDispatcherContext>() is false) WithContext<IDispatcherContext>();
+      if (_providedContexts.ContainsKey(CoreContextKinds.AudioPlayback) is false) WithContext(new UnavailableAudioPlaybackContext());
+      if (_providedContexts.ContainsKey(CoreContextKinds.AudioCapture) is false) WithContext(new UnavailableAudioCaptureContext());
+      if (_providedContexts.ContainsKey(CoreContextKinds.Dispatcher) is false) WithContext<IDispatcherContext>();
 
-      ApplicationContext context = new(_providedContexts);
-      Application application = new(context, _usedProviders);
+      ApplicationContext context = new(_providedContexts.Values);
+      Application application = new(context);
 
       return application;
-   }
-   #endregion
-
-   #region Helpers
-   private bool HasContext<T>() where T : notnull, IContext
-   {
-      foreach (IContext context in _providedContexts)
-      {
-         if (context is T)
-            return true;
-      }
-
-      return false;
    }
    #endregion
 }
