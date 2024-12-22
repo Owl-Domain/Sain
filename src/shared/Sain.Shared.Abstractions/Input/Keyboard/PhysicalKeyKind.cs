@@ -9,7 +9,12 @@ public enum PhysicalKeyKind : ushort
    Unknown,
 
    /// <summary>The physical location of the key is known, but it has not been defined.</summary>
+   /// <remarks>This represents a category and not just a single key.</remarks>
    Other,
+
+   /// <summary>The used physical location of the key is reserved.</summary>
+   /// <remarks>This represents a category and not just a single key.</remarks>
+   Reserved,
 
    #region Latin alphabet keys
    /// <summary>The A key on the keyboard.</summary>
@@ -133,23 +138,6 @@ public enum PhysicalKeyKind : ushort
    N0,
    #endregion
 
-   /// <summary>The return key on the keyboard.</summary>
-   /// <remarks>This is the enter key.</remarks>
-   Return,
-
-   /// <summary>The escape key on the keyboard.</summary>
-   Escape,
-
-   /// <summary>The backspace key on the keyboard.</summary>
-   Backspace,
-
-   /// <summary>The tab key on the keyboard.</summary>
-   Tab,
-
-   /// <summary>The space key on the keyboard.</summary>
-   /// <remarks>This is the spacebar.</remarks>
-   Space,
-
    #region Programmer keys
    /// <summary>The minus key on the keyboard.</summary>
    /// <remarks>This is typically next to the numbers on the top row of the keyboard.</remarks>
@@ -196,13 +184,6 @@ public enum PhysicalKeyKind : ushort
    /// <remarks>Also known as a forward slash.</remarks>
    Slash,
    #endregion
-
-   /// <summary>The Caps Lock key on the keyboard.</summary>
-   /// <remarks>
-   ///   Aka the annoying button I never use seriously and just like to spam when I'm thinking.
-   ///   Almost like clicking a physical pen...
-   /// </remarks>
-   CapsLock,
 
    #region Function keys
    /// <summary>The F1 key on the keyboard.</summary>
@@ -301,26 +282,6 @@ public enum PhysicalKeyKind : ushort
    /// <remarks>Also known as a function key.</remarks>
    F24,
    #endregion
-
-   /// <summary>The Print Screen key on the keyboard.</summary>
-   /// <remarks>The key you press when you want to take a screenshot of your screen.</remarks>
-   PrintScreen,
-
-   /// <summary>The Scroll Lock key on the keyboard.</summary>
-   /// <remarks>I still haven't figured out what this key is actually used for.</remarks>
-   ScrollLock,
-
-   /// <summary>The pause / break key on the keyboard.</summary>
-   /// <remarks>I also haven't figured out what this key is actually used for, maybe it pauses or breaks the universe.</remarks>
-   PauseBreak,
-
-   /// <summary>The <i>insert</i> key on the keyboard.</summary>
-   /// <remarks>Must. Resist. Joke.</remarks>
-   Insert,
-
-   /// <summary>The delete key on the keyboard.</summary>
-   /// <remarks>Same as <see cref="Backspace"/>, but in the other direction.</remarks>
-   Delete,
 
    #region Programmer movement keys
    /// <summary>The home key on the keyboard.</summary>
@@ -548,17 +509,6 @@ public enum PhysicalKeyKind : ushort
    /// <summary>The hexadecimal key on the keypad.</summary>
    KeypadHexadecimal,
    #endregion
-
-   /// <summary>The contextual key on the keyboard.</summary>
-   /// <remarks>On keyboards with a windows key, this is usually the key right next to the windows key on the right, this is the key that also sometimes behaves like a right click.</remarks>
-   Context,
-
-   /// <summary>The power key on the keyboard.</summary>
-   Power,
-
-   /// <summary>The execute key on the keyboard.</summary>
-   /// <remarks>What does it execute...?</remarks>
-   Execute,
 
    #region Office keys
    /// <summary>The (office) help key on the keyboard.</summary>
@@ -843,17 +793,14 @@ public enum PhysicalKeyKind : ushort
    /// <summary>The right alt key on the keyboard.</summary>
    RightAlt,
 
-   /// <summary>The left META key on the keyboard.</summary>
+   /// <summary>The left meta key on the keyboard.</summary>
    /// <remarks>This is the OS specific key, e.g: the windows key (on Windows), the command key (on Apple devices), etc.</remarks>
    LeftMeta,
 
-   /// <summary>The right META key on the keyboard.</summary>
+   /// <summary>The right meta key on the keyboard.</summary>
    /// <remarks>This is the OS specific key, e.g: the windows key (on Windows), the command key (on Apple devices), etc.</remarks>
    RightMeta,
    #endregion
-
-   /// <summary>I genuinely do not have a clue.</summary>
-   Mode,
 
    #region Mobile keys
    /// <summary>The software specific mobile phone key.</summary>
@@ -869,5 +816,126 @@ public enum PhysicalKeyKind : ushort
 
    /// <summary>The mobile phone key for ending calls.</summary>
    EndCall,
+   #endregion
+
+   /// <summary>The return key on the keyboard.</summary>
+   /// <remarks>This is the enter key.</remarks>
+   Return,
+
+   /// <summary>The escape key on the keyboard.</summary>
+   Escape,
+
+   /// <summary>The backspace key on the keyboard.</summary>
+   Backspace,
+
+   /// <summary>The tab key on the keyboard.</summary>
+   Tab,
+
+   /// <summary>The space key on the keyboard.</summary>
+   /// <remarks>This is the spacebar.</remarks>
+   Space,
+
+   /// <summary>The Caps Lock key on the keyboard.</summary>
+   /// <remarks>
+   ///   Aka the annoying button I never use seriously and just like to spam when I'm thinking.
+   ///   Almost like clicking a physical pen...
+   /// </remarks>
+   CapsLock,
+
+   /// <summary>The Print Screen key on the keyboard.</summary>
+   /// <remarks>The key you press when you want to take a screenshot of your screen.</remarks>
+   PrintScreen,
+
+   /// <summary>The Scroll Lock key on the keyboard.</summary>
+   /// <remarks>I still haven't figured out what this key is actually used for.</remarks>
+   ScrollLock,
+
+   /// <summary>The pause / break key on the keyboard.</summary>
+   /// <remarks>I also haven't figured out what this key is actually used for, maybe it pauses or breaks the universe.</remarks>
+   PauseBreak,
+
+   /// <summary>The <i>insert</i> key on the keyboard.</summary>
+   /// <remarks>Must. Resist. Joke.</remarks>
+   Insert,
+
+   /// <summary>The delete key on the keyboard.</summary>
+   /// <remarks>Same as <see cref="Backspace"/>, but in the other direction.</remarks>
+   Delete,
+
+   /// <summary>The contextual key on the keyboard.</summary>
+   /// <remarks>On keyboards with a windows key, this is usually the key right next to the windows key on the right, this is the key that also sometimes behaves like a right click.</remarks>
+   Context,
+
+   /// <summary>The power key on the keyboard.</summary>
+   Power,
+
+   /// <summary>The sleep key on the keyboard.</summary>
+   Sleep,
+
+   /// <summary>The wake key on the keyboard.</summary>
+   Wake,
+
+   /// <summary>The channel increment key on the keyboard.</summary>
+   ChannelIncrement,
+
+   /// <summary>The channel decrement key on the keyboard.</summary>
+   ChannelDecrement,
+
+   /// <summary>The execute key on the keyboard.</summary>
+   /// <remarks>What does it execute...?</remarks>
+   Execute,
+
+   /// <summary>I genuinely do not have a clue.</summary>
+   Mode,
+}
+
+/// <summary>
+///   Contains various extension methods related to the <see cref="PhysicalKeyKind"/>.
+/// </summary>
+public static class PhysicalKeyKindExtensions
+{
+   #region Methods
+   /// <summary>Checks whether the given physical key <paramref name="kind"/> represents a category.</summary>
+   /// <param name="kind">The kind of the physical key to check.</param>
+   /// <returns><see langword="true"/> if the given physical key <paramref name="kind"/> represents a category, <see langword="false"/> otherwise.</returns>
+   public static bool IsCategory(this PhysicalKeyKind kind)
+   {
+      return kind switch
+      {
+         PhysicalKeyKind.Other => true,
+         PhysicalKeyKind.Reserved => true,
+
+         _ => false,
+      };
+   }
+
+   /// <summary>Checks whether the given key <paramref name="kind"/> is either one of the left or right control keys.</summary>
+   /// <param name="kind">The key modifiers to check.</param>
+   /// <returns><see langword="true"/> if the given key <paramref name="kind"/> is either one of the left or right control keys, <see langword="false"/> otherwise.</returns>
+   public static bool IsControl(this PhysicalKeyKind kind) => kind is PhysicalKeyKind.LeftControl or PhysicalKeyKind.RightControl;
+
+   /// <summary>Checks whether the given key <paramref name="kind"/> is either one of the left or right shift keys.</summary>
+   /// <param name="kind">The key modifiers to check.</param>
+   /// <returns><see langword="true"/> if the given key <paramref name="kind"/> is either one of the left or right shift keys, <see langword="false"/> otherwise.</returns>
+   public static bool IsShift(this PhysicalKeyKind kind) => kind is PhysicalKeyKind.LeftShift or PhysicalKeyKind.RightShift;
+
+   /// <summary>Checks whether the given key <paramref name="kind"/> is either one of the left or right alt keys.</summary>
+   /// <param name="kind">The key modifiers to check.</param>
+   /// <returns><see langword="true"/> if the given key <paramref name="kind"/> is either one of the left or right alt keys, <see langword="false"/> otherwise.</returns>
+   public static bool IsAlt(this PhysicalKeyKind kind) => kind is PhysicalKeyKind.LeftAlt or PhysicalKeyKind.RightAlt;
+
+   /// <summary>Checks whether the given key <paramref name="kind"/> is either one of the left or right meta keys.</summary>
+   /// <param name="kind">The kind of the physical key to check.</param>
+   /// <returns><see langword="true"/> if the given key <paramref name="kind"/> is either one of the left or right meta keys, <see langword="false"/> otherwise.</returns>
+   public static bool IsMeta(this PhysicalKeyKind kind) => kind is PhysicalKeyKind.LeftMeta or PhysicalKeyKind.RightMeta;
+
+   /// <summary>Checks whether the given key <paramref name="kind"/> is represents the enter key.</summary>
+   /// <param name="kind">The kind of the physical key to check.</param>
+   /// <returns><see langword="true"/> if the given key <paramref name="kind"/> represents the enter key, <see langword="false"/> otherwise.</returns>
+   public static bool IsEnter(this PhysicalKeyKind kind)
+   {
+      // Note(Nightowl): Maybe Return2 as well, but I have no idea how that is actually used, can fix later;
+      return kind is PhysicalKeyKind.Return or PhysicalKeyKind.KeypadEnter;
+   }
    #endregion
 }
