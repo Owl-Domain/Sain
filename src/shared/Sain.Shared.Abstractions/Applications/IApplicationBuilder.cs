@@ -7,6 +7,18 @@ namespace Sain.Shared.Applications;
 public interface IApplicationBuilder<TSelf> where TSelf : IApplicationBuilder<TSelf>
 {
    #region Methods
+   /// <summary>Sets the name of the application.</summary>
+   /// <param name="applicationName">The name of the application.</param>
+   /// <returns>The used builder instance.</returns>
+   /// <exception cref="InvalidOperationException">Thrown if the name of the application has already been specified.</exception>
+   TSelf WithName(string applicationName);
+
+   /// <summary>Sets the version of the application.</summary>
+   /// <param name="applicationVersion">The version of the application.</param>
+   /// <returns>The used builder instance.</returns>
+   /// <exception cref="InvalidOperationException">Thrown if the version of the application has already been specified.</exception>
+   TSelf WithVersion(IVersion applicationVersion);
+
    /// <summary>Uses the given context <paramref name="provider"/> when resolving requested application contexts.</summary>
    /// <param name="provider">The context provider to use.</param>
    /// <returns>The used builder instance.</returns>

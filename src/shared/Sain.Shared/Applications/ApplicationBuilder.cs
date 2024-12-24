@@ -15,7 +15,7 @@ public sealed class ApplicationBuilder : BaseApplicationBuilder<ApplicationBuild
    protected override IApplication BuildCore()
    {
       ApplicationContext context = new(Contexts);
-      Application application = new(context);
+      Application application = new(Name, Version, context);
 
       return application;
    }

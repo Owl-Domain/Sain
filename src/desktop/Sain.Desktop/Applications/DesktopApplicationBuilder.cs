@@ -14,9 +14,8 @@ public class DesktopApplicationBuilder : BaseApplicationBuilder<DesktopApplicati
    /// <inheritdoc/>
    protected override IApplication BuildCore()
    {
-
       DesktopApplicationContext context = new(Contexts);
-      Application application = new(context);
+      Application application = new(Name, Version, context);
 
       return application;
    }

@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace Sain.Shared.Applications;
 
 /// <summary>
@@ -8,6 +10,8 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    where TSelf : BaseApplicationBuilder<TSelf>
 {
    #region Fields
+   private string? _name;
+   private IVersion? _version;
    private readonly HashSet<IContextProvider> _availableProviders = [];
    private readonly Dictionary<string, IContext> _providedContexts = [];
    #endregion
@@ -21,9 +25,37 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
 
    /// <summary>The collection of the provided contexts.</summary>
    protected IReadOnlyCollection<IContext> Contexts => _providedContexts.Values;
+
+   /// <summary>The name of the application.</summary>
+   protected string Name => _name ?? throw new InvalidOperationException("The name of the application has not been set yet.");
+
+   /// <summary>The version of the application.</summary>
+   protected IVersion Version => _version ?? throw new InvalidOperationException("The version of the application has not been set yet.");
    #endregion
 
    #region Methods
+   /// <inheritdoc/>
+   public TSelf WithName(string applicationName)
+   {
+      if (_name is not null)
+         throw new InvalidOperationException("The name of the application has already been set.");
+
+      _name = applicationName;
+
+      return Instance;
+   }
+
+   /// <inheritdoc/>
+   public TSelf WithVersion(IVersion applicationVersion)
+   {
+      if (_version is not null)
+         throw new InvalidOperationException("The version of the application has already been set.");
+
+      _version = applicationVersion;
+
+      return Instance;
+   }
+
    /// <inheritdoc/>
    public TSelf WithProvider(IContextProvider provider)
    {
@@ -63,6 +95,12 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    /// <inheritdoc/>
    public IApplication Build()
    {
+      Assembly targetAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly();
+      _name ??= targetAssembly.GetName().Name ?? throw new InvalidOperationException("Couldn't extract the application name from the assembly information.");
+
+      if (_version is null)
+         Instance.WithVersionFromAssembly(targetAssembly);
+
       if (HasContext(CoreContextKinds.AudioPlayback) is false)
          WithContext(new UnavailableAudioPlaybackContext());
 
