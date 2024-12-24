@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+ <!-- Project -->
+  <PropertyGroup Label="project">
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <LangVersion>13</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsAotCompatible>true</IsAotCompatible>
+
+    <AssemblyName>Sain.SDL3.Desktop</AssemblyName>
+    <RootNamespace>Sain.SDL3.Desktop</RootNamespace>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <!-- Project references -->
+  <ItemGroup Label="projects">
+    <ProjectReference Include="../Sain.SDL3/Sain.SDL3.csproj" />
+    <ProjectReference Include="../../desktop/Sain.Desktop/Sain.Desktop.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+ <!-- Project -->
+  <PropertyGroup Label="project">
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <LangVersion>13</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsAotCompatible>true</IsAotCompatible>
+
+    <AssemblyName>Sain.SDL3</AssemblyName>
+    <RootNamespace>Sain.SDL3</RootNamespace>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <!-- Project references -->
+  <ItemGroup Label="project">
+    <ProjectReference Include="../../shared/Sain.Shared.Abstractions/Sain.Shared.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>
