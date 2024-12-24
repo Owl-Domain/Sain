@@ -3,55 +3,18 @@ namespace Sain.Shared.Applications;
 /// <summary>
 ///   Represents a builder for an application.
 /// </summary>
-public sealed class ApplicationBuilder : IApplicationBuilder
+public sealed class ApplicationBuilder : BaseApplicationBuilder<ApplicationBuilder>
 {
-   #region Fields
-   private readonly HashSet<IContextProvider> _availableProviders = [];
-   private readonly Dictionary<string, IContext> _providedContexts = [];
+   #region Properties
+   /// <inheritdoc/>
+   protected override ApplicationBuilder Instance => this;
    #endregion
 
    #region Methods
    /// <inheritdoc/>
-   public IApplicationBuilder WithProvider(IContextProvider provider)
+   protected override IApplication BuildCore()
    {
-      _availableProviders.Add(provider);
-      return this;
-   }
-
-   /// <inheritdoc/>
-   public IApplicationBuilder WithContext(IContext context)
-   {
-      if (_providedContexts.TryAdd(context.Kind, context) is false)
-         throw new ArgumentException($"A context of the same kind ({context.Kind}) has already been included.", nameof(context));
-
-      return this;
-   }
-
-   /// <inheritdoc/>
-   public IApplicationBuilder WithContext<T>(Action<T>? customise = null) where T : notnull, IContext
-   {
-      foreach (IContextProvider provider in _availableProviders)
-      {
-         if (provider.TryProvide<T>(out T? context))
-         {
-            WithContext(context);
-            customise?.Invoke(context);
-
-            return this;
-         }
-      }
-
-      throw new InvalidOperationException($"A context of the requested type ({typeof(T)}) could not be obtained.");
-   }
-
-   /// <inheritdoc/>
-   public IApplication Build()
-   {
-      if (_providedContexts.ContainsKey(CoreContextKinds.AudioPlayback) is false) WithContext(new UnavailableAudioPlaybackContext());
-      if (_providedContexts.ContainsKey(CoreContextKinds.AudioCapture) is false) WithContext(new UnavailableAudioCaptureContext());
-      if (_providedContexts.ContainsKey(CoreContextKinds.Dispatcher) is false) WithContext<IDispatcherContext>();
-
-      ApplicationContext context = new(_providedContexts.Values);
+      ApplicationContext context = new(Contexts);
       Application application = new(context);
 
       return application;
@@ -68,6 +31,10 @@ public static class ApplicationBuilderExtensions
    /// <summary>Uses the default context provider.</summary>
    /// <param name="builder">The application builder to use.</param>
    /// <returns>The used builder instance.</returns>
-   public static IApplicationBuilder WithDefaultProvider(this IApplicationBuilder builder) => builder.WithProvider<DefaultContextProvider>();
+   public static TSelf WithDefaultProvider<TSelf>(this TSelf builder)
+   where TSelf : IApplicationBuilder<TSelf>
+   {
+      return builder.WithProvider<TSelf, DefaultContextProvider>();
+   }
    #endregion
 }

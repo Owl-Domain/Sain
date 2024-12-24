@@ -101,6 +101,6 @@ public sealed class Application(IApplicationContext context) : IApplication
    #region Functions
    /// <summary>Creates a builder for a new application.</summary>
    /// <returns>The application builder which can be used to configure the application.</returns>
-   public static IApplicationBuilder New() => new ApplicationBuilder();
+   public static ApplicationBuilder New() => new();
    #endregion
 }

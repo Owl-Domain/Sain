@@ -3,7 +3,7 @@ namespace Sain.Shared.Applications;
 /// <summary>
 ///   Represents the context of an application.
 /// </summary>
-public sealed class ApplicationContext : IApplicationContext
+public class ApplicationContext : IApplicationContext
 {
    #region Fields
    private bool _initialised;
