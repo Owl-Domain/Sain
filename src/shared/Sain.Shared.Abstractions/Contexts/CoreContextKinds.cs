@@ -14,5 +14,8 @@ public static class CoreContextKinds
 
    /// <summary>The kind of the <see cref="IDispatcherContext"/>.</summary>
    public const string Dispatcher = "core.dispatcher";
+
+   /// <summary>The kind of the <see cref="ILoggingContext"/>.</summary>
+   public const string Logging = "core.logging";
    #endregion
 }

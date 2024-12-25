@@ -36,14 +36,23 @@ public interface IApplicationBuilder<TSelf> where TSelf : IApplicationBuilder<TS
    /// <exception cref="ArgumentException">Thrown if a context of the same kind has already been included.</exception>
    TSelf WithContext(IContext context);
 
-   /// <summary>Requests a context of the given type <typeparamref name="T"/> and customises it with the given callback.</summary>
-   /// <typeparam name="T">The type of the context to create.</typeparam>
+   /// <summary>Provides a context of the given type <typeparamref name="T"/> and customises it with the given callback.</summary>
+   /// <typeparam name="T">The type of the context to provide.</typeparam>
    /// <param name="customise">The (optional) callback that can be used to customise the obtained context.</param>
    /// <returns>The used builder instance.</returns>
    /// <exception cref="InvalidOperationException">
    ///   Thrown if a context of the given type <typeparamref name="T"/> couldn't be obtained from the registered context providers.
    /// </exception>
    TSelf WithContext<T>(Action<T>? customise = null) where T : notnull, IContext;
+
+   /// <summary>Tries to provide a context of the given type <typeparamref name="T"/> and customises it with the given callback.</summary>
+   /// <typeparam name="T">The type of the context to try and provide.</typeparam>
+   /// <param name="customise">The (optional) callback that can be used to customise the obtained context.</param>
+   /// <returns>The used builder instance.</returns>
+   /// <exception cref="InvalidOperationException">
+   ///   Thrown if a context of the given type <typeparamref name="T"/> couldn't be obtained from the registered context providers.
+   /// </exception>
+   TSelf TryWithContext<T>(Action<T>? customise = null) where T : notnull, IContext;
 
    /// <summary>Checks whether the application builder has been provided a context of the given <paramref name="contextKind"/>.</summary>
    /// <param name="contextKind">The kind of the context to check for.</param>

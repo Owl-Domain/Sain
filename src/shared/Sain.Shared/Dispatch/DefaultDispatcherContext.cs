@@ -4,7 +4,7 @@ namespace Sain.Shared.Dispatch;
 ///   Represents the application's context for dispatching operations.
 /// </summary>
 /// <param name="provider">The context provider that the context comes from.</param>
-public sealed class DefaultDispatcherContext(IContextProvider? provider = null) : BaseDispatcherContext(provider)
+public sealed class DefaultDispatcherContext(IContextProvider? provider) : BaseDispatcherContext(provider)
 {
    #region Nested types
    private sealed class OperationQueue

@@ -1,6 +1,6 @@
 namespace Sain.SDL3.Desktop.Windowing;
 
-public unsafe sealed class SDL3DesktopWindowingContext(IContextProvider? provider = null) : BaseContext(provider), ISDL3Context, IDesktopWindowingContext
+public unsafe sealed class SDL3DesktopWindowingContext(IContextProvider? provider) : BaseContext(provider), ISDL3Context, IDesktopWindowingContext
 {
    #region Fields
    private readonly DesktopWindowCollection<SDL3DesktopWindow> _windows = [];

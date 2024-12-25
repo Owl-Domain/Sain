@@ -4,7 +4,7 @@ namespace Sain.Shared.Contexts;
 ///   Represents the base implementation for a application's context.
 /// </summary>
 /// <param name="provider">The context provider that the context comes from.</param>
-public abstract class BaseContext(IContextProvider? provider = null) : BaseHasApplicationInit, IContext
+public abstract class BaseContext(IContextProvider? provider) : BaseHasApplicationInit, IContext
 {
    #region Properties
    /// <inheritdoc/>

@@ -9,4 +9,5 @@ global using Sain.Shared.Contexts;
 global using Sain.Shared.Devices;
 global using Sain.Shared.Dispatch;
 global using Sain.Shared.Locking;
+global using Sain.Shared.Logging;
 global using Sain.Shared.Versioning;

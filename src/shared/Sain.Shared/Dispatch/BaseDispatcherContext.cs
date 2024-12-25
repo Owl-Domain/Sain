@@ -4,7 +4,7 @@ namespace Sain.Shared.Dispatch;
 ///   Represents the base implementation for the application's dispatcher context.
 /// </summary>
 /// <param name="provider">The context provider that the context comes from.</param>
-public abstract class BaseDispatcherContext(IContextProvider? provider = null) : BaseContext(provider), IDispatcherContext
+public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseContext(provider), IDispatcherContext
 {
    #region Nested types
    /// <summary>

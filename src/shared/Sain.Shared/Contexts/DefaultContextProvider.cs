@@ -13,7 +13,13 @@ public sealed class DefaultContextProvider : BaseContextProvider
 
       if (type == typeof(IDispatcherContext) || type == typeof(DefaultDispatcherContext))
       {
-         context = (T)(IContext)new DefaultDispatcherContext();
+         context = (T)(IContext)new DefaultDispatcherContext(this);
+         return true;
+      }
+
+      if (type == typeof(ILoggingContext) || type == typeof(DefaultLoggingContext))
+      {
+         context = (T)(IContext)new DefaultLoggingContext(this);
          return true;
       }
 

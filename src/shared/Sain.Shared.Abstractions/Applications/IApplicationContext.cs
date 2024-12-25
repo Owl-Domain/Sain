@@ -17,6 +17,9 @@ public interface IApplicationContext
 
    /// <summary>The application's context for the dispatcher.</summary>
    IDispatcherContext Dispatcher { get; }
+
+   /// <summary>The application's context for logging.</summary>
+   ILoggingContext Logging { get; }
    #endregion
 
    #region Methods

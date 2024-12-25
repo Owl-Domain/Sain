@@ -17,6 +17,9 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
 
    /// <inheritdoc/>
    public IDispatcherContext Dispatcher { get; }
+
+   /// <inheritdoc/>
+   public ILoggingContext Logging { get; }
    #endregion
 
    #region Constructors
@@ -28,11 +31,10 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
       ContextProviders = contextProviders;
       Contexts = contexts;
 
-      IAudioPlaybackContext audioPlayback = GetContext<IAudioPlaybackContext>();
-      IAudioCaptureContext audioCapture = GetContext<IAudioCaptureContext>();
-      Audio = new AudioContextGroup(audioPlayback, audioCapture);
+      Audio = AudioContextGroup.Create(this);
 
       Dispatcher = GetContext<IDispatcherContext>();
+      Logging = GetContext<ILoggingContext>();
    }
    #endregion
 

@@ -104,6 +104,23 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    }
 
    /// <inheritdoc/>
+   public TSelf TryWithContext<T>(Action<T>? customise = null) where T : notnull, IContext
+   {
+      foreach (IContextProvider provider in _availableProviders)
+      {
+         if (provider.TryProvide<T>(out T? context))
+         {
+            _providedContexts.TryAdd(context.Kind, context);
+            customise?.Invoke(context);
+
+            return Instance;
+         }
+      }
+
+      return Instance;
+   }
+
+   /// <inheritdoc/>
    public bool HasContext(string contextKind) => _providedContexts.ContainsKey(contextKind);
 
    /// <inheritdoc/>
@@ -115,14 +132,12 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
       if (_version is null)
          Instance.WithVersionFromAssembly(targetAssembly);
 
-      if (HasContext(CoreContextKinds.AudioPlayback) is false)
-         WithContext(new UnavailableAudioPlaybackContext());
+      AddRequired<IDispatcherContext>(CoreContextKinds.Dispatcher);
 
-      if (HasContext(CoreContextKinds.AudioCapture) is false)
-         WithContext(new UnavailableAudioCaptureContext());
+      TryAddDefault<ILoggingContext, UnavailableLoggingContext>(CoreContextKinds.Logging);
 
-      if (HasContext(CoreContextKinds.Dispatcher) is false)
-         WithContext<IDispatcherContext>();
+      TryAddUnavailable<UnavailableAudioPlaybackContext>(CoreContextKinds.AudioPlayback);
+      TryAddUnavailable<UnavailableAudioCaptureContext>(CoreContextKinds.AudioCapture);
 
       return BuildCore();
    }
@@ -130,5 +145,30 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    /// <summary>Builds the application.</summary>
    /// <returns>The built application.</returns>
    protected abstract IApplication BuildCore();
+   #endregion
+
+   #region Helpers
+   private void AddRequired<T>(string kind) where T : notnull, IContext
+   {
+      if (HasContext(kind) is false)
+         WithContext<T>();
+   }
+   private void TryAddDefault<TContext, TUnavailable>(string kind)
+      where TContext : notnull, IContext
+      where TUnavailable : notnull, TContext, new()
+   {
+      if (HasContext(kind) is false)
+         TryWithContext<TContext>();
+
+      TryAddUnavailable<TUnavailable>(kind);
+   }
+   private void TryAddUnavailable<T>(string kind) where T : notnull, IContext, new()
+   {
+      if (HasContext(kind) is false)
+      {
+         T context = new();
+         WithContext(context);
+      }
+   }
    #endregion
 }
