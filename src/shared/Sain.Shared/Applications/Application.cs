@@ -68,8 +68,14 @@ public sealed class Application(string? id, string name, IVersion version, IAppl
          Context.Initialise(this);
          hasInitialised = true;
 
+         if (Context.Logging.IsAvailable)
+            Context.Logging.Trace<Application>("Application started (after initialisation).");
+
          State = ApplicationState.Running;
          Started?.Invoke(this);
+
+         if (Context.Logging.IsAvailable)
+            Context.Logging.Trace<Application>("Application loop starting.");
 
          Stopwatch watch = new();
          while (_shouldBeRunning)
@@ -84,7 +90,21 @@ public sealed class Application(string? id, string name, IVersion version, IAppl
 
             if (LastIterationDuration.TotalMilliseconds < 10)
                Thread.Sleep(10 - (int)LastIterationDuration.TotalMilliseconds);
+            else if (Context.Logging.IsAvailable)
+            {
+               if (LastIterationDuration.TotalMilliseconds > 250)
+                  Context.Logging.Warning<Application>($"Last iteration took over 250ms, something is affecting performance a lot ({LastIterationDuration.TotalMilliseconds:n2}ms).");
+               else if (LastIterationDuration.TotalMilliseconds > 100)
+                  Context.Logging.Warning<Application>($"Last iteration took over 100ms, something is affecting performance ({LastIterationDuration.TotalMilliseconds:n2}ms).");
+               else if (LastIterationDuration.TotalMilliseconds > 50)
+                  Context.Logging.Debug<Application>($"Last iteration took over 50ms ({LastIterationDuration.TotalMilliseconds:n2}ms).");
+               else if (LastIterationDuration.TotalMilliseconds > 30)
+                  Context.Logging.Debug<Application>($"Last iteration took over 30ms ({LastIterationDuration.TotalMilliseconds:n2}ms).");
+            }
          }
+
+         if (Context.Logging.IsAvailable)
+            Context.Logging.Trace<Application>("Application stopping.");
 
          State = ApplicationState.Stopping;
          Stopping?.Invoke(this);
@@ -92,6 +112,9 @@ public sealed class Application(string? id, string name, IVersion version, IAppl
       finally
       {
          State = ApplicationState.Stopped;
+
+         if (Context.Logging.IsAvailable)
+            Context.Logging.Trace<Application>("Application stopped (before cleanup).");
 
          if (hasInitialised)
             Context.Cleanup(this);

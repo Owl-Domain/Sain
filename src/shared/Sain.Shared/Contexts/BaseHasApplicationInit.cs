@@ -106,7 +106,8 @@ public abstract class BaseHasApplicationInit : IHasApplicationInit
    {
       lock (_initLock)
       {
-         if (IsInitialised is false)
+         // Note(Nightowl): Check the application being null, so that helper methods can be used in the context's Initialise method;
+         if (Application is null)
             throw new InvalidOperationException($"The {GetName()} has not been initialised yet.");
 
          Debug.Assert(Application is not null);

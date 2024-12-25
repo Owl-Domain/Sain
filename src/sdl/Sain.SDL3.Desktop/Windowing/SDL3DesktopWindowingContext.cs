@@ -40,12 +40,17 @@ public unsafe sealed class SDL3DesktopWindowingContext(IContextProvider? provide
 
       if (configuration.Parent is SDL3DesktopWindow parent && (Native.SetWindowParent(id, parent.WindowId) is false))
       {
-         // Todo(Nightowl): Log error;
+         if (Context.Logging.IsAvailable)
+            Context.Logging.Error<SDL3DesktopWindowingContext>($"Couldn't set the window ({(nint)parent.WindowId}) to be the parent of the window ({(nint)id}). ({Native.LastError})");
       }
 
-      if (Native.SetWindowPosition(id, (int)location.X, (int)location.Y) is false)
+      int x = (int)location.X;
+      int y = (int)location.Y;
+
+      if (Native.SetWindowPosition(id, x, y) is false)
       {
-         // Todo(Nightowl): Log error;
+         if (Context.Logging.IsAvailable)
+            Context.Logging.Error<SDL3DesktopWindowingContext>($"Couldn't set the position of the window ({(nint)id}) to X = ({x:n0}), Y = ({y:n0}). ({Native.LastError})");
       }
 
       SDL3DesktopWindow window = new(Application, configuration.Kind, configuration.Parent, id);

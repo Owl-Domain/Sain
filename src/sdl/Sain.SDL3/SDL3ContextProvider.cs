@@ -30,17 +30,22 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
 
       if (Native.SetAppMetadata(Application.Name, Application.Version.DisplayName, Application.Id) is false)
       {
-         // Todo(Nightowl): handle/log error;
+         if (Context.Logging.IsAvailable)
+            Context.Logging.Error<SDL3ContextProvider>($"Couldn't set the application metadata. ({Native.LastError})");
       }
 
       if (Native.InitSubSystem(flags) is false)
       {
-         // Todo(Nightowl): Handle/log error;
+         if (Context.Logging.IsAvailable)
+            Context.Logging.Fatal<SDL3ContextProvider>($"Couldn't initialise the application with the flags ({flags}). ({Native.LastError})");
+
+         // Todo(Nightowl): Show fatal error warning;
       }
 
       if (Native.SetHint(SDL3_Hints.SDL_HINT_VIDEO_ALLOW_SCREENSAVER, "1") is false)
       {
-         // Todo(Nightowl): Handle/log error;
+         if (Context.Logging.IsAvailable)
+            Context.Logging.Warning<SDL3ContextProvider>($"Couldn't set the hint to allow the screensaver by default. ({Native.LastError})");
       }
    }
 
