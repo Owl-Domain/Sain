@@ -52,9 +52,11 @@ public sealed class DesktopApplicationBuilder : BaseApplicationBuilder<DesktopAp
    protected override IApplication BuildCore()
    {
       _shutdownMode ??= DesktopApplicationShutdownMode.OnLastWindowClose;
+      if (HasContext(DesktopContextKinds.Windowing) is false)
+         WithContext<IDesktopWindowingContext>();
 
       DesktopApplicationContext context = new(_shutdownMode.Value, _startupWindowType, Contexts);
-      Application application = new(Name, Version, context);
+      Application application = new(Id, Name, Version, context);
 
       return application;
    }

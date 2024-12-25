@@ -12,6 +12,9 @@ public delegate void ApplicationEventHandler(IApplication application);
 public interface IApplication
 {
    #region Properties
+   /// <summary>The (optional) unique id of the application.</summary>
+   string? Id { get; }
+
    /// <summary>The name of the application.</summary>
    string Name { get; }
 
@@ -23,6 +26,9 @@ public interface IApplication
 
    /// <summary>The current state of the application.</summary>
    ApplicationState State { get; }
+
+   /// <summary>The duration of the last iteration of the application.</summary>
+   TimeSpan LastIterationDuration { get; }
    #endregion
 
    #region Events

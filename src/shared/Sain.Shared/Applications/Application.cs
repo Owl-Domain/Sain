@@ -5,10 +5,11 @@ namespace Sain.Shared.Applications;
 /// <summary>
 ///   Represents a Sain application.
 /// </summary>
+/// <param name="id">The unique id of the application.</param>
 /// <param name="name">The name of the application.</param>
 /// <param name="version">The version of the application,</param>
 /// <param name="context">The context of the application.</param>
-public sealed class Application(string name, IVersion version, IApplicationContext context) : IApplication
+public sealed class Application(string? id, string name, IVersion version, IApplicationContext context) : IApplication
 {
    #region Fields
    private readonly IReadOnlyCollection<IContextProvider> _usedProviders = [.. context.Contexts.Select(c => c.Provider).Where(p => p is not null).Distinct()!];
@@ -16,6 +17,9 @@ public sealed class Application(string name, IVersion version, IApplicationConte
    #endregion
 
    #region Properties
+   /// <inheritdoc/>
+   public string? Id { get; } = id;
+
    /// <inheritdoc/>
    public string Name { get; } = name;
 
@@ -27,6 +31,9 @@ public sealed class Application(string name, IVersion version, IApplicationConte
 
    /// <inheritdoc/>
    public ApplicationState State { get; private set; }
+
+   /// <inheritdoc/>
+   public TimeSpan LastIterationDuration { get; private set; }
    #endregion
 
    #region Events
@@ -71,14 +78,20 @@ public sealed class Application(string name, IVersion version, IApplicationConte
 
          Started?.Invoke(this);
 
+         Stopwatch watch = new();
+
          while (_shouldBeRunning)
          {
-            Context.Dispatcher.Process();
+            watch.Restart();
+
+            Context.
+            Dispatcher.Process();
 
             Iteration?.Invoke(this);
+            LastIterationDuration = watch.Elapsed;
 
-            if (Thread.Yield() is false)
-               Thread.Sleep(1);
+            if (LastIterationDuration.TotalMilliseconds < 10)
+               Thread.Sleep(10 - (int)LastIterationDuration.TotalMilliseconds);
          }
 
          State = ApplicationState.Stopping;
@@ -110,5 +123,29 @@ public sealed class Application(string name, IVersion version, IApplicationConte
    /// <summary>Creates a builder for a new application.</summary>
    /// <returns>The application builder which can be used to configure the application.</returns>
    public static ApplicationBuilder New() => new();
+   #endregion
+
+   #region Helpers
+   private static string GetShortTime(TimeSpan value)
+   {
+      if (value.TotalMilliseconds > 0)
+         return $"{value.TotalMilliseconds:n2} ms";
+
+#if NET7_0_OR_GREATER
+      if (value.TotalMicroseconds > 0)
+         return $"{value.TotalMicroseconds:n2} us";
+
+      if (value.TotalNanoseconds > 0)
+         return $"{value.TotalNanoseconds:n2} us";
+#else
+      if (value.TotalMilliseconds / 100 > 0)
+         return $"{value.TotalMilliseconds / 100:n2} us";
+
+      if (value.TotalMilliseconds / 100_000 > 0)
+         return $"{value.TotalMilliseconds / 100_000:n2} us";
+#endif
+
+      return $"{value.TotalMilliseconds:n2} ms";
+   }
    #endregion
 }

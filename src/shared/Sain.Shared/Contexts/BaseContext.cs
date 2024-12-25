@@ -59,7 +59,7 @@ public abstract class BaseContext(IContextProvider? provider = null) : IContext
    }
 
    /// <summary>Initialises the context.</summary>
-   protected abstract void Initialise();
+   protected virtual void Initialise() { }
 
    /// <inheritdoc/>
    public void Cleanup(IApplication application)
@@ -78,7 +78,7 @@ public abstract class BaseContext(IContextProvider? provider = null) : IContext
    }
 
    /// <summary>Cleans up the context.</summary>
-   protected abstract void Cleanup();
+   protected virtual void Cleanup() { }
    #endregion
 
    #region Helpers

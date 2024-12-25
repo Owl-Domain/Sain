@@ -215,9 +215,19 @@ public abstract class BaseDispatcherContext(IContextProvider? provider = null) :
    #endregion
    #endregion
 
+   #region Fields
+   private int? _mainThreadId;
+   #endregion
+
    #region Properties
    /// <inheritdoc/>
    public override string Kind => CoreContextKinds.Dispatcher;
+
+   /// <inheritdoc/>
+   public bool NeedsDispatching => _mainThreadId is not null && _mainThreadId != Environment.CurrentManagedThreadId;
+
+   /// <inheritdoc/>
+   public bool IsOnMainThread => _mainThreadId == Environment.CurrentManagedThreadId;
    #endregion
 
    #region Methods
@@ -241,6 +251,18 @@ public abstract class BaseDispatcherContext(IContextProvider? provider = null) :
    /// <param name="operation">The operation to schedule on the main thread.</param>
    /// <remarks>This implementation should be thread-safe.</remarks>
    protected abstract void ScheduleBackground(IOperation operation);
+
+   /// <inheritdoc/>
+   protected override void Initialise()
+   {
+      _mainThreadId = Environment.CurrentManagedThreadId;
+   }
+
+   /// <inheritdoc/>
+   protected override void Cleanup()
+   {
+      _mainThreadId = null;
+   }
    #endregion
 
    #region Dispatch methods

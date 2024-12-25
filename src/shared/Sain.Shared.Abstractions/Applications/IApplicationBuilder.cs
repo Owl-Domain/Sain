@@ -7,6 +7,12 @@ namespace Sain.Shared.Applications;
 public interface IApplicationBuilder<TSelf> where TSelf : IApplicationBuilder<TSelf>
 {
    #region Methods
+   /// <summary>Sets the unique id of the application.</summary>
+   /// <param name="applicationId">The unique id of the application.</param>
+   /// <returns>The used builder instance.</returns>
+   /// <exception cref="InvalidOperationException">Thrown if the id of the application has already been specified.</exception>
+   TSelf WithId(string applicationId);
+
    /// <summary>Sets the name of the application.</summary>
    /// <param name="applicationName">The name of the application.</param>
    /// <returns>The used builder instance.</returns>

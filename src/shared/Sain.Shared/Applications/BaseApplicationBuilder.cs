@@ -29,11 +29,25 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    /// <summary>The name of the application.</summary>
    protected string Name => _name ?? throw new InvalidOperationException("The name of the application has not been set yet.");
 
+   /// <summary>The unique id of the application.</summary>
+   protected string? Id { get; private set; }
+
    /// <summary>The version of the application.</summary>
    protected IVersion Version => _version ?? throw new InvalidOperationException("The version of the application has not been set yet.");
    #endregion
 
    #region Methods
+   /// <inheritdoc/>
+   public TSelf WithId(string applicationId)
+   {
+      if (Id is not null)
+         throw new InvalidOperationException("The unique id of the application has already been set.");
+
+      Id = applicationId;
+
+      return Instance;
+   }
+
    /// <inheritdoc/>
    public TSelf WithName(string applicationName)
    {

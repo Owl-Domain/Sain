@@ -15,7 +15,7 @@ public sealed class ApplicationBuilder : BaseApplicationBuilder<ApplicationBuild
    protected override IApplication BuildCore()
    {
       ApplicationContext context = new(Contexts);
-      Application application = new(Name, Version, context);
+      Application application = new(Id, Name, Version, context);
 
       return application;
    }
@@ -29,6 +29,7 @@ public static class ApplicationBuilderExtensions
 {
    #region Methods
    /// <summary>Uses the default context provider.</summary>
+   /// <typeparam name="TSelf">The type of the application builder.</typeparam>
    /// <param name="builder">The application builder to use.</param>
    /// <returns>The used builder instance.</returns>
    public static TSelf WithDefaultProvider<TSelf>(this TSelf builder)

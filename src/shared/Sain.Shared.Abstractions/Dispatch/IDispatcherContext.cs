@@ -5,6 +5,14 @@ namespace Sain.Shared.Dispatch;
 /// </summary>
 public interface IDispatcherContext : IContext
 {
+   #region Properties
+   /// <summary>Checks whether the current thread is different from the main thread.</summary>
+   bool NeedsDispatching { get; }
+
+   /// <summary>Checks whether the current thread is the main thread.</summary>
+   bool IsOnMainThread { get; }
+   #endregion
+
    #region Methods
    /// <summary>Processes any remaning operations.</summary>
    /// <remarks>This should only be called from the main application loop.</remarks>

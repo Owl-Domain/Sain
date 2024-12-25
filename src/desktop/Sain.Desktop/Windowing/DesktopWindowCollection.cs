@@ -1,12 +1,14 @@
+
 namespace Sain.Desktop.Windowing;
 
 /// <summary>
 ///   Represents a collection of desktop windows.
 /// </summary>
-public sealed class DesktopWindowCollection : IDesktopWindowCollection, ICollection<IDesktopWindow>
+public sealed class DesktopWindowCollection<T> : IDesktopWindowCollection<T>, IReadOnlyCollection<T>
+   where T : IDesktopWindow
 {
    #region Fields
-   private readonly List<IDesktopWindow> _windows = [];
+   private readonly List<T> _windows = [];
    #endregion
 
    #region Properties
@@ -24,20 +26,20 @@ public sealed class DesktopWindowCollection : IDesktopWindowCollection, ICollect
 
    #region Methods
    /// <inheritdoc/>
-   public void Add(IDesktopWindow item)
+   public void Add(T item)
    {
       _windows.Add(item);
       CollectionChanged?.Invoke(this, new(NotifyCollectionChangedAction.Add, item));
    }
 
    /// <inheritdoc/>
-   public bool Contains(IDesktopWindow item) => _windows.Contains(item);
+   public bool Contains(T item) => _windows.Contains(item);
 
    /// <inheritdoc/>
-   public void CopyTo(IDesktopWindow[] array, int arrayIndex) => _windows.CopyTo(array, arrayIndex);
+   public void CopyTo(T[] array, int arrayIndex) => _windows.CopyTo(array, arrayIndex);
 
    /// <inheritdoc/>
-   public bool Remove(IDesktopWindow item)
+   public bool Remove(T item)
    {
       if (_windows.Remove(item))
       {
@@ -56,7 +58,7 @@ public sealed class DesktopWindowCollection : IDesktopWindowCollection, ICollect
    }
 
    /// <inheritdoc/>
-   public IEnumerator<IDesktopWindow> GetEnumerator() => _windows.GetEnumerator();
+   public IEnumerator<T> GetEnumerator() => _windows.GetEnumerator();
    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_windows).GetEnumerator();
    #endregion
 }

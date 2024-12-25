@@ -10,6 +10,8 @@
     <AssemblyName>Sain.SDL3.Desktop</AssemblyName>
     <RootNamespace>Sain.SDL3.Desktop</RootNamespace>
 
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Deterministic>true</Deterministic>
   </PropertyGroup>

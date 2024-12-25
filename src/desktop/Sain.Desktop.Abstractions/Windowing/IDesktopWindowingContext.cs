@@ -7,7 +7,7 @@ public interface IDesktopWindowingContext : IContext
 {
    #region Properties
    /// <summary>The collection of the currently open windows.</summary>
-   IDesktopWindowCollection Windows { get; }
+   IDesktopWindowCollection<IDesktopWindow> Windows { get; }
    #endregion
 
    #region Methods

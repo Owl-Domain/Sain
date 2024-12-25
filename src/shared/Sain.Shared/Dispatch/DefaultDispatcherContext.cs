@@ -36,10 +36,13 @@ public sealed class DefaultDispatcherContext(IContextProvider? provider = null) 
    private volatile bool _shouldBackgroundThreadsRun;
 
    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-   private int _backgroundThreadCount = 4;
+   private int _backgroundThreadCount = 1;
 
    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
    private ThreadPriority _backgroundThreadPriority = ThreadPriority.BelowNormal;
+
+   private long _queueCount;
+   private long _backgroundQueueCount;
    #endregion
 
    #region Properties
@@ -120,6 +123,7 @@ public sealed class DefaultDispatcherContext(IContextProvider? provider = null) 
    protected override void Cleanup()
    {
       _queues.Clear();
+      _queueCount = 0;
 
       _shouldBackgroundThreadsRun = false;
       while (AreBackgroundThreadsRunning())
@@ -130,32 +134,52 @@ public sealed class DefaultDispatcherContext(IContextProvider? provider = null) 
 
       _backgroundQueues.Clear();
       _backgroundThreads.Clear();
+      _backgroundQueueCount = 0;
    }
 
    /// <inheritdoc/>
    protected override void ProcessCore()
    {
+      if (Interlocked.Read(ref _queueCount) is 0)
+         return;
+
       while (TryGetNextOperation(out IOperation? operation))
+      {
+         Interlocked.Decrement(ref _queueCount);
          operation.Process();
+      }
    }
 
    private void ProcessBackground()
    {
       while (_shouldBackgroundThreadsRun)
       {
-         while (_shouldBackgroundThreadsRun && TryGetNextBackgroundOperation(out IOperation? operation))
-            operation.Process();
+         if (Interlocked.Read(ref _backgroundQueueCount) > 0)
+         {
+            while (_shouldBackgroundThreadsRun && TryGetNextBackgroundOperation(out IOperation? operation))
+            {
+               Interlocked.Decrement(ref _backgroundQueueCount);
+               operation.Process();
+            }
+         }
 
-         if (Thread.Yield() is false)
-            Thread.Sleep(10);
+         Thread.Sleep(10);
       }
    }
 
    /// <inheritdoc/>
-   protected override void Schedule(IOperation operation) => _queues[operation.Priority].Enqueue(operation);
+   protected override void Schedule(IOperation operation)
+   {
+      _queues[operation.Priority].Enqueue(operation);
+      Interlocked.Increment(ref _queueCount);
+   }
 
    /// <inheritdoc/>
-   protected override void ScheduleBackground(IOperation operation) => _backgroundQueues[operation.Priority].Enqueue(operation);
+   protected override void ScheduleBackground(IOperation operation)
+   {
+      _backgroundQueues[operation.Priority].Enqueue(operation);
+      Interlocked.Increment(ref _backgroundQueueCount);
+   }
    #endregion
 
    #region Helpers

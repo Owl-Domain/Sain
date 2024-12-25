@@ -10,13 +10,15 @@
     <AssemblyName>Sain.SDL3</AssemblyName>
     <RootNamespace>Sain.SDL3</RootNamespace>
 
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
 
   <!-- Project references -->
   <ItemGroup Label="project">
-    <ProjectReference Include="../../shared/Sain.Shared.Abstractions/Sain.Shared.Abstractions.csproj" />
+    <ProjectReference Include="../../shared/Sain.Shared/Sain.Shared.csproj" />
   </ItemGroup>
 
 </Project>
