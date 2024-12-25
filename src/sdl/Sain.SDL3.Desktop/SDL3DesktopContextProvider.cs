@@ -17,8 +17,7 @@ public class SDL3DesktopContextProvider : SDL3ContextProvider
          return true;
       }
 
-      context = default;
-      return false;
+      return base.TryProvide(out context);
    }
    #endregion
 }

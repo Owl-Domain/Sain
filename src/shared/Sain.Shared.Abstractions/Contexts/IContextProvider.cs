@@ -15,13 +15,16 @@ public interface IContextProvider
    /// </returns>
    bool TryProvide<T>([MaybeNullWhen(false)] out T context) where T : notnull, IContext;
 
-   /// <summary>Called when the context provider has been attached to the given <paramref name="application"/>.</summary>
-   /// <param name="application">The application that the context provider has been attached to.</param>
-   /// <remarks>A context provider can be attached to multiple applications at once.</remarks>
-   void Attach(IApplication application);
+   /// <summary>Initialises the context provider.</summary>
+   /// <param name="application">The application that the context provider will belong to.</param>
+   /// <remarks>It is safe to call this method multiple times for the same <paramref name="application"/>.</remarks>
+   /// <exception cref="ArgumentException">Thrown if the context provider has already been initialised for a different application.</exception>
+   void Initialise(IApplication application);
 
-   /// <summary>Called when the context provider has been detached from the given <paramref name="application"/>.</summary>
-   /// <param name="application">The application that the context provider has been detached from.</param>
-   void Detach(IApplication application);
+   /// <summary>Cleans up the context provider.</summary>
+   /// <param name="application">The application that the context provider will belong to.</param>
+   /// <remarks>It is safe to call this method multiple times for the same <paramref name="application"/>.</remarks>
+   /// <exception cref="ArgumentException">Thrown if the context provider has been initialised for a different application than the given one.</exception>
+   void Cleanup(IApplication application);
    #endregion
 }

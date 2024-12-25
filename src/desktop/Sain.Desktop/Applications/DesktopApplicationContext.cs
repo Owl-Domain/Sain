@@ -20,8 +20,14 @@ public class DesktopApplicationContext : ApplicationContext, IDesktopApplication
    /// <summary>Creates a new instance of the <see cref="DesktopApplicationContext"/>.</summary>
    /// <param name="shutdownMode">The shutdown mode of the application.</param>
    /// <param name="startupWindowType">The type of the window to open when the application starts.</param>
+   /// <param name="contextProviders">The context providers that are available to the application.</param>
    /// <param name="contexts">The contexts that are available to the desktop application.</param>
-   public DesktopApplicationContext(DesktopApplicationShutdownMode shutdownMode, Type? startupWindowType, IReadOnlyCollection<IContext> contexts) : base(contexts)
+   public DesktopApplicationContext(
+      DesktopApplicationShutdownMode shutdownMode,
+      Type? startupWindowType,
+      IReadOnlyCollection<IContextProvider> contextProviders,
+      IReadOnlyCollection<IContext> contexts)
+      : base(contextProviders, contexts)
    {
       ShutdownMode = shutdownMode;
       StartupWindowType = startupWindowType;

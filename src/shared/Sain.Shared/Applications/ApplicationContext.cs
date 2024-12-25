@@ -3,16 +3,12 @@ namespace Sain.Shared.Applications;
 /// <summary>
 ///   Represents the context of an application.
 /// </summary>
-public class ApplicationContext : IApplicationContext
+public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
 {
-   #region Fields
-   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-   private IApplication? _application;
-
-   private bool _initialised;
-   #endregion
-
    #region Properties
+   /// <inheritdoc/>
+   public IReadOnlyCollection<IContextProvider> ContextProviders { get; }
+
    /// <inheritdoc/>
    public IReadOnlyCollection<IContext> Contexts { get; }
 
@@ -21,25 +17,15 @@ public class ApplicationContext : IApplicationContext
 
    /// <inheritdoc/>
    public IDispatcherContext Dispatcher { get; }
-
-   /// <summary>Whether the context has been initialised.</summary>
-   protected bool IsInitialised => _initialised;
-
-   /// <summary>The application that the context belongs to.</summary>
-   /// <exception cref="InvalidOperationException">Thrown if the property is accessed when the context has not been initialised.</exception>
-   [NotNull]
-   protected IApplication? Application
-   {
-      get => _application ?? throw new InvalidOperationException($"The context doesn't belong to an application yet, wait for it to be initialised.");
-      private set => _application = value;
-   }
    #endregion
 
    #region Constructors
    /// <summary>Creates a new instance of the <see cref="ApplicationContext"/>.</summary>
+   /// <param name="contextProviders">The context providers that are available to the application.</param>
    /// <param name="contexts">The contexts that are available to the application.</param>
-   public ApplicationContext(IReadOnlyCollection<IContext> contexts)
+   public ApplicationContext(IReadOnlyCollection<IContextProvider> contextProviders, IReadOnlyCollection<IContext> contexts)
    {
+      ContextProviders = contextProviders;
       Contexts = contexts;
 
       IAudioPlaybackContext audioPlayback = GetContext<IAudioPlaybackContext>();
@@ -77,46 +63,23 @@ public class ApplicationContext : IApplicationContext
    }
 
    /// <inheritdoc/>
-   public void Initialise(IApplication application)
+   protected override void Initialise()
    {
-      if (_initialised)
-      {
-         if (Application != application)
-            throw new ArgumentException($"The application context has already been initialised for a different application.", nameof(application));
+      foreach (IContextProvider provider in ContextProviders)
+         provider.Initialise(Application);
 
-         return;
-      }
-
-      Application = application;
       foreach (IContext context in Contexts)
-         context.Initialise(application);
-
-      Initialise();
-      _initialised = true;
+         context.Initialise(Application);
    }
-
-   /// <summary>Initialises the application context.</summary>
-   protected virtual void Initialise() { }
 
    /// <inheritdoc/>
-   public void Cleanup(IApplication application)
+   protected override void Cleanup()
    {
-      if (_initialised is false)
-         return;
-
-      if (Application != application)
-         throw new ArgumentException($"The application context has already been initialised for a different application.", nameof(application));
-
-      _initialised = false;
-      Cleanup();
-
       foreach (IContext context in Contexts)
-         context.Cleanup(application);
+         context.Cleanup(Application);
 
-      Application = null;
+      foreach (IContextProvider provider in ContextProviders)
+         provider.Cleanup(Application);
    }
-
-   /// <summary>Cleans up the application context.</summary>
-   protected virtual void Cleanup() { }
    #endregion
 }

@@ -17,8 +17,8 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    #endregion
 
    #region Properties
-   /// <summary>The instance of the builder.</summary>
-   protected abstract TSelf Instance { get; }
+   /// <summary>The typed instance of the builder.</summary>
+   protected TSelf Instance => (TSelf)this;
 
    /// <summary>The collection of the available providers.</summary>
    protected IReadOnlyCollection<IContextProvider> Providers => _availableProviders;

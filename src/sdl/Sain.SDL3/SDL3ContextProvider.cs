@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace Sain.SDL3;
 
 /// <summary>
@@ -7,28 +5,8 @@ namespace Sain.SDL3;
 /// </summary>
 public unsafe class SDL3ContextProvider : BaseContextProvider
 {
-   #region Nested types
-   private sealed class State(IApplication application)
-   {
-      #region Fields
-      public readonly IApplication Application = application;
-      public readonly List<ISDL3Context> Contexts = [.. application.Context.Contexts.OfType<ISDL3Context>()];
-      #endregion
-
-      #region Methods
-      public void OnEvent(SDL3_Event ev)
-      {
-         Console.WriteLine($"Event: {ev.Type}");
-
-         foreach (ISDL3Context context in Contexts)
-            context.OnEvent(&ev);
-      }
-      #endregion
-   }
-   #endregion
-
    #region Fields
-   private static State? _lastAttached;
+   private IReadOnlyCollection<ISDL3Context> _providedContexts = [];
    #endregion
 
    #region Methods
@@ -40,17 +18,17 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
    }
 
    /// <inheritdoc/>
-   public override void Attach(IApplication application)
+   protected override void Initialise()
    {
-      if (_lastAttached is not null)
-         throw new InvalidOperationException($"Only a single {nameof(SDL3ContextProvider)} may be active at the same time.");
+      _providedContexts = GetProvidedContexts<ISDL3Context>();
 
-      _lastAttached = new(application);
-      application.Iteration += ApplicationIteration;
+      SDL3_InitFlags flags = GetInitFlags();
+      if (flags is SDL3_InitFlags.None)
+         return;
 
-      SDL3_InitFlags flags = GetInitFlags(application.Context.Contexts);
+      Application.Iteration += ApplicationIteration;
 
-      if (Native.SetAppMetadata(application.Name, application.Version.DisplayName, application.Id) is false)
+      if (Native.SetAppMetadata(Application.Name, Application.Version.DisplayName, Application.Id) is false)
       {
          // Todo(Nightowl): handle/log error;
       }
@@ -67,20 +45,27 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
    }
 
    /// <inheritdoc/>
-   public override void Detach(IApplication application)
+   protected override void Cleanup()
    {
-      application.Iteration -= ApplicationIteration;
-      _lastAttached = null;
+      try
+      {
+         SDL3_InitFlags flags = GetInitFlags();
 
-      SDL3_InitFlags flags = GetInitFlags(application.Context.Contexts);
+         if (flags is SDL3_InitFlags.None)
+            return;
 
-      Native.QuitSubSystem(flags);
-      Native.Quit();
+         Application.Iteration -= ApplicationIteration;
+
+         Native.QuitSubSystem(flags);
+         Native.Quit();
+      }
+      finally
+      {
+         _providedContexts = [];
+      }
    }
-   private static void ApplicationIteration(IApplication application)
+   private void ApplicationIteration(IApplication application)
    {
-      Debug.Assert(_lastAttached is not null);
-
       while (Native.WaitEvent(out SDL3_Event ev, 1))
       {
          DispatchPriority priority = DispatchPriority.Normal;
@@ -90,21 +75,23 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
          else if (ev.IsWindowEvent(out _))
             priority = DispatchPriority.Visual;
 
-         application.Context.Dispatcher.Dispatch(_lastAttached.OnEvent, ev, priority);
+         application.Context.Dispatcher.Dispatch(OnEvent, ev, priority);
       }
+   }
+   private void OnEvent(SDL3_Event ev)
+   {
+      foreach (ISDL3Context context in _providedContexts)
+         context.OnEvent(&ev);
    }
    #endregion
 
    #region Helpers
-   private static SDL3_InitFlags GetInitFlags(IEnumerable<IContext> contexts)
+   private SDL3_InitFlags GetInitFlags()
    {
       SDL3_InitFlags flags = SDL3_InitFlags.None;
 
-      foreach (IContext context in contexts)
-      {
-         if (context is ISDL3Context typed)
-            flags |= typed.Flags;
-      }
+      foreach (ISDL3Context context in _providedContexts)
+         flags |= context.Flags;
 
       return flags;
    }

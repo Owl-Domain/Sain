@@ -1,6 +1,6 @@
 namespace Sain.SDL3.Contexts;
 
-internal unsafe interface ISDL3Context
+internal unsafe interface ISDL3Context : IContext
 {
    #region Properties
    SDL3_InitFlags Flags { get; }

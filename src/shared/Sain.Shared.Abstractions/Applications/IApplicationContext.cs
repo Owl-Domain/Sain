@@ -6,6 +6,9 @@ namespace Sain.Shared.Applications;
 public interface IApplicationContext
 {
    #region Properties
+   /// <summary>The collection of the available context providers.</summary>
+   IReadOnlyCollection<IContextProvider> ContextProviders { get; }
+
    /// <summary>The collection of the available contexts.</summary>
    IReadOnlyCollection<IContext> Contexts { get; }
 

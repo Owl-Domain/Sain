@@ -3,18 +3,15 @@ namespace Sain.Shared.Applications;
 /// <summary>
 ///   Represents a builder for an application.
 /// </summary>
-public sealed class ApplicationBuilder : BaseApplicationBuilder<ApplicationBuilder>
+/// <typeparam name="TSelf">The type of the application builder.</typeparam>
+public abstract class ApplicationBuilder<TSelf> : BaseApplicationBuilder<TSelf>
+   where TSelf : ApplicationBuilder<TSelf>
 {
-   #region Properties
-   /// <inheritdoc/>
-   protected override ApplicationBuilder Instance => this;
-   #endregion
-
    #region Methods
    /// <inheritdoc/>
    protected override IApplication BuildCore()
    {
-      ApplicationContext context = new(Contexts);
+      ApplicationContext context = new(Providers, Contexts);
       Application application = new(Id, Name, Version, context);
 
       return application;
@@ -23,7 +20,12 @@ public sealed class ApplicationBuilder : BaseApplicationBuilder<ApplicationBuild
 }
 
 /// <summary>
-///   Contains various extension methods related to the <see cref="ApplicationBuilder"/>.
+///   Represents a builder for a general application.
+/// </summary>
+public sealed class ApplicationBuilder : ApplicationBuilder<ApplicationBuilder> { }
+
+/// <summary>
+///   Contains various extension methods related to the <see cref="IApplicationBuilder{TSelf}"/>.
 /// </summary>
 public static class ApplicationBuilderExtensions
 {

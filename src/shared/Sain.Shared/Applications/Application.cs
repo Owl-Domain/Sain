@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace Sain.Shared.Applications;
 
 /// <summary>
@@ -12,7 +10,6 @@ namespace Sain.Shared.Applications;
 public sealed class Application(string? id, string name, IVersion version, IApplicationContext context) : IApplication
 {
    #region Fields
-   private readonly IReadOnlyCollection<IContextProvider> _usedProviders = [.. context.Contexts.Select(c => c.Provider).Where(p => p is not null).Distinct()!];
    private volatile bool _shouldBeRunning;
    #endregion
 
@@ -67,19 +64,14 @@ public sealed class Application(string? id, string name, IVersion version, IAppl
       {
          _shouldBeRunning = true;
 
-         foreach (IContextProvider provider in _usedProviders)
-            provider.Attach(this);
-
          Starting?.Invoke(this);
          Context.Initialise(this);
          hasInitialised = true;
 
          State = ApplicationState.Running;
-
          Started?.Invoke(this);
 
          Stopwatch watch = new();
-
          while (_shouldBeRunning)
          {
             watch.Restart();
@@ -99,19 +91,12 @@ public sealed class Application(string? id, string name, IVersion version, IAppl
       }
       finally
       {
-         try
-         {
-            State = ApplicationState.Stopped;
-            if (hasInitialised)
-               Context.Cleanup(this);
+         State = ApplicationState.Stopped;
 
-            Stopped?.Invoke(this);
-         }
-         finally
-         {
-            foreach (IContextProvider provider in _usedProviders)
-               provider.Detach(this);
-         }
+         if (hasInitialised)
+            Context.Cleanup(this);
+
+         Stopped?.Invoke(this);
       }
    }
 
@@ -123,29 +108,5 @@ public sealed class Application(string? id, string name, IVersion version, IAppl
    /// <summary>Creates a builder for a new application.</summary>
    /// <returns>The application builder which can be used to configure the application.</returns>
    public static ApplicationBuilder New() => new();
-   #endregion
-
-   #region Helpers
-   private static string GetShortTime(TimeSpan value)
-   {
-      if (value.TotalMilliseconds > 0)
-         return $"{value.TotalMilliseconds:n2} ms";
-
-#if NET7_0_OR_GREATER
-      if (value.TotalMicroseconds > 0)
-         return $"{value.TotalMicroseconds:n2} us";
-
-      if (value.TotalNanoseconds > 0)
-         return $"{value.TotalNanoseconds:n2} us";
-#else
-      if (value.TotalMilliseconds / 100 > 0)
-         return $"{value.TotalMilliseconds / 100:n2} us";
-
-      if (value.TotalMilliseconds / 100_000 > 0)
-         return $"{value.TotalMilliseconds / 100_000:n2} us";
-#endif
-
-      return $"{value.TotalMilliseconds:n2} ms";
-   }
    #endregion
 }

@@ -4,14 +4,8 @@ namespace Sain.Shared.Contexts;
 ///   Represents the base implementation for a application's context.
 /// </summary>
 /// <param name="provider">The context provider that the context comes from.</param>
-public abstract class BaseContext(IContextProvider? provider = null) : IContext
+public abstract class BaseContext(IContextProvider? provider = null) : BaseHasApplicationInit, IContext
 {
-   #region Fields
-   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-   private IApplication? _application;
-   private bool _initialised;
-   #endregion
-
    #region Properties
    /// <inheritdoc/>
    public IContextProvider? Provider { get; } = provider;
@@ -21,64 +15,6 @@ public abstract class BaseContext(IContextProvider? provider = null) : IContext
 
    /// <inheritdoc/>
    public virtual bool IsAvailable => true;
-
-   /// <summary>Whether the context has been initialised.</summary>
-   protected virtual bool IsInitialised => _initialised;
-
-   /// <summary>The application that the context belongs to.</summary>
-   /// <exception cref="InvalidOperationException">Thrown if the property is accessed when the context has not been initialised.</exception>
-   [NotNull]
-   protected IApplication? Application
-   {
-      get => _application ?? throw new InvalidOperationException($"The context doesn't belong to an application yet, wait for it to be initialised.");
-      private set => _application = value;
-   }
-
-   /// <summary>The context of the application that the context belongs to.</summary>
-   /// <exception cref="InvalidOperationException">Thrown if the property is accessed when the context has not been initialised.</exception>
-   [NotNull]
-   protected IApplicationContext? Context
-   {
-      get => _application?.Context ?? throw new InvalidOperationException($"The context doesn't belong to an application yet, wait for it to be initialised.");
-   }
-   #endregion
-
-   #region Methods
-   /// <inheritdoc/>
-   public void Initialise(IApplication application)
-   {
-      if (_initialised && _application != application)
-         throw new ArgumentException($"The context has already been initialised for a different application.", nameof(application));
-
-      if (_initialised is false && IsAvailable)
-      {
-         Application = application;
-         Initialise();
-         _initialised = true;
-      }
-   }
-
-   /// <summary>Initialises the context.</summary>
-   protected virtual void Initialise() { }
-
-   /// <inheritdoc/>
-   public void Cleanup(IApplication application)
-   {
-      if (_initialised)
-      {
-         Debug.Assert(IsAvailable);
-
-         if (Application != application)
-            throw new ArgumentException($"The context has already been initialised for a different application.", nameof(application));
-
-         _initialised = false;
-         Cleanup();
-         Application = null;
-      }
-   }
-
-   /// <summary>Cleans up the context.</summary>
-   protected virtual void Cleanup() { }
    #endregion
 
    #region Helpers
