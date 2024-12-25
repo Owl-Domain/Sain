@@ -3,7 +3,7 @@ namespace Sain.Shared.Applications;
 /// <summary>
 ///   Represents the context of an application.
 /// </summary>
-public interface IApplicationContext
+public interface IApplicationContext : IHasApplicationInit
 {
    #region Properties
    /// <summary>The collection of the available context providers.</summary>
@@ -39,13 +39,5 @@ public interface IApplicationContext
    ///   could be obtained, <see langword="false"/> otherwise.
    /// </returns>
    bool TryGetContext<T>([MaybeNullWhen(false)] out T context) where T : notnull, IContext;
-
-   /// <summary>Initialises the application context.</summary>
-   /// <param name="application">The application that the context belongs to.</param>
-   void Initialise(IApplication application);
-
-   /// <summary>Cleans up the application context.</summary>
-   /// <param name="application">The application that the context belongs to.</param>
-   void Cleanup(IApplication application);
    #endregion
 }

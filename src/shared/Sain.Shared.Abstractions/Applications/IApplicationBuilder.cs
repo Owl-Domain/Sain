@@ -89,5 +89,16 @@ public static class IApplicationBuilderExtensions
 
       return builder.WithProvider(provider);
    }
+
+   /// <summary></summary>
+   /// <typeparam name="TSelf">The type of the <paramref name="builder"/>.</typeparam>
+   /// <param name="builder">The application builder to use.</param>
+   /// <param name="customise">The (optional) callback that can be used to customise the logging context.</param>
+   /// <returns>The used builder instance.</returns>
+   public static TSelf WithLogging<TSelf>(this TSelf builder, Action<ILoggingContext>? customise = null)
+      where TSelf : IApplicationBuilder<TSelf>
+   {
+      return builder.WithContext(customise);
+   }
    #endregion
 }

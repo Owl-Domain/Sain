@@ -65,6 +65,16 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
    }
 
    /// <inheritdoc/>
+   protected override void PreInitialise()
+   {
+      foreach (IContextProvider provider in ContextProviders)
+         provider.PreInitialise(Application);
+
+      foreach (IContext context in Contexts)
+         context.PreInitialise(Application);
+   }
+
+   /// <inheritdoc/>
    protected override void Initialise()
    {
       foreach (IContextProvider provider in ContextProviders)
@@ -75,6 +85,26 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
    }
 
    /// <inheritdoc/>
+   protected override void PostInitialise()
+   {
+      foreach (IContextProvider provider in ContextProviders)
+         provider.PostInitialise(Application);
+
+      foreach (IContext context in Contexts)
+         context.PostInitialise(Application);
+   }
+
+   /// <inheritdoc/>
+   protected override void PreCleanup()
+   {
+      foreach (IContext context in Contexts)
+         context.PreCleanup(Application);
+
+      foreach (IContextProvider provider in ContextProviders)
+         provider.PreCleanup(Application);
+   }
+
+   /// <inheritdoc/>
    protected override void Cleanup()
    {
       foreach (IContext context in Contexts)
@@ -82,6 +112,16 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
 
       foreach (IContextProvider provider in ContextProviders)
          provider.Cleanup(Application);
+   }
+
+   /// <inheritdoc/>
+   protected override void PostCleanup()
+   {
+      foreach (IContext context in Contexts)
+         context.PostCleanup(Application);
+
+      foreach (IContextProvider provider in ContextProviders)
+         provider.PostCleanup(Application);
    }
    #endregion
 }

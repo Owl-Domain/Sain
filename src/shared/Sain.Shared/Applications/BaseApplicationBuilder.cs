@@ -91,13 +91,23 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    {
       foreach (IContextProvider provider in _availableProviders)
       {
-         if (provider.TryProvide<T>(out T? context))
-         {
-            WithContext(context);
-            customise?.Invoke(context);
+         if (provider.TryProvide<T>(out T? context) is false)
+            continue;
 
+         if (_providedContexts.TryAdd(context.Kind, context))
+         {
+            customise?.Invoke(context);
             return Instance;
          }
+
+         IContext existing = _providedContexts[context.Kind];
+         if (existing is T typed)
+         {
+            customise?.Invoke(context);
+            return Instance;
+         }
+
+         throw new InvalidOperationException($"A different implementation ({existing}) of the context for the requested type ({typeof(T)}) has already been provided.");
       }
 
       throw new InvalidOperationException($"A context of the requested type ({typeof(T)}) could not be obtained.");

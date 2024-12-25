@@ -5,6 +5,19 @@ namespace Sain.Shared.Contexts;
 /// </summary>
 public abstract class BaseHasApplicationInit : IHasApplicationInit
 {
+   #region Nested types
+   private enum Stage : byte
+   {
+      Unitialised,
+      PreInitialised,
+      Initialised,
+      PostInitialised,
+
+      PreCleanup,
+      Cleanup,
+   }
+   #endregion
+
    #region Fields
    // Note(Nightowl): Doesn't have a property, but it's not gonna be useful to see it in the debugger anyway;
    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -12,11 +25,16 @@ public abstract class BaseHasApplicationInit : IHasApplicationInit
 
    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
    private IApplication? _application;
+
+   private Stage _stage = Stage.Unitialised;
    #endregion
 
    #region Properties
-   /// <summary>Whether the component has been initialised.</summary>
-   protected bool IsInitialised { get; private set; }
+   /// <inheritdoc/>
+   public bool IsInitialised => _stage is not Stage.Unitialised;
+
+   /// <inheritdoc/>
+   public bool IsFullyInitialised => _stage is Stage.PostInitialised;
 
    /// <summary>The application that the component belongs to.</summary>
    /// <exception cref="InvalidOperationException">Thrown if the property is accessed when the component has not been initialised.</exception>
@@ -38,50 +56,188 @@ public abstract class BaseHasApplicationInit : IHasApplicationInit
 
    #region Methods
    /// <inheritdoc/>
-   public void Initialise(IApplication application)
+   public void PreInitialise(IApplication application)
    {
       lock (_initLock)
       {
-         if (IsInitialised && _application != application)
-            throw new ArgumentException($"The {GetName()} has already been initialised for a different application.", nameof(application));
-
-         if (IsInitialised is false)
+         if (_stage is Stage.PreInitialised)
          {
-            Application = application;
-            try
-            {
-               Initialise();
-               IsInitialised = true;
-            }
-            catch
-            {
-               Application = null;
-               IsInitialised = false;
+            if (_application != application)
+               throw new ArgumentException($"The {GetName()} has already been pre-initialised for a different application.", nameof(application));
 
-               throw;
-            }
+            return;
+         }
+
+         if (_stage is not Stage.Unitialised)
+            throw new InvalidOperationException($"Expected the {nameof(PreInitialise)} step to run when the {GetName()} is uninitialised.");
+
+         Application = application;
+         try
+         {
+            PreInitialise();
+            _stage = Stage.PreInitialised;
+         }
+         catch
+         {
+            Application = null;
+            _stage = Stage.Unitialised;
+
+            throw;
          }
       }
    }
 
+   /// <inheritdoc/>
+   public void Initialise(IApplication application)
+   {
+      lock (_initLock)
+      {
+         if (_stage is Stage.Initialised)
+         {
+            if (_application != application)
+               throw new ArgumentException($"The {GetName()} has already been initialised for a different application.", nameof(application));
+
+            return;
+         }
+
+         if (_stage is not Stage.PreInitialised)
+            throw new InvalidOperationException($"Expected the {nameof(Initialise)} step to run after the {GetName()} has been pre-initialised.");
+
+         try
+         {
+            Initialise();
+            _stage = Stage.Initialised;
+         }
+         catch
+         {
+            Application = null;
+            _stage = Stage.Unitialised;
+
+            throw;
+         }
+      }
+   }
+
+   /// <inheritdoc/>
+   public void PostInitialise(IApplication application)
+   {
+      lock (_initLock)
+      {
+         if (_stage is Stage.PostInitialised)
+         {
+            if (_application != application)
+               throw new ArgumentException($"The {GetName()} has already been post-initialised for a different application.", nameof(application));
+
+            return;
+         }
+
+         if (_stage is not Stage.Initialised)
+            throw new InvalidOperationException($"Expected the {nameof(PostInitialise)} step to run after the {GetName()} has been initialised.");
+
+         try
+         {
+            PostInitialise();
+            _stage = Stage.PostInitialised;
+         }
+         catch
+         {
+            Application = null;
+            _stage = Stage.Unitialised;
+
+            throw;
+         }
+      }
+   }
+
+   /// <summary>Cleans up the component.</summary>
+   /// <remarks>Ran before <see cref="Initialise()"/> is ran for any component.</remarks>
+   protected virtual void PreInitialise() { }
+
    /// <summary>Initialises the component.</summary>
    protected virtual void Initialise() { }
+
+   /// <summary>Cleans up the component.</summary>
+   /// <remarks>Ran after <see cref="Initialise()"/> has ran for all components.</remarks>
+   protected virtual void PostInitialise() { }
+
+   /// <inheritdoc/>
+   public void PreCleanup(IApplication application)
+   {
+      lock (_initLock)
+      {
+         if (_stage is Stage.PreCleanup)
+         {
+            if (_application != application)
+               throw new ArgumentException($"The {GetName()} has already been pre-cleaned for a different application.", nameof(application));
+
+            return;
+         }
+
+         if (_stage is not Stage.PostInitialised)
+            throw new InvalidOperationException($"Expected the {nameof(PreCleanup)} step to run after the {GetName()} has been post-initialised.");
+
+         _stage = Stage.PreCleanup;
+         try
+         {
+            PreCleanup();
+         }
+         catch
+         {
+            Application = null;
+            throw;
+         }
+      }
+   }
 
    /// <inheritdoc/>
    public void Cleanup(IApplication application)
    {
       lock (_initLock)
       {
-         if (IsInitialised is false)
+         if (_stage is Stage.Cleanup)
+         {
+            if (_application != application)
+               throw new ArgumentException($"The {GetName()} has already been cleaned up for a different application.", nameof(application));
+
             return;
+         }
 
-         if (Application != application)
-            throw new ArgumentException($"The {GetName()} has already been initialised for a different application.", nameof(application));
+         if (_stage is not Stage.PreCleanup)
+            throw new InvalidOperationException($"Expected the {nameof(Cleanup)} step to run after the {GetName()} has been pre-cleaned.");
 
-         IsInitialised = false;
+         _stage = Stage.Cleanup;
          try
          {
             Cleanup();
+         }
+         catch
+         {
+            Application = null;
+            throw;
+         }
+      }
+   }
+
+   /// <inheritdoc/>
+   public void PostCleanup(IApplication application)
+   {
+      lock (_initLock)
+      {
+         if (_stage is Stage.Unitialised)
+         {
+            if (_application != application)
+               throw new ArgumentException($"The {GetName()} has already been post-cleaned for a different application.", nameof(application));
+
+            return;
+         }
+
+         if (_stage is not Stage.Cleanup)
+            throw new InvalidOperationException($"Expected the {nameof(PostCleanup)} step to run after the {GetName()} has been cleaned up.");
+
+         _stage = Stage.Unitialised;
+         try
+         {
+            PostCleanup();
          }
          finally
          {
@@ -90,8 +246,16 @@ public abstract class BaseHasApplicationInit : IHasApplicationInit
       }
    }
 
-   /// <summary>Cleansup the component.</summary>
+   /// <summary>Cleans up the component.</summary>
+   /// <remarks>Ran before <see cref="Cleanup()"/> is ran for any component.</remarks>
+   protected virtual void PreCleanup() { }
+
+   /// <summary>Cleans up the component.</summary>
    protected virtual void Cleanup() { }
+
+   /// <summary>Cleans up the component.</summary>
+   /// <remarks>Ran after <see cref="Cleanup()"/> has ran for all components.</remarks>
+   protected virtual void PostCleanup() { }
    #endregion
 
    #region Helpers
@@ -99,19 +263,23 @@ public abstract class BaseHasApplicationInit : IHasApplicationInit
 
    /// <summary>Throws an exception if the component has not been initialised yet.</summary>
    /// <exception cref="InvalidOperationException">Thrown if the component has not been initialised yet.</exception>
-#if NET5_0_OR_GREATER
-   [MemberNotNull(nameof(Application), nameof(Context))]
-#endif
    protected void ThrowIfNotInitialised()
    {
       lock (_initLock)
       {
-         // Note(Nightowl): Check the application being null, so that helper methods can be used in the context's Initialise method;
-         if (Application is null)
+         if (IsInitialised is false)
             throw new InvalidOperationException($"The {GetName()} has not been initialised yet.");
+      }
+   }
 
-         Debug.Assert(Application is not null);
-         Debug.Assert(Context is not null);
+   /// <summary>Throws an exception if the component has not been fully initialised yet.</summary>
+   /// <exception cref="InvalidOperationException">Thrown if the component has not been fully initialised yet.</exception>
+   protected void ThrowIfNotFullyInitialised()
+   {
+      lock (_initLock)
+      {
+         if (IsFullyInitialised is false)
+            throw new InvalidOperationException($"The {GetName()} has not been fully initialised yet.");
       }
    }
    #endregion

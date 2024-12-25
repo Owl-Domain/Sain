@@ -253,13 +253,13 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    protected abstract void ScheduleBackground(IOperation operation);
 
    /// <inheritdoc/>
-   protected override void Initialise()
+   protected override void PreInitialise()
    {
       _mainThreadId = Environment.CurrentManagedThreadId;
    }
 
    /// <inheritdoc/>
-   protected override void Cleanup()
+   protected override void PostCleanup()
    {
       _mainThreadId = null;
    }

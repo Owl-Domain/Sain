@@ -21,9 +21,9 @@ public sealed class DefaultLoggingContext(IContextProvider? provider) : BaseCont
 
    #region Methods
    /// <inheritdoc/>
-   protected override void Initialise() => _watch = Stopwatch.StartNew();
+   protected override void PreInitialise() => _watch = Stopwatch.StartNew();
    /// <inheritdoc/>
-   protected override void Cleanup() => _watch = null;
+   protected override void PostCleanup() => _watch = null;
 
    /// <inheritdoc/>
    public ILoggingContext Log(LogSeverity severity, string context, string message, [CallerMemberName] string member = "", [CallerFilePath] string file = "", [CallerLineNumber] int line = 0)
