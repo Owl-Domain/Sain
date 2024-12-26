@@ -10,4 +10,9 @@ public interface IAudioPlaybackDevice : IAudioDevice
    AudioPlaybackDeviceKind Kind { get; }
    AudioDeviceType IAudioDevice.DeviceType => AudioDeviceType.Playback;
    #endregion
+
+   #region Methods
+   /// <summary>Refreshes the kind of the audio playback device.</summary>
+   void RefreshKind();
+   #endregion
 }

@@ -70,9 +70,11 @@ public interface IMouseDevice : IDevice
    /// </returns>
    bool IsButtonDown(MouseButton button);
 
-   /// <summary>Refreshes the internal state of the mouse.</summary>
-   /// <remarks>This should also happen automatically whenever mouse events are processed, so you shouldn't have to manually call it.</remarks>
-   void Refresh();
+   /// <summary>Refreshes the position of the mouse.</summary>
+   void RefreshPosition();
+
+   /// <summary>Refreshes the visibility of the mouse cursor.</summary>
+   void RefreshIsCursorVisible();
    #endregion
 }
 

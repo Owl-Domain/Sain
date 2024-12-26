@@ -13,6 +13,14 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
    /// <inheritdoc/>
    public override bool TryProvide<T>([MaybeNullWhen(false)] out T context)
    {
+      Type type = typeof(T);
+
+      if (type == typeof(IDisplayContext) || type == typeof(SDL3DisplayContext))
+      {
+         context = (T)(IContext)new SDL3DisplayContext(this);
+         return true;
+      }
+
       context = default;
       return false;
    }
@@ -77,7 +85,7 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
 
          if (ev.Type is SDL3_EventType.WindowCloseRequested or SDL3_EventType.WindowDestroyed)
             priority = DispatchPriority.Highest;
-         else if (ev.IsWindowEvent(out _))
+         else if (ev.IsWindowEvent(out _) || ev.IsDisplayEvent(out _))
             priority = DispatchPriority.Visual;
 
          application.Context.Dispatcher.Dispatch(OnEvent, ev, priority);
@@ -85,8 +93,10 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
    }
    private void OnEvent(SDL3_Event ev)
    {
+      Debug.WriteLine($"OnEvent: {ev.Type}");
+
       foreach (ISDL3Context context in _providedContexts)
-         context.OnEvent(&ev);
+         context.OnEvent(ev);
    }
    #endregion
 

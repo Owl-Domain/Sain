@@ -20,4 +20,24 @@ public sealed class UnavailableAudioCaptureContext : BaseUnavailableContext, IAu
       }
    }
    #endregion
+
+   #region Methods
+   /// <inheritdoc/>
+   public void RefreshDevices() => ThrowForUnavailable();
+
+   /// <inheritdoc/>
+   public void RefreshDeviceIds() => ThrowForUnavailable();
+
+   /// <inheritdoc/>
+   public void RefreshName() => ThrowForUnavailable();
+
+   /// <inheritdoc/>
+   public void RefreshChannels() => ThrowForUnavailable();
+
+   /// <inheritdoc/>
+   public void RefreshFrequencies() => ThrowForUnavailable();
+
+   /// <inheritdoc/>
+   public void RefreshKinds() => ThrowForUnavailable();
+   #endregion
 }

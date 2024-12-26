@@ -17,5 +17,8 @@ public static class CoreContextKinds
 
    /// <summary>The kind of the <see cref="ILoggingContext"/>.</summary>
    public const string Logging = "core.logging";
+
+   /// <summary>The kind of the <see cref="IDisplayContext"/>.</summary>
+   public const string Display = "core.display";
    #endregion
 }

@@ -18,6 +18,8 @@ public interface IDevice : INotifyPropertyChanging, INotifyPropertyChanged
    ///   This id is only guaranteed to be unique among the devices of the same type, and it will
    ///   be persisted across application sessions, however it might not always be a full match
    ///   therefore <see cref="IsMatch(IDeviceId, out int)"/> should be used for equality checks.
+   ///   It is also possible for the device id to change at runtime, so any changes should be
+   ///   reacted to and persisted.
    /// </remarks>
    IDeviceId DeviceId { get; }
 
@@ -35,8 +37,19 @@ public interface IDevice : INotifyPropertyChanging, INotifyPropertyChanged
    /// </returns>
    /// <remarks>
    ///   The device with the highest <paramref name="score"/> should be considered the expected device,
-   ///   and the saved id should be updated to match the new <see cref="DeviceId"/>.
+   ///   and the saved id should be updated to match the new <see cref="DeviceId"/>. It is also possible
+   ///   for multiple devices to get the same highest <paramref name="score"/>, determining which device
+   ///   to use in that case is left up to the programmer, as the best approach will be application specific.
    /// </remarks>
    bool IsMatch(IDeviceId id, out int score);
+
+   /// <summary>Refreshes all of the information about the device.</summary>
+   void Refresh();
+
+   /// <summary>Refreshes the device id of the device.</summary>
+   void RefreshDeviceId();
+
+   /// <summary>Refreshes the name of the device.</summary>
+   void RefreshName();
    #endregion
 }

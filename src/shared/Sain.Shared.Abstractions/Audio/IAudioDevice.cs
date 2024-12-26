@@ -15,4 +15,12 @@ public interface IAudioDevice : IDevice
    /// <summary>The amount of samples that the audio device can play per second.</summary>
    int Frequency { get; }
    #endregion
+
+   #region Methods
+   /// <summary>Refreshes the channel count of the audio device.</summary>
+   void RefreshChannels();
+
+   /// <summary>Refreshes the frequency of the audio device.</summary>
+   void RefreshFrequency();
+   #endregion
 }

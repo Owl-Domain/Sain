@@ -11,6 +11,9 @@ internal static unsafe partial class Native
    #region Functions
    [LibraryImport(LibName, EntryPoint = "SDL_Delay")]
    public static partial void Delay(uint ms);
+
+   [LibraryImport(LibName, EntryPoint = "SDL_free")]
+   public static partial void Free(void* pointer);
    #endregion
 }
 

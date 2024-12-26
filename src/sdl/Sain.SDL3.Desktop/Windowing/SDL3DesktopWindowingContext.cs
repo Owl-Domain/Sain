@@ -1,5 +1,9 @@
 namespace Sain.SDL3.Desktop.Windowing;
 
+/// <summary>
+///   Represents the SDL3 specific context for managing windows.
+/// </summary>
+/// <param name="provider">The context provider that the context comes from.</param>
 public unsafe sealed class SDL3DesktopWindowingContext(IContextProvider? provider) : BaseContext(provider), ISDL3Context, IDesktopWindowingContext
 {
    #region Fields
@@ -59,22 +63,26 @@ public unsafe sealed class SDL3DesktopWindowingContext(IContextProvider? provide
       _windows.Add(window);
       return window;
    }
-
-   unsafe void ISDL3Context.OnEvent(SDL3_Event* ev)
-   {
-      foreach (SDL3DesktopWindow current in _windows)
-      {
-         if (current.WindowId == current.WindowId)
-         {
-            current.OnEvent(ev);
-            break;
-         }
-      }
-   }
    private void WindowClosed(IDesktopWindow window)
    {
       window.Closed -= WindowClosed;
       _windows.Remove((SDL3DesktopWindow)window);
    }
+
+   unsafe void ISDL3Context.OnEvent(in SDL3_Event ev)
+   {
+      if (ev.IsWindowEvent(out SDL3_WindowEvent window) is false)
+         return;
+
+      foreach (SDL3DesktopWindow current in _windows)
+      {
+         if (current.WindowId == current.WindowId)
+         {
+            current.RouteEvent(window);
+            break;
+         }
+      }
+   }
+
    #endregion
 }

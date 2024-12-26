@@ -145,6 +145,7 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
       AddRequired<IDispatcherContext>(CoreContextKinds.Dispatcher);
 
       TryAddDefault<ILoggingContext, UnavailableLoggingContext>(CoreContextKinds.Logging);
+      TryAddDefault<IDisplayContext, UnavailableDisplayContext>(CoreContextKinds.Display);
 
       TryAddUnavailable<UnavailableAudioPlaybackContext>(CoreContextKinds.AudioPlayback);
       TryAddUnavailable<UnavailableAudioCaptureContext>(CoreContextKinds.AudioCapture);

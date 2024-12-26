@@ -1,3 +1,4 @@
+
 namespace Sain.Shared.Applications;
 
 /// <summary>
@@ -20,6 +21,9 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
 
    /// <inheritdoc/>
    public ILoggingContext Logging { get; }
+
+   /// <inheritdoc/>
+   public IDisplayContext Display { get; }
    #endregion
 
    #region Constructors
@@ -35,6 +39,7 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
 
       Dispatcher = GetContext<IDispatcherContext>();
       Logging = GetContext<ILoggingContext>();
+      Display = GetContext<IDisplayContext>();
    }
    #endregion
 

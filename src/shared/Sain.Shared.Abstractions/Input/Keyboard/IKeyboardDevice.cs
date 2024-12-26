@@ -27,10 +27,6 @@ public interface IKeyboardDevice : IDevice
    /// <param name="key">The physical key to check.</param>
    /// <returns><see langword="true"/> if the given physical <paramref name="key"/> is currently pressed down, <see langword="false"/> otherwise.</returns>
    bool IsKeyDown(PhysicalKey key);
-
-   /// <summary>Refreshes the internal state of the keyboard.</summary>
-   /// <remarks>This should also happen automatically whenever keyboard events are processed, so you shouldn't have to manually call it.</remarks>
-   void Refresh();
    #endregion
 }
 

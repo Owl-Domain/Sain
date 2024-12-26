@@ -20,6 +20,9 @@ public interface IApplicationContext : IHasApplicationInit
 
    /// <summary>The application's context for logging.</summary>
    ILoggingContext Logging { get; }
+
+   /// <summary>The application's context for display information.</summary>
+   IDisplayContext Display { get; }
    #endregion
 
    #region Methods

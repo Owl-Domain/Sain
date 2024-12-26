@@ -1,6 +1,9 @@
 namespace Sain.SDL3.Desktop.Windowing;
 
-public unsafe sealed class SDL3DesktopWindow : ObservableBase, IDesktopWindow
+/// <summary>
+///   Represents an SDL3 specific desktop window.
+/// </summary>
+public unsafe sealed class SDL3DesktopWindow : ObservableBase, IDesktopWindow, ISDL3EventHandler<SDL3_WindowEvent>
 {
    #region Fields
    private readonly IApplication _application;
@@ -100,9 +103,9 @@ public unsafe sealed class SDL3DesktopWindow : ObservableBase, IDesktopWindow
          CloseNative();
    }
    private void CloseNative() => Native.DestroyWindow(WindowId);
-   internal unsafe void OnEvent(SDL3_Event* ev)
+   unsafe void ISDL3EventHandler<SDL3_WindowEvent>.OnEvent(in SDL3_WindowEvent ev)
    {
-      if (ev->Type is SDL3_EventType.WindowCloseRequested)
+      if (ev.Type is SDL3_EventType.WindowCloseRequested)
       {
          WindowCloseRequestedEventArgs args = new();
          CloseRequested?.Invoke(this, args);
@@ -110,7 +113,7 @@ public unsafe sealed class SDL3DesktopWindow : ObservableBase, IDesktopWindow
          if (args.ShouldCloseWindow)
             Close();
       }
-      else if (ev->Type is SDL3_EventType.WindowDestroyed)
+      else if (ev.Type is SDL3_EventType.WindowDestroyed)
       {
          try
          {

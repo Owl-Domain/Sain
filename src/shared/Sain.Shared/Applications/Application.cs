@@ -57,6 +57,7 @@ public sealed class Application(string? id, string name, IVersion version, IAppl
       if (State is not ApplicationState.Stopped)
          throw new InvalidOperationException($"The application is either currently running or has not fully stopped yet, meaning it cannot be started again.");
 
+      _shouldBeRunning = true;
       State = ApplicationState.Starting;
       Starting?.Invoke(this);
 
@@ -73,7 +74,6 @@ public sealed class Application(string? id, string name, IVersion version, IAppl
       if (Context.Logging.IsAvailable) Context.Logging.Trace<Application>("Application loop starting.");
 
       Stopwatch watch = new();
-      _shouldBeRunning = true;
       while (_shouldBeRunning)
       {
          watch.Restart();

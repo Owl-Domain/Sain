@@ -165,6 +165,7 @@ internal enum SDL3_EventType : uint
    #endregion
 }
 
+[StructLayout(LayoutKind.Sequential)]
 internal readonly struct SDL3_CommonEvent
 {
    #region Fields
@@ -185,9 +186,10 @@ internal readonly struct SDL3_Event
    [FieldOffset(0)] public readonly SDL3_EventType Type;
    [FieldOffset(0)] private readonly SDL3_CommonEvent _common;
    [FieldOffset(0)] private readonly SDL3_WindowEvent _window;
+   [FieldOffset(0)] private readonly SDL3_DisplayEvent _display;
    #endregion
 
-   #region Window event methods
+   #region Methods
    public readonly bool IsWindowEvent(out SDL3_WindowEvent window)
    {
       switch (Type)
@@ -222,6 +224,24 @@ internal readonly struct SDL3_Event
       }
 
       window = default;
+      return false;
+   }
+   public readonly bool IsDisplayEvent(out SDL3_DisplayEvent display)
+   {
+      switch (Type)
+      {
+         case SDL3_EventType.DisplayOrientationChanged:
+         case SDL3_EventType.DisplayAdded:
+         case SDL3_EventType.DisplayRemoved:
+         case SDL3_EventType.DisplayMoved:
+         case SDL3_EventType.DisplayDesktopModeChanged:
+         case SDL3_EventType.DisplayCurrentModeChanged:
+         case SDL3_EventType.DisplayContentScaleChanged:
+            display = _display;
+            return true;
+      }
+
+      display = default;
       return false;
    }
    #endregion

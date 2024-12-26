@@ -7,6 +7,6 @@ internal unsafe interface ISDL3Context : IContext
    #endregion
 
    #region Methods
-   void OnEvent(SDL3_Event* ev);
+   void OnEvent(in SDL3_Event ev);
    #endregion
 }
