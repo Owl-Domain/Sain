@@ -25,7 +25,12 @@ public class SDL3MouseDevice :
    private string _name;
 
    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-   private Point _position;
+   private Point _globalPosition;
+
+   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+   private Point _localPosition;
+
+   private SDL3_WindowId _lastActiveWindow;
    #endregion
 
    #region Properties
@@ -60,17 +65,35 @@ public class SDL3MouseDevice :
    public IReadOnlyCollection<IMouseButtonState> Buttons => _buttons;
 
    /// <inheritdoc/>
-   public Point Position
+   public Point GlobalPosition
    {
       get
       {
-         RefreshPosition();
-         return _position;
+         RefreshGlobalPosition();
+         return _globalPosition;
       }
       set
       {
-         if (TrySetPosition(value) is false)
-            throw new NotSupportedException($"Setting the mouse position is not supported.");
+         if (TrySetGlobalPosition(value) is false)
+            throw new NotSupportedException($"Setting the global mouse position is not supported.");
+      }
+   }
+
+   /// <inheritdoc/>
+   public Point LocalPosition
+   {
+      get
+      {
+         RefreshLocalPosition();
+         return _localPosition;
+      }
+      set
+      {
+         if (_lastActiveWindow.Id is 0)
+            throw new InvalidOperationException($"Setting the local mouse position is not possible if there is no active window.");
+
+         if (TrySetLocalPosition(value) is false)
+            throw new NotSupportedException($"Setting the local mouse position is not supported.");
       }
    }
 
@@ -129,19 +152,45 @@ public class SDL3MouseDevice :
    public bool IsMatch(IDeviceId id, out int score) => DeviceId.IsBasicPartialMatch(id, out score);
 
    /// <inheritdoc/>
-   public bool TrySetPosition(Point position)
+   public bool TrySetGlobalPosition(Point position)
    {
       if (Native.WarpMouseGlobal((float)position.X, (float)position.Y) is false)
       {
          if (_context.Logging.IsAvailable)
-            _context.Logging.Warning<SDL3MouseDevice>($"Failed to set the mouse ({MouseId}) position ({position}). ({Native.LastError})");
+            _context.Logging.Warning<SDL3MouseDevice>($"Failed to set the global mouse ({MouseId}) position ({position}). ({Native.LastError})");
 
          return false;
       }
 
-      RaisePropertyChanging(nameof(Position));
-      _position = position;
-      RaisePropertyChanged(nameof(Position));
+      RaisePropertyChanging(nameof(GlobalPosition));
+      _globalPosition = position;
+      RaisePropertyChanged(nameof(GlobalPosition));
+
+      return true;
+   }
+
+   /// <inheritdoc/>
+   public bool TrySetLocalPosition(Point position)
+   {
+      if (_lastActiveWindow.Id is 0) // No active window / invalid window
+      {
+         if (_context.Logging.IsAvailable)
+            _context.Logging.Debug<SDL3MouseDevice>($"Setting the local mouse ({MouseId}) position ({position}) failed because no window was last active.");
+
+         return false;
+      }
+
+      if (Native.WarpMouseInWindow(_lastActiveWindow, (float)position.X, (float)position.Y) is false)
+      {
+         if (_context.Logging.IsAvailable)
+            _context.Logging.Warning<SDL3MouseDevice>($"Failed to set the local mouse ({MouseId}) position ({position}) in the window ({_lastActiveWindow}). ({Native.LastError})");
+
+         return false;
+      }
+
+      RaisePropertyChanging(nameof(GlobalPosition));
+      _globalPosition = position;
+      RaisePropertyChanged(nameof(GlobalPosition));
 
       return true;
    }
@@ -256,7 +305,8 @@ public class SDL3MouseDevice :
    {
       RefreshName();
       RefreshDeviceId();
-      RefreshState();
+      RefreshGlobalState();
+      RefreshLocalState();
       RefreshIsCursorVisible();
    }
 
@@ -279,10 +329,20 @@ public class SDL3MouseDevice :
    }
 
    /// <inheritdoc/>
-   public void RefreshPosition() => RefreshState();
+   public void RefreshGlobalPosition() => RefreshGlobalState();
 
    /// <inheritdoc/>
-   public void RefreshButtons() => RefreshButtons();
+   public void RefreshLocalPosition() => RefreshLocalState();
+
+   /// <inheritdoc/>
+   public void RefreshPosition()
+   {
+      RefreshGlobalPosition();
+      RefreshLocalPosition();
+   }
+
+   /// <inheritdoc/>
+   public void RefreshButtons() => RefreshLocalState();
 
    /// <inheritdoc/>
    public void RefreshIsCaptured()
@@ -306,7 +366,7 @@ public class SDL3MouseDevice :
       _lastUseTimestamp = _useStopwatch.Elapsed;
       RaisePropertyChanged(nameof(LastUsed));
    }
-   private void RefreshState()
+   private void RefreshGlobalState()
    {
       SDL3_MouseButtonFlags buttons = Native.GetGlobalMouseState(out float x, out float y);
 
@@ -316,20 +376,42 @@ public class SDL3MouseDevice :
       _buttons[3].IsDown = buttons.HasFlag(SDL3_MouseButtonFlags.X1);
       _buttons[4].IsDown = buttons.HasFlag(SDL3_MouseButtonFlags.X2);
 
-      RaisePropertyChanging(nameof(Position));
-      _position = new(x, y);
-      RaisePropertyChanged(nameof(Position));
+      RaisePropertyChanging(nameof(GlobalPosition));
+      _globalPosition = new(x, y);
+      RaisePropertyChanged(nameof(GlobalPosition));
+   }
+   private void RefreshLocalState()
+   {
+      SDL3_MouseButtonFlags buttons = Native.GetMouseState(out float x, out float y);
+
+      _buttons[0].IsDown = buttons.HasFlag(SDL3_MouseButtonFlags.Left);
+      _buttons[1].IsDown = buttons.HasFlag(SDL3_MouseButtonFlags.Middle);
+      _buttons[2].IsDown = buttons.HasFlag(SDL3_MouseButtonFlags.Right);
+      _buttons[3].IsDown = buttons.HasFlag(SDL3_MouseButtonFlags.X1);
+      _buttons[4].IsDown = buttons.HasFlag(SDL3_MouseButtonFlags.X2);
+
+      RaisePropertyChanging(nameof(LocalPosition));
+      _localPosition = new(x, y);
+      RaisePropertyChanged(nameof(LocalPosition));
    }
    void ISDL3EventHandler<SDL3_MouseMotionEvent>.OnEvent(in SDL3_MouseMotionEvent ev)
    {
-      RefreshState();
+      _lastActiveWindow = ev.WindowId;
+      RefreshGlobalState();
+      RefreshLocalState();
       UpdateLastUsed();
    }
    void ISDL3EventHandler<SDL3_MouseButtonEvent>.OnEvent(in SDL3_MouseButtonEvent ev)
    {
-      RefreshState();
+      _lastActiveWindow = ev.WindowId;
+      RefreshGlobalState();
+      RefreshLocalState();
       UpdateLastUsed();
    }
-   void ISDL3EventHandler<SDL3_MouseWheelEvent>.OnEvent(in SDL3_MouseWheelEvent ev) => UpdateLastUsed();
+   void ISDL3EventHandler<SDL3_MouseWheelEvent>.OnEvent(in SDL3_MouseWheelEvent ev)
+   {
+      _lastActiveWindow = ev.WindowId;
+      UpdateLastUsed();
+   }
    #endregion
 }

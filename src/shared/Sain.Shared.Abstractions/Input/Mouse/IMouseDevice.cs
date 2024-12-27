@@ -22,9 +22,16 @@ public interface IMouseDevice : IInputDevice
    /// </remarks>
    /// <exception cref="NotSupportedException">
    ///   Thrown if setting the mouse position is not supported, if you want to
-   ///   check for this you should use <see cref="TrySetPosition(Point)"/> instead.
+   ///   check for this you should use <see cref="TrySetGlobalPosition(Point)"/> instead.
    /// </exception>
-   Point Position { get; set; }
+   Point GlobalPosition { get; set; }
+
+   /// <summary>The position of the mouse relative to the active window.</summary>
+   /// <exception cref="NotSupportedException">
+   ///   Thrown if setting the mouse position is not supported, if you want to
+   ///   check for this you should use <see cref="TrySetLocalPosition(Point)"/> instead.
+   /// </exception>
+   Point LocalPosition { get; set; }
 
    /// <summary>Whether the mouse events for this mouse device are captured.</summary>
    /// <remarks>Capturing mouse events means that only the current application (and only the window that currently has mouse focus) will receive mouse events.</remarks>
@@ -38,7 +45,12 @@ public interface IMouseDevice : IInputDevice
    /// <summary>Tries to set the mouse position in the virtual screen space.</summary>
    /// <param name="position">The position to move the mouse to.</param>
    /// <returns><see langword="true"/> if setting the mouse position was successful, <see langword="false"/> otherwise.</returns>
-   bool TrySetPosition(Point position);
+   bool TrySetGlobalPosition(Point position);
+
+   /// <summary>Tries to set the mouse position relative to the active window..</summary>
+   /// <param name="position">The position to move the mouse to.</param>
+   /// <returns><see langword="true"/> if setting the mouse position was successful, <see langword="false"/> otherwise.</returns>
+   bool TrySetLocalPosition(Point position);
 
    /// <summary>Starts capturing mouse events from this mouse device.</summary>
    /// <returns><see langword="true"/> if capturing was successfully enabled, <see langword="false"/> otherwise.</returns>
@@ -75,7 +87,13 @@ public interface IMouseDevice : IInputDevice
    /// </returns>
    bool IsButtonDown(MouseButton button);
 
-   /// <summary>Refreshes the position of the mouse.</summary>
+   /// <summary>Refreshes the global position of the mouse.</summary>
+   void RefreshGlobalPosition();
+
+   /// <summary>Refreshes the local position of the mouse.</summary>
+   void RefreshLocalPosition();
+
+   /// <summary>Refreshes both the local and global positions of the mouse. </summary>
    void RefreshPosition();
 
    /// <summary>Refreshes the button state of the mouse.</summary>

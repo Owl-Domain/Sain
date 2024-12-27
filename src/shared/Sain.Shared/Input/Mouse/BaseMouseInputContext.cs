@@ -40,7 +40,7 @@ public abstract class BaseMouseInputContext(IContextProvider? provider) : BaseCo
    public void RefreshPositions()
    {
       foreach (IMouseDevice device in Devices)
-         device.RefreshPosition();
+         device.RefreshGlobalPosition();
    }
 
    /// <inheritdoc/>

@@ -5,6 +5,10 @@ internal readonly struct SDL3_WindowId(uint id)
    #region Fields
    public readonly uint Id = id;
    #endregion
+
+   #region Methods
+   public override string ToString() => Id.ToString();
+   #endregion
 }
 
 [StructLayout(LayoutKind.Sequential)]

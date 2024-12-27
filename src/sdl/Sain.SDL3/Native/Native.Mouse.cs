@@ -80,7 +80,7 @@ internal readonly struct SDL3_MouseMotionEvent
 {
    #region Fields
    public readonly SDL3_CommonEvent Common;
-   public readonly SDL3_WindowEvent WindowId;
+   public readonly SDL3_WindowId WindowId;
    public readonly SDL3_MouseId MouseId;
    public readonly SDL3_MouseButtonFlags Buttons;
    public readonly float X;
@@ -99,7 +99,7 @@ internal readonly struct SDL3_MouseButtonEvent
 {
    #region Fields
    public readonly SDL3_CommonEvent Common;
-   public readonly SDL3_WindowEvent WindowId;
+   public readonly SDL3_WindowId WindowId;
    public readonly SDL3_MouseId MouseId;
    public readonly SDL3_MouseButton Button;
    private readonly byte _isDown;
@@ -120,7 +120,7 @@ internal readonly struct SDL3_MouseWheelEvent
 {
    #region Fields
    public readonly SDL3_CommonEvent Common;
-   public readonly SDL3_WindowEvent WindowId;
+   public readonly SDL3_WindowId WindowId;
    public readonly SDL3_MouseId MouseId;
    public readonly float ScrollX;
    public readonly float ScrollY;
@@ -168,6 +168,10 @@ static unsafe partial class Native
    [LibraryImport(LibName, EntryPoint = "SDL_WarpMouseGlobal")]
    [return: MarshalAs(Bool)]
    public static partial bool WarpMouseGlobal(float x, float y);
+
+   [LibraryImport(LibName, EntryPoint = "SDL_WarpMouseInWindow")]
+   [return: MarshalAs(Bool)]
+   public static partial bool WarpMouseInWindow(in SDL3_WindowId window, float x, float y);
 
    [LibraryImport(LibName, EntryPoint = "SDL_CaptureMouse")]
    [return: MarshalAs(Bool)]
