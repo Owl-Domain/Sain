@@ -17,7 +17,7 @@ public interface IMouseDevice : IInputDevice
 
    /// <summary>The position of the mouse in the virtual screen space.</summary>
    /// <remarks>
-   ///   Depending on the implementation of the <see cref="IMouseInputContext"/>, changes to the mouse position in
+   ///   Depending on the implementation of the owning <see cref="IMouseInputContext"/>, changes to the mouse position in
    ///   the virtual screen space might not be automatically reported, and the position must be manually requested.
    /// </remarks>
    /// <exception cref="NotSupportedException">
@@ -39,6 +39,29 @@ public interface IMouseDevice : IInputDevice
 
    /// <summary>Whether the mouse cursor is currently visible.</summary>
    bool IsCursorVisible { get; }
+   #endregion
+
+   #region Events
+   /// <summary>The event that is raised when the mouse is moved.</summary>
+   /// <remarks>
+   ///   Depending on the implementation of the owning <see cref="IMouseInputContext"/>, this event might only
+   ///   be raised when the local position is changed, while ignoring any changes in the global position.
+   /// </remarks>
+   event MouseDeviceMotionEventHandler? MouseMoved;
+
+   /// <summary>The event that is raised when a mouse button is released.</summary>
+   /// <remarks>
+   ///   Depending on the implementation of the owning <see cref="IMouseInputContext"/>, this event might only be
+   ///   raised when the mouse is over the active window, and will therefore not be raised for global mouse events.
+   /// </remarks>
+   event MouseDeviceButtonEventHandler? ButtonUp;
+
+   /// <summary>The event that is raised when a mouse button is pressed down.</summary>
+   /// <remarks>
+   ///   Depending on the implementation of the owning <see cref="IMouseInputContext"/>, this event might only be
+   ///   raised when the mouse is over the active window, and will therefore not be raised for global mouse events.
+   /// </remarks>
+   event MouseDeviceButtonEventHandler? ButtonDown;
    #endregion
 
    #region Methods

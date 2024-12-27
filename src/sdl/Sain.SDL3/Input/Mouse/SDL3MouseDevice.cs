@@ -125,6 +125,17 @@ public class SDL3MouseDevice :
    }
    #endregion
 
+   #region Events
+   /// <inheritdoc/>
+   public event MouseDeviceMotionEventHandler? MouseMoved;
+
+   /// <inheritdoc/>
+   public event MouseDeviceButtonEventHandler? ButtonUp;
+
+   /// <inheritdoc/>
+   public event MouseDeviceButtonEventHandler? ButtonDown;
+   #endregion
+
    #region Constructors
    internal SDL3MouseDevice(IApplicationContext context, SDL3MouseInputContext sdlContext, SDL3_MouseId id)
    {
@@ -400,6 +411,12 @@ public class SDL3MouseDevice :
       RefreshGlobalState();
       RefreshLocalState();
       UpdateLastUsed();
+
+      if (MouseMoved is not null)
+      {
+         MouseDeviceMotionEventArgs args = new(GlobalPosition, LocalPosition);
+         MouseMoved?.Invoke(this, args);
+      }
    }
    void ISDL3EventHandler<SDL3_MouseButtonEvent>.OnEvent(in SDL3_MouseButtonEvent ev)
    {
@@ -407,6 +424,33 @@ public class SDL3MouseDevice :
       RefreshGlobalState();
       RefreshLocalState();
       UpdateLastUsed();
+
+      MouseButtonState? state = ev.Button switch
+      {
+         SDL3_MouseButton.Left => _buttons[0],
+         SDL3_MouseButton.Middle => _buttons[1],
+         SDL3_MouseButton.Right => _buttons[2],
+         SDL3_MouseButton.X1 => _buttons[3],
+         SDL3_MouseButton.X2 => _buttons[4],
+
+         _ => null,
+      };
+
+      if (state is null)
+      {
+         if (_context.Logging.IsAvailable)
+            _context.Logging.Warning<SDL3MouseDevice>($"Failed to raise the mouse button event for the mouse ({MouseId}) because the mouse button was unknown ({ev.Button}).");
+
+         return;
+      }
+
+      MouseDeviceButtonEventArgs args = new(state.Button, state);
+
+      if (ev.IsDown)
+         ButtonDown?.Invoke(this, args);
+
+      if (ev.IsDown is false)
+         ButtonUp?.Invoke(this, args);
    }
    void ISDL3EventHandler<SDL3_MouseWheelEvent>.OnEvent(in SDL3_MouseWheelEvent ev)
    {
