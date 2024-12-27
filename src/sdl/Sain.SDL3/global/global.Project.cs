@@ -20,3 +20,4 @@ global using Sain.Shared.Observable;
 
 global using Sain.SDL3.Contexts;
 global using Sain.SDL3.Display;
+global using Sain.SDL3.Input.Mouse;

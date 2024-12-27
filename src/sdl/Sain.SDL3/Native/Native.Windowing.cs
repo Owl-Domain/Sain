@@ -71,10 +71,10 @@ static unsafe partial class Native
 
    [LibraryImport(LibName, EntryPoint = "SDL_GetWindowTitle")]
    private static partial byte* _GetWindowTitle(SDL3_WindowId* window);
-   public static string GetWindowTitle(SDL3_WindowId* window)
+   public static string? GetWindowTitle(SDL3_WindowId* window)
    {
       byte* native = _GetWindowTitle(window);
-      return Utf8StringMarshaller.ConvertToManaged(native) ?? string.Empty;
+      return Utf8StringMarshaller.ConvertToManaged(native);
    }
 
    [LibraryImport(LibName, EntryPoint = "SDL_SetWindowTitle", StringMarshalling = String)]

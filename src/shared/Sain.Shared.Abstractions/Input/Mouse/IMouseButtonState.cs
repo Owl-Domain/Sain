@@ -3,7 +3,7 @@ namespace Sain.Shared.Input.Mouse;
 /// <summary>
 ///   Represents state information about a single mouse button.
 /// </summary>
-public interface IMouseButtonState
+public interface IMouseButtonState : INotifyPropertyChanging, INotifyPropertyChanged
 {
    #region Properties
    /// <summary>The mouse button.</summary>

@@ -21,6 +21,12 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
          return true;
       }
 
+      if (type == typeof(IMouseInputContext) || type == typeof(SDL3MouseInputContext))
+      {
+         context = (T)(IContext)new SDL3MouseInputContext(this);
+         return true;
+      }
+
       context = default;
       return false;
    }

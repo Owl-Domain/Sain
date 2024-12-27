@@ -20,5 +20,11 @@ public static class CoreContextKinds
 
    /// <summary>The kind of the <see cref="IDisplayContext"/>.</summary>
    public const string Display = "core.display";
+
+   /// <summary>The kind of the <see cref="IMouseInputContext"/>.</summary>
+   public const string MouseInput = "core.input.mouse";
+
+   /// <summary>The kind of the <see cref="IKeyboardInputContext"/>.</summary>
+   public const string KeyboardInput = "core.input.keyboard";
    #endregion
 }

@@ -16,9 +16,6 @@ public unsafe sealed class SDL3DisplayContext(IContextProvider? provider) : Base
    SDL3_InitFlags ISDL3Context.Flags => SDL3_InitFlags.Video;
 
    /// <inheritdoc/>
-   public override string Kind => CoreContextKinds.Display;
-
-   /// <inheritdoc/>
    public override IDeviceCollection<IDisplayDevice> Devices => _devices;
    #endregion
 
@@ -27,11 +24,7 @@ public unsafe sealed class SDL3DisplayContext(IContextProvider? provider) : Base
    protected override void Initialise()
    {
       foreach (SDL3_DisplayId id in EnumerateDisplayIds())
-      {
-         SDL3DisplayDevice device = new(id, Context);
-         _devices.Add(device);
-         _deviceLookup[id] = device;
-      }
+         AddDevice(id);
    }
 
    /// <inheritdoc/>
@@ -72,7 +65,7 @@ public unsafe sealed class SDL3DisplayContext(IContextProvider? provider) : Base
    private IEnumerable<SDL3_DisplayId> EnumerateDisplayIds()
    {
       nint ptr;
-      ReadOnlySpan<SDL3_DisplayId> ids;
+      SDL3_DisplayId[] ids;
 
       unsafe
       {
@@ -88,7 +81,8 @@ public unsafe sealed class SDL3DisplayContext(IContextProvider? provider) : Base
          Debug.Assert(count >= 0);
 
          ptr = new(native);
-         ids = new(native, count);
+         ReadOnlySpan<SDL3_DisplayId> span = new(native, count);
+         ids = [.. span];
       }
 
       foreach (SDL3_DisplayId id in ids)
@@ -96,39 +90,44 @@ public unsafe sealed class SDL3DisplayContext(IContextProvider? provider) : Base
 
       unsafe { Native.Free(ptr.ToPointer()); }
    }
-   private void RemoveDevice(SDL3_DisplayId displayId)
+   private void RemoveDevice(SDL3_DisplayId id)
    {
-      if (_deviceLookup.TryGetValue(displayId, out SDL3DisplayDevice? device) is false)
+      if (_deviceLookup.TryGetValue(id, out SDL3DisplayDevice? device) is false)
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Warning<SDL3DisplayContext>($"A display device with an unknown display id was removed ({displayId}).");
+            Context.Logging.Warning<SDL3DisplayContext>($"A display device with an unknown display id was removed ({id}).");
 
          return;
       }
 
       _deviceLookup.Remove(device.DisplayId);
       _devices.Remove(device);
+
+      if (Context.Logging.IsAvailable)
+         Context.Logging.Debug<SDL3DisplayContext>($"Display device removed, id = ({device.Id}), display id = ({device.DisplayId})");
    }
-   private void AddDevice(SDL3_DisplayId displayId)
+   private void AddDevice(SDL3_DisplayId id)
    {
-      SDL3DisplayDevice device = new(displayId, Context);
-      if (_deviceLookup.TryAdd(displayId, device) is false)
+      SDL3DisplayDevice device = new(id, Context);
+
+      if (_deviceLookup.TryAdd(id, device) is false)
       {
-         SDL3DisplayDevice old = _deviceLookup[displayId];
+         SDL3DisplayDevice old = _deviceLookup[id];
 
          if (Context.Logging.IsAvailable)
-            Context.Logging.Warning<SDL3DisplayContext>($"A device with a duplicate display id ({displayId}) was detected, old id = ({old.Id}), new id = ({device.Id}).");
+            Context.Logging.Warning<SDL3DisplayContext>($"A device with a duplicate display id ({id}) was detected, old id = ({old.Id}), new id = ({device.Id}).");
 
          _devices.Remove(old);
-         _deviceLookup[displayId] = device; // Override
+         _deviceLookup[id] = device; // Override
       }
 
       _devices.Add(device);
+
+      if (Context.Logging.IsAvailable)
+         Context.Logging.Debug<SDL3DisplayContext>($"Display device added, id = ({device.Id}), display id = ({device.DisplayId})");
    }
    private void RouteEvent(in SDL3_DisplayEvent ev)
    {
-      Debug.WriteLine($"Routing event {ev.Type}");
-
       if (_deviceLookup.TryGetValue(ev.DisplayId, out SDL3DisplayDevice? device) is false)
       {
          if (Context.Logging.IsAvailable)

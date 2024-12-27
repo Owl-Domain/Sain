@@ -29,7 +29,7 @@ public class UnavailableDisplayContext : BaseUnavailableContext, IDisplayContext
    public void RefreshDeviceIds() => ThrowForUnavailable();
 
    /// <inheritdoc/>
-   public void RefreshName() => ThrowForUnavailable();
+   public void RefreshNames() => ThrowForUnavailable();
 
    /// <inheritdoc/>
    public void RefreshResolutions() => ThrowForUnavailable();

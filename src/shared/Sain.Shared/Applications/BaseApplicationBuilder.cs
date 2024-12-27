@@ -146,6 +146,7 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
 
       TryAddDefault<ILoggingContext, UnavailableLoggingContext>(CoreContextKinds.Logging);
       TryAddDefault<IDisplayContext, UnavailableDisplayContext>(CoreContextKinds.Display);
+      TryAddDefault<IMouseInputContext, UnavailableMouseInputContext>(CoreContextKinds.MouseInput);
 
       TryAddUnavailable<UnavailableAudioPlaybackContext>(CoreContextKinds.AudioPlayback);
       TryAddUnavailable<UnavailableAudioCaptureContext>(CoreContextKinds.AudioCapture);

@@ -8,6 +8,9 @@ public abstract class BaseDisplayContext(IContextProvider? provider) : BaseConte
 {
    #region Properties
    /// <inheritdoc/>
+   public sealed override string Kind => CoreContextKinds.Display;
+
+   /// <inheritdoc/>
    public abstract IDeviceCollection<IDisplayDevice> Devices { get; }
    #endregion
 
@@ -27,7 +30,7 @@ public abstract class BaseDisplayContext(IContextProvider? provider) : BaseConte
    }
 
    /// <inheritdoc/>
-   public void RefreshName()
+   public void RefreshNames()
    {
       foreach (IDisplayDevice device in Devices)
          device.RefreshName();

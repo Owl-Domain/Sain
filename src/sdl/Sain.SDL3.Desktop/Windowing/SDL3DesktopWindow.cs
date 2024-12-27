@@ -34,15 +34,11 @@ public unsafe sealed class SDL3DesktopWindow : ObservableBase, IDesktopWindow, I
    {
       get
       {
-         if (Dispatcher.IsOnMainThread)
-            return Native.GetWindowTitle(WindowId);
-
-         return Dispatcher.Dispatch(() => Native.GetWindowTitle(WindowId)).Result;
+         throw new NotImplementedException();
       }
       set
       {
-         if (Dispatcher.IsOnMainThread)
-            Native.SetWindowTitle(WindowId, value);
+         throw new NotImplementedException();
       }
    }
 

@@ -22,7 +22,7 @@ public interface IDisplayContext : IContext
 
    /// <summary>Refreshes the name of the display devices.</summary>
    /// <exception cref="InvalidOperationException">Might be thrown if accessed when the context is unavailable.</exception>
-   void RefreshName();
+   void RefreshNames();
 
    /// <summary>Refreshes the resolution of the display devices.</summary>
    /// <exception cref="InvalidOperationException">Might be thrown if accessed when the context is unavailable.</exception>

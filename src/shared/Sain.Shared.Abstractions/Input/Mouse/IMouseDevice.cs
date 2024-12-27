@@ -3,7 +3,7 @@ namespace Sain.Shared.Input.Mouse;
 /// <summary>
 ///   Represents information about a mouse device.
 /// </summary>
-public interface IMouseDevice : IDevice
+public interface IMouseDevice : IInputDevice
 {
    #region Properties
    /// <summary>The collection of the available mouse buttons.</summary>
@@ -16,6 +16,10 @@ public interface IMouseDevice : IDevice
    IReadOnlyCollection<IMouseButtonState> Buttons { get; }
 
    /// <summary>The position of the mouse in the virtual screen space.</summary>
+   /// <remarks>
+   ///   Depending on the implementation of the <see cref="IMouseInputContext"/>, changes to the mouse position in
+   ///   the virtual screen space might not be automatically reported, and the position must be manually requested.
+   /// </remarks>
    /// <exception cref="NotSupportedException">
    ///   Thrown if setting the mouse position is not supported, if you want to
    ///   check for this you should use <see cref="TrySetPosition(Point)"/> instead.
@@ -42,8 +46,9 @@ public interface IMouseDevice : IDevice
    bool StartCapture();
 
    /// <summary>stops capturing mouse events from this mouse device.</summary>
+   /// <returns><see langword="true"/> if capturing was successfully disabled, <see langword="false"/> otherwise.</returns>
    /// <remarks>Capturing mouse events means that only the current application will receive mouse events.</remarks>
-   void StopCapture();
+   bool StopCapture();
 
    /// <summary>Makes the mouse cursor visible.</summary>
    /// <returns><see langword="true"/> if making the mouse cursor visible was successful, <see langword="false"/> otherwise.</returns>
@@ -72,6 +77,12 @@ public interface IMouseDevice : IDevice
 
    /// <summary>Refreshes the position of the mouse.</summary>
    void RefreshPosition();
+
+   /// <summary>Refreshes the button state of the mouse.</summary>
+   void RefreshButtons();
+
+   /// <summary>Refreshes the capture state of the mouse.</summary>
+   void RefreshIsCaptured();
 
    /// <summary>Refreshes the visibility of the mouse cursor.</summary>
    void RefreshIsCursorVisible();

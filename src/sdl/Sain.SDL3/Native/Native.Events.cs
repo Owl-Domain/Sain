@@ -187,6 +187,10 @@ internal readonly struct SDL3_Event
    [FieldOffset(0)] private readonly SDL3_CommonEvent _common;
    [FieldOffset(0)] private readonly SDL3_WindowEvent _window;
    [FieldOffset(0)] private readonly SDL3_DisplayEvent _display;
+   [FieldOffset(0)] private readonly SDL3_MouseDeviceEvent _mouseDevice;
+   [FieldOffset(0)] private readonly SDL3_MouseMotionEvent _mouseMotion;
+   [FieldOffset(0)] private readonly SDL3_MouseButtonEvent _mouseButton;
+   [FieldOffset(0)] private readonly SDL3_MouseWheelEvent _mouseWheel;
    #endregion
 
    #region Methods
@@ -242,6 +246,50 @@ internal readonly struct SDL3_Event
       }
 
       display = default;
+      return false;
+   }
+   public readonly bool IsMouseDeviceEvent(out SDL3_MouseDeviceEvent device)
+   {
+      if (Type is SDL3_EventType.MouseAdded or SDL3_EventType.MouseRemoved)
+      {
+         device = _mouseDevice;
+         return true;
+      }
+
+      device = default;
+      return false;
+   }
+   public readonly bool IsMouseMotionEvent(out SDL3_MouseMotionEvent motion)
+   {
+      if (Type is SDL3_EventType.MouseMotion)
+      {
+         motion = _mouseMotion;
+         return true;
+      }
+
+      motion = default;
+      return false;
+   }
+   public readonly bool IsMouseButtonEvent(out SDL3_MouseButtonEvent button)
+   {
+      if (Type is SDL3_EventType.MouseButtonUp or SDL3_EventType.MouseButtonDown)
+      {
+         button = _mouseButton;
+         return true;
+      }
+
+      button = default;
+      return false;
+   }
+   public readonly bool IsMouseWheelEvent(out SDL3_MouseWheelEvent wheel)
+   {
+      if (Type is SDL3_EventType.MouseWheel)
+      {
+         wheel = _mouseWheel;
+         return true;
+      }
+
+      wheel = default;
       return false;
    }
    #endregion

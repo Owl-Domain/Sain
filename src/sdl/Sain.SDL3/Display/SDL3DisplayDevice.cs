@@ -123,22 +123,7 @@ public unsafe sealed class SDL3DisplayDevice : ObservableBase, IDisplayDevice, I
 
    #region Methods
    /// <inheritdoc/>
-   public bool IsMatch(IDeviceId id, out int score)
-   {
-      if (id.Components.Count is not 2)
-      {
-         score = default;
-         return false;
-      }
-
-      if (DeviceId.IsFullMatch(id))
-      {
-         score = DeviceId.Components.Count;
-         return true;
-      }
-
-      return DeviceId.IsBasicPartialMatch(id, out score);
-   }
+   public bool IsMatch(IDeviceId id, out int score) => DeviceId.IsBasicPartialMatch(id, out score);
 
    /// <inheritdoc/>
    [MemberNotNull(nameof(_name), nameof(_deviceId))]
