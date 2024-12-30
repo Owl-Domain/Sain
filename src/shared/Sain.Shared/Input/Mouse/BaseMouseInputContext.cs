@@ -89,7 +89,7 @@ public abstract class BaseMouseInputContext(IContextProvider? provider) : BaseCo
    /// <param name="name">The name of the mouse button.</param>
    protected void RaiseMouseButtonDown(MouseButton button, string name)
    {
-      MouseButtonUp?.Invoke(this, new(button, name, true));
+      MouseButtonDown?.Invoke(this, new(button, name, true));
    }
    #endregion
 

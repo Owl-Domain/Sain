@@ -40,36 +40,63 @@ public unsafe sealed class SDL3DesktopWindowingContext(IContextProvider? provide
       if (configuration.AllowsTransparency) flags |= SDL3_WindowFlags.Transparent;
       if (configuration.IsAlwaysOnTop) flags |= SDL3_WindowFlags.AlwaysOnTop;
 
-      SDL3_WindowId* id = Native.CreateWindow(title, width, height, flags);
+      //SDL3_Window* window = Native.CreateWindow(title, width, height, flags);
+
+      if (Native.CreateWindowAndRenderer(title, width, height, flags, out SDL3_Window* window, out SDL3_Renderer* renderer) is false)
+      {
+         string message = $"Failed to create a new window. ({Native.LastError})";
+
+         if (Context.Logging.IsAvailable)
+            Context.Logging.Fatal<SDL3DesktopWindowingContext>(message);
+
+         throw new InvalidOperationException(message);
+      }
+
+      SDL3_WindowId windowId = Native.GetWindowId(window);
+      if (windowId.Id is 0)
+      {
+         string message = $"Failed to get the id of the newly created window. ({Native.LastError})";
+
+         if (Context.Logging.IsAvailable)
+            Context.Logging.Fatal<SDL3DesktopWindowingContext>(message);
+
+         throw new InvalidOperationException(message);
+      }
 
       if (Context.Logging.IsAvailable)
-         Context.Logging.Debug<SDL3DesktopWindowingContext>($"Created a new window, id = ({id->Id}).");
+         Context.Logging.Debug<SDL3DesktopWindowingContext>($"Created a new window, id = ({windowId}).");
 
-      if (configuration.Parent is SDL3DesktopWindow parent && (Native.SetWindowParent(id, parent.WindowId) is false))
+      if (configuration.Parent is SDL3DesktopWindow parent && (Native.SetWindowParent(window, parent.Window) is false))
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Error<SDL3DesktopWindowingContext>($"Couldn't set the window ({(nint)parent.WindowId}) to be the parent of the window ({(nint)id}). ({Native.LastError})");
+            Context.Logging.Error<SDL3DesktopWindowingContext>($"Couldn't set the window ({parent.WindowId}) to be the parent of the window ({windowId}). ({Native.LastError})");
       }
 
       int x = (int)location.X;
       int y = (int)location.Y;
 
-      if (Native.SetWindowPosition(id, x, y) is false)
+      if (Native.SetWindowPosition(window, x, y) is false)
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Error<SDL3DesktopWindowingContext>($"Couldn't set the position of the window ({(nint)id}) to X = ({x:n0}), Y = ({y:n0}). ({Native.LastError})");
+            Context.Logging.Error<SDL3DesktopWindowingContext>($"Couldn't set the position of the window ({windowId}) to X = ({x:n0}), Y = ({y:n0}). ({Native.LastError})");
       }
 
-      SDL3DesktopWindow window = new(Context, configuration.Kind, configuration.Parent, id);
-      window.Closed += WindowClosed;
+      SDL3DesktopWindow desktopWwindow = new(Context, configuration.Kind, configuration.Parent, window, renderer, windowId);
+      desktopWwindow.Closed += WindowClosed;
 
-      _windows.Add(window);
-      return window;
+      _windows.Add(desktopWwindow);
+      return desktopWwindow;
    }
-   private void WindowClosed(IDesktopWindow window)
+   private void WindowClosed(IDesktopWindow untyped)
    {
-      if (_windows.Remove((SDL3DesktopWindow)window))
+      SDL3DesktopWindow window = (SDL3DesktopWindow)untyped;
+      if (_windows.Remove(window))
+      {
+         if (Context.Logging.IsAvailable)
+            Context.Logging.Debug<SDL3DesktopWindowingContext>($"Window ({window.WindowId}) is closed.");
+
          window.Closed -= WindowClosed;
+      }
    }
    unsafe void ISDL3Context.OnEvent(in SDL3_Event ev)
    {
@@ -78,7 +105,7 @@ public unsafe sealed class SDL3DesktopWindowingContext(IContextProvider? provide
 
       foreach (SDL3DesktopWindow current in _windows)
       {
-         if (current.WindowId == current.WindowId)
+         if (current.WindowId.Id == current.WindowId.Id)
          {
             current.RouteEvent(window);
             break;

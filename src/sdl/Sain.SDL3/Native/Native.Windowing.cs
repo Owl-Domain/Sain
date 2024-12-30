@@ -1,5 +1,9 @@
 namespace Sain.SDL3;
 
+[StructLayout(LayoutKind.Sequential)]
+internal readonly struct SDL3_Window;
+
+[StructLayout(LayoutKind.Sequential)]
 internal readonly struct SDL3_WindowId(uint id)
 {
    #region Fields
@@ -60,22 +64,22 @@ static unsafe partial class Native
 {
    #region Functions
    [LibraryImport(LibName, EntryPoint = "SDL_CreateWindow", StringMarshalling = String)]
-   public static partial SDL3_WindowId* CreateWindow(string title, int width, int height, SDL3_WindowFlags flags);
+   public static partial SDL3_Window* CreateWindow(string title, int width, int height, SDL3_WindowFlags flags);
 
    [LibraryImport(LibName, EntryPoint = "SDL_DestroyWindow")]
-   public static partial void DestroyWindow(SDL3_WindowId* window);
+   public static partial void DestroyWindow(SDL3_Window* window);
 
    [LibraryImport(LibName, EntryPoint = "SDL_SetWindowParent")]
    [return: MarshalAs(Bool)]
-   public static partial bool SetWindowParent(SDL3_WindowId* window, SDL3_WindowId* parent);
+   public static partial bool SetWindowParent(SDL3_Window* window, SDL3_Window* parent);
 
    [LibraryImport(LibName, EntryPoint = "SDL_SetWindowPosition")]
    [return: MarshalAs(Bool)]
-   public static partial bool SetWindowPosition(SDL3_WindowId* window, int x, int y);
+   public static partial bool SetWindowPosition(SDL3_Window* window, int x, int y);
 
    [LibraryImport(LibName, EntryPoint = "SDL_GetWindowTitle")]
-   private static partial byte* _GetWindowTitle(SDL3_WindowId* window);
-   public static string? GetWindowTitle(SDL3_WindowId* window)
+   private static partial byte* _GetWindowTitle(SDL3_Window* window);
+   public static string? GetWindowTitle(SDL3_Window* window)
    {
       byte* native = _GetWindowTitle(window);
       return Utf8StringMarshaller.ConvertToManaged(native);
@@ -83,7 +87,10 @@ static unsafe partial class Native
 
    [LibraryImport(LibName, EntryPoint = "SDL_SetWindowTitle", StringMarshalling = String)]
    [return: MarshalAs(Bool)]
-   public static partial bool SetWindowTitle(SDL3_WindowId* window, string title);
+   public static partial bool SetWindowTitle(SDL3_Window* window, string title);
+
+   [LibraryImport(LibName, EntryPoint = "SDL_GetWindowID")]
+   public static partial SDL3_WindowId GetWindowId(SDL3_Window* window);
    #endregion
 
    #region Screen saver functions

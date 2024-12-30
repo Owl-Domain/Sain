@@ -445,6 +445,13 @@ public sealed class SDL3MouseInputContext(IContextProvider? provider) : BaseMous
             return;
          }
 
+         Point position = GetPosition(button.X, button.Y);
+         if (Set(ref _localPosition, position, nameof(LocalPosition)))
+         {
+            RefreshGlobalState(false);
+            RaiseMouseMoved(position, GlobalPosition);
+         }
+
          UpdateButtonState(mouseButton, button.IsDown);
       }
       else if (ev.IsMouseWheelEvent(out SDL3_MouseWheelEvent wheel))

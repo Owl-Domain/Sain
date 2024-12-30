@@ -99,6 +99,9 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
    }
    private void ApplicationIteration(IApplication application)
    {
+      SDL3_Event latestMouseMotion = default;
+      bool hasMouseMotion = false;
+
       while (Native.WaitEvent(out SDL3_Event ev, 1))
       {
          DispatchPriority priority = DispatchPriority.Normal;
@@ -107,9 +110,25 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
             priority = DispatchPriority.Highest;
          else if (ev.IsWindowEvent(out _) || ev.IsDisplayEvent(out _))
             priority = DispatchPriority.Visual;
+         else if (ev.IsMouseButtonEvent(out _) || ev.IsMouseWheelEvent(out _))
+            priority = DispatchPriority.Input;
+         else if (ev.IsMouseMotionEvent(out _))
+         {
+            // Note(Nightowl):
+            // Potential problem with mouse events being out of order, i.e. button first, move second?
+            // Would require either computer or inhuman speed to actually cause any problems?
+
+            latestMouseMotion = ev;
+            hasMouseMotion = true;
+
+            continue;
+         }
 
          application.Context.Dispatcher.Dispatch(OnEvent, ev, priority);
       }
+
+      if (hasMouseMotion)
+         application.Context.Dispatcher.Dispatch(OnEvent, latestMouseMotion, DispatchPriority.Input);
    }
    private void OnEvent(SDL3_Event ev)
    {
