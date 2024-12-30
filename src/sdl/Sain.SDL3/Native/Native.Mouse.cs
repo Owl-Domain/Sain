@@ -1,5 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
-
 namespace Sain.SDL3;
 
 internal enum SDL3_SystemCursor : byte

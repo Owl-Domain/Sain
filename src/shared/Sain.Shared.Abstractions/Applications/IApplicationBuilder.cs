@@ -90,12 +90,34 @@ public static class IApplicationBuilderExtensions
       return builder.WithProvider(provider);
    }
 
-   /// <summary></summary>
+   /// <summary>Provides the <see cref="ILoggingContext"/> to the application and optionally customises it with the given callback.</summary>
    /// <typeparam name="TSelf">The type of the <paramref name="builder"/>.</typeparam>
    /// <param name="builder">The application builder to use.</param>
    /// <param name="customise">The (optional) callback that can be used to customise the logging context.</param>
    /// <returns>The used builder instance.</returns>
    public static TSelf WithLogging<TSelf>(this TSelf builder, Action<ILoggingContext>? customise = null)
+      where TSelf : IApplicationBuilder<TSelf>
+   {
+      return builder.WithContext(customise);
+   }
+
+   /// <summary>Provides the <see cref="IMouseInputContext"/> to the application and optionally customises it with the given callback.</summary>
+   /// <typeparam name="TSelf">The type of the <paramref name="builder"/>.</typeparam>
+   /// <param name="builder">The application builder to use.</param>
+   /// <param name="customise">The (optional) callback that can be used to customise the mouse input context.</param>
+   /// <returns>The used builder instance.</returns>
+   public static TSelf WithMouseInput<TSelf>(this TSelf builder, Action<IMouseInputContext>? customise = null)
+      where TSelf : IApplicationBuilder<TSelf>
+   {
+      return builder.WithContext(customise);
+   }
+
+   /// <summary>Provides the <see cref="IKeyboardInputContext"/> to the application and optionally customises it with the given callback.</summary>
+   /// <typeparam name="TSelf">The type of the <paramref name="builder"/>.</typeparam>
+   /// <param name="builder">The application builder to use.</param>
+   /// <param name="customise">The (optional) callback that can be used to customise the keyboard input context.</param>
+   /// <returns>The used builder instance.</returns>
+   public static TSelf WithKeyboardInput<TSelf>(this TSelf builder, Action<IKeyboardInputContext>? customise = null)
       where TSelf : IApplicationBuilder<TSelf>
    {
       return builder.WithContext(customise);

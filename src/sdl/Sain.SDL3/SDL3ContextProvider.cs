@@ -42,11 +42,21 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
 
       Application.Iteration += ApplicationIteration;
 
+      if (Context.Logging.IsAvailable)
+      {
+         int version = Native.GetVersion();
+         string revision = Native.GetRevision();
+
+         Context.Logging.Debug<SDL3ContextProvider>($"Using SDL3, version = ({version}), revision = ({revision}).");
+      }
+
       if (Native.SetAppMetadata(Application.Name, Application.Version.DisplayName, Application.Id) is false)
       {
          if (Context.Logging.IsAvailable)
             Context.Logging.Error<SDL3ContextProvider>($"Couldn't set the application metadata. ({Native.LastError})");
       }
+
+      SetHints();
 
       if (Native.InitSubSystem(flags) is false)
       {
@@ -55,8 +65,12 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
 
          // Todo(Nightowl): Show fatal error warning;
       }
+   }
 
-      if (Native.SetHint(SDL3_Hints.SDL_HINT_VIDEO_ALLOW_SCREENSAVER, "1") is false)
+   /// <summary>Sets the SDL3 hints before initialising any SDL sub-systems.</summary>
+   protected virtual void SetHints()
+   {
+      if (Native.EnableHint(SDL3_Hints.VIDEO_ALLOW_SCREENSAVER) is false)
       {
          if (Context.Logging.IsAvailable)
             Context.Logging.Warning<SDL3ContextProvider>($"Couldn't set the hint to allow the screensaver by default. ({Native.LastError})");
