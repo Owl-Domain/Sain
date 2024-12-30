@@ -18,6 +18,27 @@ public readonly struct Rectangle(double x, double y, double width, double height
 #endif
    IEquatable<Rectangle>
 {
+   #region Nested types
+   /// <summary>
+   ///   Represents the equality comparer for the <see cref="Rectangle"/> type.
+   /// </summary>
+   public sealed class EqualityComparer : IEqualityComparer<Rectangle>
+   {
+      #region Properties
+      /// <summary>The shared instance of the equality comparer for the <see cref="Rectangle"/> type.</summary>
+      public static EqualityComparer Instance { get; } = new();
+      #endregion
+
+      #region Methods
+      /// <inheritdoc/>
+      public bool Equals(Rectangle x, Rectangle y) => x.Equals(y);
+
+      /// <inheritdoc/>
+      public int GetHashCode([DisallowNull] Rectangle obj) => obj.GetHashCode();
+      #endregion
+   }
+   #endregion
+
    #region Properties
    /// <summary>The horizontal position of the rectangle.</summary>
    public readonly double X { get; } = x;

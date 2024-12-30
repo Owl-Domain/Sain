@@ -21,6 +21,27 @@ public readonly struct Size(double width, double height) :
 #endif
    IEquatable<Size>
 {
+   #region Nested types
+   /// <summary>
+   ///   Represents the equality comparer for the <see cref="Size"/> type.
+   /// </summary>
+   public sealed class EqualityComparer : IEqualityComparer<Size>
+   {
+      #region Properties
+      /// <summary>The shared instance of the equality comparer for the <see cref="Size"/> type.</summary>
+      public static EqualityComparer Instance { get; } = new();
+      #endregion
+
+      #region Methods
+      /// <inheritdoc/>
+      public bool Equals(Size x, Size y) => x.Equals(y);
+
+      /// <inheritdoc/>
+      public int GetHashCode([DisallowNull] Size obj) => obj.GetHashCode();
+      #endregion
+   }
+   #endregion
+
    #region Properties
    /// <summary>The horizontal size.</summary>
    public readonly double Width { get; } = width;

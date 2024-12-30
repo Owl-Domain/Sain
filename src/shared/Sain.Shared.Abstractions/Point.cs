@@ -1,3 +1,4 @@
+
 namespace Sain.Shared;
 
 /// <summary>
@@ -20,6 +21,27 @@ public readonly struct Point(double x, double y) :
 #endif
    IEquatable<Point>
 {
+   #region Nested types
+   /// <summary>
+   ///   Represents the equality comparer for the <see cref="Point"/> type.
+   /// </summary>
+   public sealed class EqualityComparer : IEqualityComparer<Point>
+   {
+      #region Properties
+      /// <summary>The shared instance of the equality comparer for the <see cref="Point"/> type.</summary>
+      public static EqualityComparer Instance { get; } = new();
+      #endregion
+
+      #region Methods
+      /// <inheritdoc/>
+      public bool Equals(Point x, Point y) => x.Equals(y);
+
+      /// <inheritdoc/>
+      public int GetHashCode([DisallowNull] Point obj) => obj.GetHashCode();
+      #endregion
+   }
+   #endregion
+
    #region Properties
    /// <summary>The horizontal position of the point.</summary>
    public readonly double X { get; } = x;

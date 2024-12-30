@@ -42,15 +42,16 @@ public abstract class ObservableBase : DisposableBase, INotifyPropertyChanging, 
    /// <typeparam name="T">The type of the value to set.</typeparam>
    /// <param name="field">The field to store the value in.</param>
    /// <param name="value">The value to try and set in the given <paramref name="field"/>.</param>
+   /// <param name="comparer">The equality comparer to use when deciding whether the <see langword="field"/> should be updated.</param>
    /// <param name="propertyName">The name of the property that is being set.</param>
    /// <returns>
    ///   <see langword="true"/> if the given <paramref name="value"/> could be set
    ///   to the given <paramref name="field"/>, <see langword="false"/> otherwise.
    /// </returns>
    /// <remarks>This method will not raise any property change events.</remarks>
-   protected bool Set<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+   protected bool Set<T>(ref T field, T value, IEqualityComparer<T> comparer, [CallerMemberName] string? propertyName = null)
    {
-      if (EqualityComparer<T>.Default.Equals(field, value))
+      if (comparer.Equals(field, value))
          return false;
 
       RaisePropertyChanging(propertyName);
@@ -64,20 +65,48 @@ public abstract class ObservableBase : DisposableBase, INotifyPropertyChanging, 
    /// <typeparam name="T">The type of the value to set.</typeparam>
    /// <param name="field">The field to store the value in.</param>
    /// <param name="value">The value to try and set in the given <paramref name="field"/>.</param>
+   /// <param name="propertyName">The name of the property that is being set.</param>
+   /// <returns>
+   ///   <see langword="true"/> if the given <paramref name="value"/> could be set
+   ///   to the given <paramref name="field"/>, <see langword="false"/> otherwise.
+   /// </returns>
+   /// <remarks>This method will not raise any property change events.</remarks>
+   protected bool Set<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+   {
+      return Set(ref field, value, EqualityComparer<T>.Default, propertyName);
+   }
+
+   /// <summary>Tries to set the given <paramref name="value"/> in the <paramref name="field"/>.</summary>
+   /// <typeparam name="T">The type of the value to set.</typeparam>
+   /// <param name="field">The field to store the value in.</param>
+   /// <param name="value">The value to try and set in the given <paramref name="field"/>.</param>
+   /// <param name="comparer">The equality comparer to use when deciding whether the <see langword="field"/> should be updated.</param>
    /// <returns>
    ///   <see langword="true"/> if the given <paramref name="value"/> could be set
    ///   to the given <paramref name="field"/>, <see langword="false"/> otherwise.
    /// </returns>
    /// <remarks>This method will not raise any property change events.</remarks>
    [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Easier to use if it's an instance method instead of a static function.")]
-   protected bool SetWithoutNotification<T>(ref T field, T value)
+   protected bool SetWithoutNotification<T>(ref T field, T value, IEqualityComparer<T> comparer)
    {
-      if (EqualityComparer<T>.Default.Equals(field, value))
+      if (comparer.Equals(field, value))
          return false;
 
       field = value;
       return true;
    }
+
+   /// <summary>Tries to set the given <paramref name="value"/> in the <paramref name="field"/>.</summary>
+   /// <typeparam name="T">The type of the value to set.</typeparam>
+   /// <param name="field">The field to store the value in.</param>
+   /// <param name="value">The value to try and set in the given <paramref name="field"/>.</param>
+   /// <returns>
+   ///   <see langword="true"/> if the given <paramref name="value"/> could be set
+   ///   to the given <paramref name="field"/>, <see langword="false"/> otherwise.
+   /// </returns>
+   /// <remarks>This method will not raise any property change events.</remarks>
+   [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Easier to use if it's an instance method instead of a static function.")]
+   protected bool SetWithoutNotification<T>(ref T field, T value) => SetWithoutNotification(ref field, value, EqualityComparer<T>.Default);
    #endregion
 }
 

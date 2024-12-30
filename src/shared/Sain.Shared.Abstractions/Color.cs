@@ -14,6 +14,27 @@ public readonly struct Color(byte red, byte green, byte blue, byte alpha = 255) 
 #endif
    IEquatable<Color>
 {
+   #region Nested types
+   /// <summary>
+   ///   Represents the equality comparer for the <see cref="Color"/> type.
+   /// </summary>
+   public sealed class EqualityComparer : IEqualityComparer<Color>
+   {
+      #region Properties
+      /// <summary>The shared instance of the equality comparer for the <see cref="Color"/> type.</summary>
+      public static EqualityComparer Instance { get; } = new();
+      #endregion
+
+      #region Methods
+      /// <inheritdoc/>
+      public bool Equals(Color x, Color y) => x.Equals(y);
+
+      /// <inheritdoc/>
+      public int GetHashCode([DisallowNull] Color obj) => obj.GetHashCode();
+      #endregion
+   }
+   #endregion
+
    #region Fields
    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
    private readonly byte _red = red;
