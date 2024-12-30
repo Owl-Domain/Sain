@@ -3,7 +3,7 @@ namespace Sain.Shared.Contexts;
 /// <summary>
 ///   Represents the base implementation for a component that has application specific initialisation and cleanup.
 /// </summary>
-public abstract class BaseHasApplicationInit : IHasApplicationInit
+public abstract class BaseHasApplicationInit : ObservableBase, IHasApplicationInit
 {
    #region Nested types
    private enum Stage : byte

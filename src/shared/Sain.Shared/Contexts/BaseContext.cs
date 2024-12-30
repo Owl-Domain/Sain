@@ -30,5 +30,12 @@ public abstract class BaseContext(IContextProvider? provider) : BaseHasApplicati
    /// <exception cref="InvalidOperationException">Thrown to show that the context is unavailable.</exception>
    [DoesNotReturn, MethodImpl(MethodImplOptions.NoInlining)]
    protected static void ThrowForUnavailable() => throw new InvalidOperationException("The context is marked as unavailable and cannot be used.");
+
+   /// <summary>Throws an exception indicating that the context is unavailable.</summary>
+   /// <typeparam name="T">The type to fake return.</typeparam>
+   /// <returns>The value that isn't actually returned.</returns>
+   /// <exception cref="InvalidOperationException">Thrown to show that the context is unavailable.</exception>
+   [DoesNotReturn, MethodImpl(MethodImplOptions.NoInlining)]
+   protected static T ThrowForUnavailable<T>() => throw new InvalidOperationException("The context is marked as unavailable and cannot be used.");
    #endregion
 }

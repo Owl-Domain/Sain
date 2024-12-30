@@ -16,7 +16,7 @@ public sealed class UnavailableAudioPlaybackContext : BaseUnavailableContext, IA
       {
          ThrowForUnavailable();
          Debug.Fail("Should never be reached.");
-         return null; // Never reached but needed for the compiler.
+         return default; // Never reached but needed for the compiler.
       }
    }
    #endregion

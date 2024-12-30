@@ -25,10 +25,13 @@ public sealed class MouseButtonState(MouseButton button, string name, bool isDow
    }
 
    /// <inheritdoc/>
-   public bool IsDown
-   {
-      get => _isDown;
-      set => Set(ref _isDown, value);
-   }
+   public bool IsDown => _isDown;
+   #endregion
+
+   #region Methods
+   /// <summary>Sets the new value for the <see cref="IsDown"/> property.</summary>
+   /// <param name="value">The new value to set the <see cref="IsDown"/> property to.</param>
+   /// <returns><see langword="true"/> if the value of the <see cref="IsDown"/> property changed, <see langword="false"/> otherwise.</returns>
+   public bool SetIsDown(bool value) => Set(ref _isDown, value, nameof(value));
    #endregion
 }
