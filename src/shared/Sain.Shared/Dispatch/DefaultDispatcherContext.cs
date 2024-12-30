@@ -83,6 +83,8 @@ public sealed class DefaultDispatcherContext(IContextProvider? provider) : BaseD
    /// <inheritdoc/>
    protected override void PreInitialise()
    {
+      base.PreInitialise();
+
       _shouldBackgroundThreadsRun = true;
 
 #if NET5_0_OR_GREATER
@@ -135,6 +137,8 @@ public sealed class DefaultDispatcherContext(IContextProvider? provider) : BaseD
       _backgroundQueues.Clear();
       _backgroundThreads.Clear();
       _backgroundQueueCount = 0;
+
+      base.PostCleanup();
    }
 
    /// <inheritdoc/>

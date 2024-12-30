@@ -78,8 +78,7 @@ public sealed class Application(string? id, string name, IVersion version, IAppl
       {
          watch.Restart();
 
-         Context.
-         Dispatcher.Process();
+         Context.Dispatcher.Process();
 
          Iteration?.Invoke(this);
          LastIterationDuration = watch.Elapsed;

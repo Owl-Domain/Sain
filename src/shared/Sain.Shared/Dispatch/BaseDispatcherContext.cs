@@ -235,6 +235,10 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    public void Process()
    {
       ThrowIfUnavailable();
+      ThrowIfNotInitialised();
+
+      if (IsOnMainThread is false)
+         throw new InvalidOperationException($"The {nameof(Process)} method is expected to only be called on the main thread.");
 
       ProcessCore();
    }
@@ -269,8 +273,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation Dispatch(Action callback, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       SyncOperation operation = new(callback, priority);
       Schedule(operation);
@@ -281,8 +284,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation<TResult> Dispatch<TResult>(Func<TResult> callback, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       SyncOperation<TResult> operation = new(callback, priority);
       Schedule(operation);
@@ -293,8 +295,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation Dispatch(Func<Task> callback, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       TaskOperation operation = new(callback, priority);
       Schedule(operation);
@@ -305,8 +306,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation<TResult> Dispatch<TResult>(Func<Task<TResult>> callback, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       TaskOperation<TResult> operation = new(callback, priority);
       Schedule(operation);
@@ -317,8 +317,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation Dispatch(Func<ValueTask> callback, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       ValueTaskOperation operation = new(callback, priority);
       Schedule(operation);
@@ -329,8 +328,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation<TResult> Dispatch<TResult>(Func<ValueTask<TResult>> callback, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       ValueTaskOperation<TResult> operation = new(callback, priority);
       Schedule(operation);
@@ -343,8 +341,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation Dispatch<TArgument>(Action<TArgument> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       SyncArgumentOperation<TArgument> operation = new(callback, argument, priority);
       Schedule(operation);
@@ -355,8 +352,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation<TResult> Dispatch<TResult, TArgument>(Func<TArgument, TResult> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       SyncArgumentOperation<TResult, TArgument> operation = new(callback, argument, priority);
       Schedule(operation);
@@ -367,8 +363,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation Dispatch<TArgument>(Func<TArgument, Task> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       TaskArgumentOperation<TArgument> operation = new(callback, argument, priority);
       Schedule(operation);
@@ -379,8 +374,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation<TResult> Dispatch<TResult, TArgument>(Func<TArgument, Task<TResult>> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       TaskArgumentOperation<TResult, TArgument> operation = new(callback, argument, priority);
       Schedule(operation);
@@ -391,8 +385,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation Dispatch<TArgument>(Func<TArgument, ValueTask> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       ValueTaskArgumentOperation<TArgument> operation = new(callback, argument, priority);
       Schedule(operation);
@@ -403,11 +396,146 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation<TResult> Dispatch<TResult, TArgument>(Func<TArgument, ValueTask<TResult>> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       ValueTaskArgumentOperation<TResult, TArgument> operation = new(callback, argument, priority);
       Schedule(operation);
+
+      return operation;
+   }
+   #endregion
+
+   #region TryDispatch methods
+   /// <inheritdoc/>
+   public IDispatcherOperation TryDispatch(Action callback, DispatchPriority priority = DispatchPriority.Normal)
+   {
+      VerifyAccess(priority, nameof(priority));
+
+      SyncOperation operation = new(callback, priority);
+      ScheduleOrProcess(operation);
+
+      return operation;
+   }
+
+   /// <inheritdoc/>
+   public IDispatcherOperation<TResult> TryDispatch<TResult>(Func<TResult> callback, DispatchPriority priority = DispatchPriority.Normal)
+   {
+      VerifyAccess(priority, nameof(priority));
+
+      SyncOperation<TResult> operation = new(callback, priority);
+      ScheduleOrProcess(operation);
+
+      return operation;
+   }
+
+   /// <inheritdoc/>
+   public IDispatcherOperation TryDispatch(Func<Task> callback, DispatchPriority priority = DispatchPriority.Normal)
+   {
+      VerifyAccess(priority, nameof(priority));
+
+      TaskOperation operation = new(callback, priority);
+      ScheduleOrProcess(operation);
+
+      return operation;
+   }
+
+   /// <inheritdoc/>
+   public IDispatcherOperation<TResult> TryDispatch<TResult>(Func<Task<TResult>> callback, DispatchPriority priority = DispatchPriority.Normal)
+   {
+      VerifyAccess(priority, nameof(priority));
+
+      TaskOperation<TResult> operation = new(callback, priority);
+      ScheduleOrProcess(operation);
+
+      return operation;
+   }
+
+   /// <inheritdoc/>
+   public IDispatcherOperation TryDispatch(Func<ValueTask> callback, DispatchPriority priority = DispatchPriority.Normal)
+   {
+      VerifyAccess(priority, nameof(priority));
+
+      ValueTaskOperation operation = new(callback, priority);
+      ScheduleOrProcess(operation);
+
+      return operation;
+   }
+
+   /// <inheritdoc/>
+   public IDispatcherOperation<TResult> TryDispatch<TResult>(Func<ValueTask<TResult>> callback, DispatchPriority priority = DispatchPriority.Normal)
+   {
+      VerifyAccess(priority, nameof(priority));
+
+      ValueTaskOperation<TResult> operation = new(callback, priority);
+      ScheduleOrProcess(operation);
+
+      return operation;
+   }
+   #endregion
+
+   #region TryDispatch (with argument) methods
+   /// <inheritdoc/>
+   public IDispatcherOperation TryDispatch<TArgument>(Action<TArgument> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
+   {
+      VerifyAccess(priority, nameof(priority));
+
+      SyncArgumentOperation<TArgument> operation = new(callback, argument, priority);
+      ScheduleOrProcess(operation);
+
+      return operation;
+   }
+
+   /// <inheritdoc/>
+   public IDispatcherOperation<TResult> TryDispatch<TResult, TArgument>(Func<TArgument, TResult> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
+   {
+      VerifyAccess(priority, nameof(priority));
+
+      SyncArgumentOperation<TResult, TArgument> operation = new(callback, argument, priority);
+      ScheduleOrProcess(operation);
+
+      return operation;
+   }
+
+   /// <inheritdoc/>
+   public IDispatcherOperation TryDispatch<TArgument>(Func<TArgument, Task> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
+   {
+      VerifyAccess(priority, nameof(priority));
+
+      TaskArgumentOperation<TArgument> operation = new(callback, argument, priority);
+      ScheduleOrProcess(operation);
+
+      return operation;
+   }
+
+   /// <inheritdoc/>
+   public IDispatcherOperation<TResult> TryDispatch<TResult, TArgument>(Func<TArgument, Task<TResult>> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
+   {
+      VerifyAccess(priority, nameof(priority));
+
+      TaskArgumentOperation<TResult, TArgument> operation = new(callback, argument, priority);
+      ScheduleOrProcess(operation);
+
+      return operation;
+   }
+
+   /// <inheritdoc/>
+   public IDispatcherOperation TryDispatch<TArgument>(Func<TArgument, ValueTask> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
+   {
+      VerifyAccess(priority, nameof(priority));
+
+      ValueTaskArgumentOperation<TArgument> operation = new(callback, argument, priority);
+      ScheduleOrProcess(operation);
+
+      return operation;
+   }
+
+   /// <inheritdoc/>
+   public IDispatcherOperation<TResult> TryDispatch<TResult, TArgument>(Func<TArgument, ValueTask<TResult>> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
+   {
+      VerifyAccess(priority, nameof(priority));
+
+      ValueTaskArgumentOperation<TResult, TArgument> operation = new(callback, argument, priority);
+      ScheduleOrProcess(operation);
 
       return operation;
    }
@@ -417,8 +545,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation Offload(Action callback, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       SyncOperation operation = new(callback, priority);
       ScheduleBackground(operation);
@@ -429,8 +556,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation<TResult> Offload<TResult>(Func<TResult> callback, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       SyncOperation<TResult> operation = new(callback, priority);
       ScheduleBackground(operation);
@@ -441,8 +567,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation Offload(Func<Task> callback, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       TaskOperation operation = new(callback, priority);
       ScheduleBackground(operation);
@@ -453,8 +578,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation<TResult> Offload<TResult>(Func<Task<TResult>> callback, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       TaskOperation<TResult> operation = new(callback, priority);
       ScheduleBackground(operation);
@@ -465,8 +589,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation Offload(Func<ValueTask> callback, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       ValueTaskOperation operation = new(callback, priority);
       ScheduleBackground(operation);
@@ -477,8 +600,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation<TResult> Offload<TResult>(Func<ValueTask<TResult>> callback, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       ValueTaskOperation<TResult> operation = new(callback, priority);
       ScheduleBackground(operation);
@@ -491,8 +613,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation Offload<TArgument>(Action<TArgument> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       SyncArgumentOperation<TArgument> operation = new(callback, argument, priority);
       ScheduleBackground(operation);
@@ -503,8 +624,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation<TResult> Offload<TResult, TArgument>(Func<TArgument, TResult> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       SyncArgumentOperation<TResult, TArgument> operation = new(callback, argument, priority);
       ScheduleBackground(operation);
@@ -515,8 +635,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation Offload<TArgument>(Func<TArgument, Task> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       TaskArgumentOperation<TArgument> operation = new(callback, argument, priority);
       ScheduleBackground(operation);
@@ -527,8 +646,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation<TResult> Offload<TResult, TArgument>(Func<TArgument, Task<TResult>> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       TaskArgumentOperation<TResult, TArgument> operation = new(callback, argument, priority);
       ScheduleBackground(operation);
@@ -539,8 +657,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation Offload<TArgument>(Func<TArgument, ValueTask> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       ValueTaskArgumentOperation<TArgument> operation = new(callback, argument, priority);
       ScheduleBackground(operation);
@@ -551,8 +668,7 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    /// <inheritdoc/>
    public IDispatcherOperation<TResult> Offload<TResult, TArgument>(Func<TArgument, ValueTask<TResult>> callback, TArgument argument, DispatchPriority priority = DispatchPriority.Normal)
    {
-      ThrowIfUnavailable();
-      VerifyPriority(priority, nameof(priority));
+      VerifyAccess(priority, nameof(priority));
 
       ValueTaskArgumentOperation<TResult, TArgument> operation = new(callback, argument, priority);
       ScheduleBackground(operation);
@@ -562,6 +678,19 @@ public abstract class BaseDispatcherContext(IContextProvider? provider) : BaseCo
    #endregion
 
    #region Helpers
+   private void ScheduleOrProcess(IOperation operation)
+   {
+      if (IsOnMainThread)
+         operation.Process();
+      else
+         Schedule(operation);
+   }
+   private void VerifyAccess(DispatchPriority priority, string parameterName)
+   {
+      ThrowIfUnavailable();
+      ThrowIfNotInitialised();
+      VerifyPriority(priority, parameterName);
+   }
    private static void VerifyPriority(DispatchPriority priority, string parameterName)
    {
 #if NET5_0_OR_GREATER
