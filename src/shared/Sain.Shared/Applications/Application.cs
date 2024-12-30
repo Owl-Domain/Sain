@@ -7,7 +7,7 @@ namespace Sain.Shared.Applications;
 /// <param name="name">The name of the application.</param>
 /// <param name="version">The version of the application,</param>
 /// <param name="context">The context of the application.</param>
-public sealed class Application(string? id, string name, IVersion version, IApplicationContext context) : IApplication
+public sealed class Application(string id, string name, IVersion version, IApplicationContext context) : IApplication
 {
    #region Fields
    private volatile bool _shouldBeRunning;
@@ -15,7 +15,7 @@ public sealed class Application(string? id, string name, IVersion version, IAppl
 
    #region Properties
    /// <inheritdoc/>
-   public string? Id { get; } = id;
+   public string Id { get; } = id;
 
    /// <inheritdoc/>
    public string Name { get; } = name;
@@ -62,7 +62,12 @@ public sealed class Application(string? id, string name, IVersion version, IAppl
       Starting?.Invoke(this);
 
       Context.PreInitialise(this);
-      if (Context.Logging.IsAvailable) Context.Logging.Trace<Application>($"Between {nameof(Context.PreInitialise)} and {nameof(Context.Initialise)} steps.");
+      if (Context.Logging.IsAvailable)
+
+      {
+         Context.Logging.Info<Application>($"Running application Id = ({Id}), Name = ({Name}), Version = ({Version.DisplayName})");
+         Context.Logging.Trace<Application>($"Between {nameof(Context.PreInitialise)} and {nameof(Context.Initialise)} steps.");
+      }
       Context.Initialise(this);
       if (Context.Logging.IsAvailable) Context.Logging.Trace<Application>($"Between {nameof(Context.Initialise)} and {nameof(Context.PostInitialise)} steps.");
       Context.PostInitialise(this);

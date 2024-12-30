@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
- <!-- Project -->
+  <!-- Project -->
   <PropertyGroup Label="project">
     <TargetFrameworks>net8.0</TargetFrameworks>
     <LangVersion>13</LangVersion>

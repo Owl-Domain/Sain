@@ -13,7 +13,7 @@ public interface IApplication
 {
    #region Properties
    /// <summary>The (optional) unique id of the application.</summary>
-   string? Id { get; }
+   string Id { get; }
 
    /// <summary>The name of the application.</summary>
    string Name { get; }

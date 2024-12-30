@@ -10,8 +10,16 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    where TSelf : BaseApplicationBuilder<TSelf>
 {
    #region Fields
+   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
    private string? _name;
+
+   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+   private string? _id;
+
+   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
    private IVersion? _version;
+
+   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
    private readonly HashSet<IContextProvider> _availableProviders = [];
    private readonly Dictionary<string, IContext> _providedContexts = [];
    #endregion
@@ -30,7 +38,7 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    protected string Name => _name ?? throw new InvalidOperationException("The name of the application has not been set yet.");
 
    /// <summary>The unique id of the application.</summary>
-   protected string? Id { get; private set; }
+   protected string Id => _id ?? throw new InvalidOperationException("The unique id of the application has not been set yet.");
 
    /// <summary>The version of the application.</summary>
    protected IVersion Version => _version ?? throw new InvalidOperationException("The version of the application has not been set yet.");
@@ -40,10 +48,10 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    /// <inheritdoc/>
    public TSelf WithId(string applicationId)
    {
-      if (Id is not null)
+      if (_id is not null)
          throw new InvalidOperationException("The unique id of the application has already been set.");
 
-      Id = applicationId;
+      _id = applicationId;
 
       return Instance;
    }
@@ -138,6 +146,7 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    {
       Assembly targetAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly();
       _name ??= targetAssembly.GetName().Name ?? throw new InvalidOperationException("Couldn't extract the application name from the assembly information.");
+      _id ??= _name;
 
       if (_version is null)
          Instance.WithVersionFromAssembly(targetAssembly);

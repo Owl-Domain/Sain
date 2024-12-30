@@ -6,6 +6,9 @@ namespace Sain.SDL3;
 public unsafe class SDL3ContextProvider : BaseContextProvider
 {
    #region Fields
+   private static readonly Dictionary<nint, SDL3ContextProvider> ActiveProviders = [];
+   private static readonly Dictionary<SDL3_LogPriority, LogSeverity> CustomLogSeverities = [];
+   private nint _providerFakePointer;
    private IReadOnlyCollection<ISDL3Context> _providedContexts = [];
    #endregion
 
@@ -35,6 +38,19 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
    protected override void Initialise()
    {
       _providedContexts = GetProvidedContexts<ISDL3Context>();
+
+      _providerFakePointer = new(NativeMemory.Alloc(0));
+      ActiveProviders.Add(_providerFakePointer, this);
+
+      if (Context.Logging.IsAvailable)
+      {
+#if DEBUG
+         Native.SetLogPriorities(SDL3_LogPriority.Info);
+#else
+         Native.SetLogPriorities(SDL3_LogPriority.Warning);
+#endif
+         Native.SetLogOutputFunction(&LogCallback, _providerFakePointer.ToPointer());
+      }
 
       SDL3_InitFlags flags = GetInitFlags();
       if (flags is SDL3_InitFlags.None)
@@ -95,6 +111,13 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
       finally
       {
          _providedContexts = [];
+
+         ActiveProviders.Remove(_providerFakePointer);
+         if (_providerFakePointer != default)
+         {
+            NativeMemory.Free(_providerFakePointer.ToPointer());
+            _providerFakePointer = default;
+         }
       }
    }
    private void ApplicationIteration(IApplication application)
@@ -140,6 +163,46 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
    #endregion
 
    #region Helpers
+   private static void LogCallback(void* userData, SDL3_LogCategory category, SDL3_LogPriority priority, byte* nativeMessage)
+   {
+      nint contextPtr = new(userData);
+      if (ActiveProviders.TryGetValue(contextPtr, out SDL3ContextProvider? provider) is false)
+         return;
+
+      string context = $"SDL3/{category}";
+      LogSeverity severity = priority switch
+      {
+         SDL3_LogPriority.Trace => LogSeverity.Trace,
+         SDL3_LogPriority.Debug => LogSeverity.Debug,
+         SDL3_LogPriority.Info => LogSeverity.Info,
+         SDL3_LogPriority.Warning => LogSeverity.Warning,
+         SDL3_LogPriority.Error => LogSeverity.Error,
+         SDL3_LogPriority.Critical => LogSeverity.Fatal,
+
+         _ => GetCustomLogSeverity(priority)
+      };
+
+      if (provider.Context.Logging.IsAvailable)
+      {
+         string? message = Utf8StringMarshaller.ConvertToManaged(nativeMessage);
+         if (string.IsNullOrWhiteSpace(message))
+            return;
+
+         provider.Context.Logging.Log(severity, context, message, string.Empty, string.Empty, 0);
+      }
+   }
+   private static LogSeverity GetCustomLogSeverity(SDL3_LogPriority priority)
+   {
+      if (CustomLogSeverities.TryGetValue(priority, out LogSeverity severity) is false)
+      {
+         string text = $"custom-sdl3-severity({severity.ToString().ToLower()})";
+         severity = new(text);
+
+         CustomLogSeverities.Add(priority, severity);
+      }
+
+      return severity;
+   }
    private SDL3_InitFlags GetInitFlags()
    {
       SDL3_InitFlags flags = SDL3_InitFlags.None;
