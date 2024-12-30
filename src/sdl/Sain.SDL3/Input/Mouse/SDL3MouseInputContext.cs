@@ -247,7 +247,7 @@ public sealed class SDL3MouseInputContext(IContextProvider? provider) : BaseMous
       RefreshDevices();
       RefreshGlobalState(false);
       RefreshLocalState(false);
-      // RefreshIsCaptured(); // Note(Nightowl): No point in calling since it won't do anything;
+      // RefreshIsCaptured(); // Note(Nightowl): No point in calling since it won't do anything, keep comment here to explain why it's missing;
       RefreshIsCursorVisible();
    }
 
@@ -412,52 +412,67 @@ public sealed class SDL3MouseInputContext(IContextProvider? provider) : BaseMous
             Context.Logging.Warning<SDL3MouseInputContext>($"Unknown mouse device event ({device.Type}), this should've been known but wasn't handled properly here.");
       }
       else if (ev.IsMouseMotionEvent(out SDL3_MouseMotionEvent motion))
-      {
-         _lastActiveWindow = motion.WindowId;
-
-         Point position = GetPosition(motion.X, motion.Y);
-         if (Set(ref _localPosition, position, nameof(LocalPosition)))
-         {
-            RefreshGlobalState(false);
-            RaiseMouseMoved(position, GlobalPosition);
-         }
-      }
+         OnMouseMotionEvent(motion);
       else if (ev.IsMouseButtonEvent(out SDL3_MouseButtonEvent button))
-      {
-         _lastActiveWindow = button.WindowId;
-
-         MouseButton mouseButton = button.Button switch
-         {
-            SDL3_MouseButton.Left => LeftButton,
-            SDL3_MouseButton.Middle => MiddleButton,
-            SDL3_MouseButton.Right => RightButton,
-            SDL3_MouseButton.X1 => X1Button,
-            SDL3_MouseButton.X2 => X2Button,
-
-            _ => default,
-         };
-
-         if (mouseButton == default)
-         {
-            if (Context.Logging.IsAvailable)
-               Context.Logging.Warning<SDL3MouseInputContext>($"Failed to raise the mouse button event for the mouse because the mouse button was unknown ({button.Button}).");
-
-            return;
-         }
-
-         Point position = GetPosition(button.X, button.Y);
-         if (Set(ref _localPosition, position, nameof(LocalPosition)))
-         {
-            RefreshGlobalState(false);
-            RaiseMouseMoved(position, GlobalPosition);
-         }
-
-         UpdateButtonState(mouseButton, button.IsDown);
-      }
+         OnMouseButtonEvent(button);
       else if (ev.IsMouseWheelEvent(out SDL3_MouseWheelEvent wheel))
+         OnMouseWheelEvent(wheel);
+   }
+   private void OnMouseMotionEvent(SDL3_MouseMotionEvent motion)
+   {
+      _lastActiveWindow = motion.WindowId;
+
+      Point position = GetPosition(motion.X, motion.Y);
+      if (Set(ref _localPosition, position, nameof(LocalPosition)))
       {
-         _lastActiveWindow = wheel.WindowId;
+         RefreshGlobalState(false);
+         RaiseMouseMoved(position, GlobalPosition);
       }
+   }
+   private void OnMouseButtonEvent(SDL3_MouseButtonEvent button)
+   {
+      _lastActiveWindow = button.WindowId;
+
+      MouseButton mouseButton = button.Button switch
+      {
+         SDL3_MouseButton.Left => LeftButton,
+         SDL3_MouseButton.Middle => MiddleButton,
+         SDL3_MouseButton.Right => RightButton,
+         SDL3_MouseButton.X1 => X1Button,
+         SDL3_MouseButton.X2 => X2Button,
+
+         _ => default,
+      };
+
+      if (mouseButton == default)
+      {
+         if (Context.Logging.IsAvailable)
+            Context.Logging.Warning<SDL3MouseInputContext>($"Failed to raise the mouse button event for the mouse because the mouse button was unknown ({button.Button}).");
+
+         return;
+      }
+
+      Point position = GetPosition(button.X, button.Y);
+      if (Set(ref _localPosition, position, nameof(LocalPosition)))
+      {
+         RefreshGlobalState(false);
+         RaiseMouseMoved(position, GlobalPosition);
+      }
+
+      UpdateButtonState(mouseButton, button.IsDown);
+   }
+   private void OnMouseWheelEvent(SDL3_MouseWheelEvent wheel)
+   {
+      _lastActiveWindow = wheel.WindowId;
+
+      Point position = GetPosition(wheel.MouseX, wheel.MouseY);
+      if (Set(ref _localPosition, position, nameof(LocalPosition)))
+      {
+         RefreshGlobalState(false);
+         RaiseMouseMoved(position, GlobalPosition);
+      }
+
+      RaiseMouseWheelScrolled(wheel.ScrollX, wheel.ScrollY);
    }
    private static Point GetPosition(float x, float y) => new((long)x, (long)y);
    #endregion

@@ -60,6 +60,10 @@ public interface IMouseInputContext : IContext, INotifyPropertyChanging, INotify
    /// <summary>Raised whenever a mouse button is pressed down.</summary>
    /// <exception cref="InvalidOperationException">Might be thrown if accessed when the context is unavailable.</exception>
    event MouseButtonEventHandler? MouseButtonDown;
+
+   /// <summary>Raised whenever a mouse wheel is scrolled.</summary>
+   /// <exception cref="InvalidOperationException">Might be thrown if accessed when the context is unavailable.</exception>
+   event MouseWheelScrollEventHandler? MouseWheelScrolled;
    #endregion
 
    #region Methods

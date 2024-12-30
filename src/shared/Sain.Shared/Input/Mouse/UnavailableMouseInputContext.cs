@@ -56,6 +56,13 @@ public sealed class UnavailableMouseInputContext : BaseUnavailableContext, IMous
       add => ThrowForUnavailable();
       remove => ThrowForUnavailable();
    }
+
+   /// <inheritdoc/>
+   public event MouseWheelScrollEventHandler? MouseWheelScrolled
+   {
+      add => ThrowForUnavailable();
+      remove => ThrowForUnavailable();
+   }
    #endregion
 
    #region Methods

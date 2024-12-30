@@ -38,6 +38,9 @@ public abstract class BaseMouseInputContext(IContextProvider? provider) : BaseCo
 
    /// <inheritdoc/>
    public event MouseButtonEventHandler? MouseButtonDown;
+
+   /// <inheritdoc/>
+   public event MouseWheelScrollEventHandler? MouseWheelScrolled;
    #endregion
 
    #region Methods
@@ -90,6 +93,14 @@ public abstract class BaseMouseInputContext(IContextProvider? provider) : BaseCo
    protected void RaiseMouseButtonDown(MouseButton button, string name)
    {
       MouseButtonDown?.Invoke(this, new(button, name, true));
+   }
+
+   /// <summary>Raises the <see cref="MouseWheelScrolled"/> event.</summary>
+   /// <param name="deltaX">The amount that the mouse wheel was scrolled horizontally.</param>
+   /// <param name="deltaY">The amount that the mouse wheel was scrolled vertically.</param>
+   protected void RaiseMouseWheelScrolled(double deltaX, double deltaY)
+   {
+      MouseWheelScrolled?.Invoke(this, new(deltaX, deltaY));
    }
    #endregion
 

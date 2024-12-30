@@ -37,6 +37,22 @@ public readonly struct MouseButtonEventArgs(MouseButton button, string name, boo
 }
 
 /// <summary>
+///   Represents the arguments used for mouse wheel scrolling events.
+/// </summary>
+/// <param name="deltaX">The amount that the mouse wheel was scrolled horizontally.</param>
+/// <param name="deltaY">The amount that the mouse wheel was scrolled vertically.</param>
+public readonly struct MouseWheelScrollEventArgs(double deltaX, double deltaY)
+{
+   #region Properties
+   /// <summary>The amount that the mouse wheel was scrolled horizontally.</summary>
+   public readonly double DeltaX { get; } = deltaX;
+
+   /// <summary>The amount that the mouse wheel was scrolled vertically.</summary>
+   public readonly double DeltaY { get; } = deltaY;
+   #endregion
+}
+
+/// <summary>
 ///   Represents the event handler delegate for mouse motion events.
 /// </summary>
 /// <param name="context">The mouse input context that raised the event.</param>
@@ -44,8 +60,15 @@ public readonly struct MouseButtonEventArgs(MouseButton button, string name, boo
 public delegate void MouseMoveEventHandler(IMouseInputContext context, MouseMoveEventArgs args);
 
 /// <summary>
-///   Represents the event handler delegate mouse button events.
+///   Represents the event handler delegate for mouse button events.
 /// </summary>
 /// <param name="context">The mouse input context that raised the event.</param>
 /// <param name="args">The arguments that contain information about the button event.</param>
 public delegate void MouseButtonEventHandler(IMouseInputContext context, MouseButtonEventArgs args);
+
+/// <summary>
+///   Represents the event handler delegate for mouse wheel scrolling events.
+/// </summary>
+/// <param name="context">The mouse input context that raised the event.</param>
+/// <param name="args">The arguments that contain information about the mouse wheel scrolling event.</param>
+public delegate void MouseWheelScrollEventHandler(IMouseInputContext context, MouseWheelScrollEventArgs args);
