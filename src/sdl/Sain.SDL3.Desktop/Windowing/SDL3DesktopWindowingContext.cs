@@ -42,6 +42,9 @@ public unsafe sealed class SDL3DesktopWindowingContext(IContextProvider? provide
 
       SDL3_WindowId* id = Native.CreateWindow(title, width, height, flags);
 
+      if (Context.Logging.IsAvailable)
+         Context.Logging.Debug<SDL3DesktopWindowingContext>($"Created a new window, id = ({id->Id}).");
+
       if (configuration.Parent is SDL3DesktopWindow parent && (Native.SetWindowParent(id, parent.WindowId) is false))
       {
          if (Context.Logging.IsAvailable)
@@ -57,7 +60,7 @@ public unsafe sealed class SDL3DesktopWindowingContext(IContextProvider? provide
             Context.Logging.Error<SDL3DesktopWindowingContext>($"Couldn't set the position of the window ({(nint)id}) to X = ({x:n0}), Y = ({y:n0}). ({Native.LastError})");
       }
 
-      SDL3DesktopWindow window = new(Application, configuration.Kind, configuration.Parent, id);
+      SDL3DesktopWindow window = new(Context, configuration.Kind, configuration.Parent, id);
       window.Closed += WindowClosed;
 
       _windows.Add(window);
@@ -65,10 +68,9 @@ public unsafe sealed class SDL3DesktopWindowingContext(IContextProvider? provide
    }
    private void WindowClosed(IDesktopWindow window)
    {
-      window.Closed -= WindowClosed;
-      _windows.Remove((SDL3DesktopWindow)window);
+      if (_windows.Remove((SDL3DesktopWindow)window))
+         window.Closed -= WindowClosed;
    }
-
    unsafe void ISDL3Context.OnEvent(in SDL3_Event ev)
    {
       if (ev.IsWindowEvent(out SDL3_WindowEvent window) is false)
@@ -83,6 +85,5 @@ public unsafe sealed class SDL3DesktopWindowingContext(IContextProvider? provide
          }
       }
    }
-
    #endregion
 }

@@ -6,15 +6,13 @@ namespace Sain.SDL3.Desktop.Windowing;
 public unsafe sealed class SDL3DesktopWindow : ObservableBase, IDesktopWindow, ISDL3EventHandler<SDL3_WindowEvent>
 {
    #region Fields
-   private readonly IApplication _application;
+   private readonly IApplicationContext _context;
 
    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
    private bool _isOpen = true;
    #endregion
 
    #region Properties
-   private IDispatcherContext Dispatcher => _application.Context.Dispatcher;
-
    /// <inheritdoc/>
    public DesktopWindowKind Kind { get; }
 
@@ -76,9 +74,9 @@ public unsafe sealed class SDL3DesktopWindow : ObservableBase, IDesktopWindow, I
    #endregion
 
    #region Constructors
-   internal SDL3DesktopWindow(IApplication application, DesktopWindowKind kind, IDesktopWindow? parent, SDL3_WindowId* windowId)
+   internal SDL3DesktopWindow(IApplicationContext context, DesktopWindowKind kind, IDesktopWindow? parent, SDL3_WindowId* windowId)
    {
-      _application = application;
+      _context = context;
 
       Kind = kind;
       Parent = parent;
@@ -93,16 +91,25 @@ public unsafe sealed class SDL3DesktopWindow : ObservableBase, IDesktopWindow, I
       if (IsOpen is false)
          throw new InvalidOperationException("The desktop window is already closed.");
 
-      if (Dispatcher.NeedsDispatching)
-         Dispatcher.Dispatch(CloseNative);
+      if (_context.Dispatcher.NeedsDispatching)
+         _context.Dispatcher.Dispatch(CloseNative);
       else
          CloseNative();
    }
-   private void CloseNative() => Native.DestroyWindow(WindowId);
+   private void CloseNative()
+   {
+      if (_context.Logging.IsAvailable)
+         _context.Logging.Debug<SDL3DesktopWindow>($"Window destroyed internally, id = ({WindowId->Id}).");
+
+      Native.DestroyWindow(WindowId);
+   }
    unsafe void ISDL3EventHandler<SDL3_WindowEvent>.OnEvent(in SDL3_WindowEvent ev)
    {
       if (ev.Type is SDL3_EventType.WindowCloseRequested)
       {
+         if (_context.Logging.IsAvailable)
+            _context.Logging.Debug<SDL3DesktopWindow>($"Window received a close request, id = ({WindowId->Id}).");
+
          WindowCloseRequestedEventArgs args = new();
          CloseRequested?.Invoke(this, args);
 
@@ -113,6 +120,9 @@ public unsafe sealed class SDL3DesktopWindow : ObservableBase, IDesktopWindow, I
       {
          try
          {
+            if (_context.Logging.IsAvailable)
+               _context.Logging.Debug<SDL3DesktopWindow>($"Window destroyed externally, id = ({ev.WindowId}).");
+
             Closed?.Invoke(this);
          }
          finally
