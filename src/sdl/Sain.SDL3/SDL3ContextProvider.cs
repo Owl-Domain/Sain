@@ -75,7 +75,7 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
       if (Native.SetAppMetadata(Application.Name, Application.Version.DisplayName, Application.Id) is false)
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Error<SDL3ContextProvider>($"Couldn't set the application metadata. ({Native.LastError})");
+            Context.Logging.Error<SDL3ContextProvider>($"Couldn't set the application metadata. ({Native.LastError}).");
       }
 
       SetHints();
@@ -83,7 +83,7 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
       if (Native.InitSubSystem(flags) is false)
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Fatal<SDL3ContextProvider>($"Couldn't initialise the application with the flags ({flags}). ({Native.LastError})");
+            Context.Logging.Fatal<SDL3ContextProvider>($"Couldn't initialise the application with the flags ({flags}). ({Native.LastError}).");
 
          // Todo(Nightowl): Show fatal error warning;
       }
@@ -95,7 +95,7 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
       if (Native.EnableHint(SDL3_Hints.VIDEO_ALLOW_SCREENSAVER) is false)
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Warning<SDL3ContextProvider>($"Couldn't set the hint to allow the screensaver by default. ({Native.LastError})");
+            Context.Logging.Warning<SDL3ContextProvider>($"Couldn't set the hint to allow the screensaver by default. ({Native.LastError}).");
       }
    }
 

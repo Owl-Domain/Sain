@@ -84,7 +84,7 @@ public class SDL3MouseDevice : ObservableBase, IMouseDevice
       string? name = Native.GetMouseNameForId(MouseId);
 
       if (name is null && _context.Logging.IsAvailable)
-         _context.Logging.Error<SDL3MouseDevice>($"Failed to get the name for the mouse ({MouseId}). ({Native.LastError})");
+         _context.Logging.Error<SDL3MouseDevice>($"Failed to get the name for the mouse ({MouseId}). ({Native.LastError}).");
 
       Name = name ?? string.Empty;
    }

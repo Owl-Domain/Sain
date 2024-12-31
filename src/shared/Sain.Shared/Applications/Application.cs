@@ -65,7 +65,7 @@ public sealed class Application(string id, string name, IVersion version, IAppli
       if (Context.Logging.IsAvailable)
 
       {
-         Context.Logging.Info<Application>($"Running application Id = ({Id}), Name = ({Name}), Version = ({Version.DisplayName})");
+         Context.Logging.Info<Application>($"Running application Id = ({Id}), Name = ({Name}), Version = ({Version.DisplayName}).");
          Context.Logging.Trace<Application>($"Between {nameof(Context.PreInitialise)} and {nameof(Context.Initialise)} steps.");
       }
       Context.Initialise(this);

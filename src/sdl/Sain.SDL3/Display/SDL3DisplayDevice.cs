@@ -148,7 +148,7 @@ public unsafe sealed class SDL3DisplayDevice : ObservableBase, IDisplayDevice, I
    {
       string? name = Native.GetDisplayName(DisplayId);
       if (name is null && _context.Logging.IsAvailable)
-         _context.Logging.Error<SDL3DisplayDevice>($"Failed to get the name for the display ({DisplayId}). ({Native.LastError})");
+         _context.Logging.Error<SDL3DisplayDevice>($"Failed to get the name for the display ({DisplayId}). ({Native.LastError}).");
 
       Name = name ?? string.Empty;
    }
@@ -158,7 +158,7 @@ public unsafe sealed class SDL3DisplayDevice : ObservableBase, IDisplayDevice, I
    {
       DisplayScale = Native.GetDisplayContentScale(DisplayId);
       if (DisplayScale is 0 && _context.Logging.IsAvailable)
-         _context.Logging.Error<SDL3DisplayDevice>($"Failed to get the display scale for the display ({DisplayId}). ({Native.LastError})");
+         _context.Logging.Error<SDL3DisplayDevice>($"Failed to get the display scale for the display ({DisplayId}). ({Native.LastError}).");
    }
 
    /// <inheritdoc/>
@@ -171,7 +171,7 @@ public unsafe sealed class SDL3DisplayDevice : ObservableBase, IDisplayDevice, I
          Area = new(areaRect.X, areaRect.Y, areaRect.Width, areaRect.Height);
       else if (_context.Logging.IsAvailable)
       {
-         _context.Logging.Error<SDL3DisplayDevice>($"Failed to get the display area for the display ({DisplayId}). ({Native.LastError})");
+         _context.Logging.Error<SDL3DisplayDevice>($"Failed to get the display area for the display ({DisplayId}). ({Native.LastError}).");
          Area = default;
       }
    }
@@ -186,7 +186,7 @@ public unsafe sealed class SDL3DisplayDevice : ObservableBase, IDisplayDevice, I
       }
       else if (_context.Logging.IsAvailable)
       {
-         _context.Logging.Error<SDL3DisplayDevice>($"Failed to get the display bounds for the display ({DisplayId}). ({Native.LastError})");
+         _context.Logging.Error<SDL3DisplayDevice>($"Failed to get the display bounds for the display ({DisplayId}). ({Native.LastError}).");
 
          _globalBounds = Area;
          Bounds = new(0, 0, Resolution);
@@ -203,7 +203,7 @@ public unsafe sealed class SDL3DisplayDevice : ObservableBase, IDisplayDevice, I
       if (primary.Id is 0)
       {
          if (_context.Logging.IsAvailable)
-            _context.Logging.Error<SDL3DisplayDevice>($"Couldn't get the primary display id. ({Native.LastError})");
+            _context.Logging.Error<SDL3DisplayDevice>($"Couldn't get the primary display id. ({Native.LastError}).");
 
          IsPrimary = false;
          return;
@@ -223,7 +223,7 @@ public unsafe sealed class SDL3DisplayDevice : ObservableBase, IDisplayDevice, I
       }
 
       if (_context.Logging.IsAvailable)
-         _context.Logging.Error<SDL3DisplayDevice>($"Failed to get the display mode for the display ({DisplayId}). ({Native.LastError})");
+         _context.Logging.Error<SDL3DisplayDevice>($"Failed to get the display mode for the display ({DisplayId}). ({Native.LastError}).");
 
       RefreshRate = 0;
       Resolution = default;

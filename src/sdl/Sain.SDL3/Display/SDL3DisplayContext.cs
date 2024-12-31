@@ -73,7 +73,7 @@ public unsafe sealed class SDL3DisplayContext(IContextProvider? provider) : Base
          if (native is null)
          {
             if (Context.Logging.IsAvailable)
-               Context.Logging.Error<SDL3DisplayContext>($"Couldn't get the display devices. ({Native.LastError})");
+               Context.Logging.Error<SDL3DisplayContext>($"Couldn't get the display devices. ({Native.LastError}).");
 
             yield break;
          }
@@ -104,7 +104,7 @@ public unsafe sealed class SDL3DisplayContext(IContextProvider? provider) : Base
       _devices.Remove(device);
 
       if (Context.Logging.IsAvailable)
-         Context.Logging.Debug<SDL3DisplayContext>($"Display device removed, id = ({device.Id}), display id = ({device.DisplayId})");
+         Context.Logging.Debug<SDL3DisplayContext>($"Display device removed, id = ({device.Id}), display id = ({device.DisplayId}).");
    }
    private void AddDevice(SDL3_DisplayId id)
    {
@@ -124,7 +124,7 @@ public unsafe sealed class SDL3DisplayContext(IContextProvider? provider) : Base
       _devices.Add(device);
 
       if (Context.Logging.IsAvailable)
-         Context.Logging.Debug<SDL3DisplayContext>($"Display device added, id = ({device.Id}), display id = ({device.DisplayId})");
+         Context.Logging.Debug<SDL3DisplayContext>($"Display device added, id = ({device.Id}), display id = ({device.DisplayId}).");
    }
    private void RouteEvent(in SDL3_DisplayEvent ev)
    {

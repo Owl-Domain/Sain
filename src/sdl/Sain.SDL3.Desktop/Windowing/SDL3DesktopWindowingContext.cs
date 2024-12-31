@@ -69,7 +69,7 @@ public unsafe sealed class SDL3DesktopWindowingContext(IContextProvider? provide
       if (configuration.Parent is SDL3DesktopWindow parent && (Native.SetWindowParent(window, parent.Window) is false))
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Error<SDL3DesktopWindowingContext>($"Couldn't set the window ({parent.WindowId}) to be the parent of the window ({windowId}). ({Native.LastError})");
+            Context.Logging.Error<SDL3DesktopWindowingContext>($"Couldn't set the window ({parent.WindowId}) to be the parent of the window ({windowId}). ({Native.LastError}).");
       }
 
       int x = (int)location.X;
@@ -78,7 +78,7 @@ public unsafe sealed class SDL3DesktopWindowingContext(IContextProvider? provide
       if (Native.SetWindowPosition(window, x, y) is false)
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Error<SDL3DesktopWindowingContext>($"Couldn't set the position of the window ({windowId}) to X = ({x:n0}), Y = ({y:n0}). ({Native.LastError})");
+            Context.Logging.Error<SDL3DesktopWindowingContext>($"Couldn't set the position of the window ({windowId}) to X = ({x:n0}), Y = ({y:n0}). ({Native.LastError}).");
       }
 
       SDL3DesktopWindow desktopWwindow = new(Context, configuration.Kind, configuration.Parent, window, renderer, windowId);

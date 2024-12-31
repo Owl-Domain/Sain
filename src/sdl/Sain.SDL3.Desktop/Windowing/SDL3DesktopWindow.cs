@@ -160,15 +160,15 @@ public unsafe sealed class SDL3DesktopWindow : ObservableBase, IDesktopWindow, I
    private void DrawBackground()
    {
       if (Native.SetRenderDrawColor(_renderer, BackgroundColor) is false && _context.Logging.IsAvailable)
-         _context.Logging.Error<SDL3DesktopWindow>($"Failed to set the background color for the window ({WindowId}). ({Native.LastError})");
+         _context.Logging.Error<SDL3DesktopWindow>($"Failed to set the background color for the window ({WindowId}). ({Native.LastError}).");
 
       if (Native.RenderClear(_renderer) is false && _context.Logging.IsAvailable)
-         _context.Logging.Error<SDL3DesktopWindow>($"Failed to clear the background for the window ({WindowId}). ({Native.LastError})");
+         _context.Logging.Error<SDL3DesktopWindow>($"Failed to clear the background for the window ({WindowId}). ({Native.LastError}).");
    }
    private void DisplayRender()
    {
       if (Native.RenderPresent(_renderer) is false && _context.Logging.IsAvailable)
-         _context.Logging.Error<SDL3DesktopWindow>($"Failed to update the screen with the renderer for the window ({WindowId}). ({Native.LastError})");
+         _context.Logging.Error<SDL3DesktopWindow>($"Failed to update the screen with the renderer for the window ({WindowId}). ({Native.LastError}).");
    }
    #endregion
 }

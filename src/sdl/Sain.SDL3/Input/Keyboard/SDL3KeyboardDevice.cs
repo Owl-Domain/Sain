@@ -84,7 +84,7 @@ public class SDL3KeyboardDevice : ObservableBase, IKeyboardDevice
       string? name = Native.GetKeyboardNameForId(KeyboardId);
 
       if (name is null && _context.Logging.IsAvailable)
-         _context.Logging.Error<SDL3KeyboardDevice>($"Failed to get the name for the keyboard ({KeyboardId}). ({Native.LastError})");
+         _context.Logging.Error<SDL3KeyboardDevice>($"Failed to get the name for the keyboard ({KeyboardId}). ({Native.LastError}).");
 
       Name = name ?? string.Empty;
    }

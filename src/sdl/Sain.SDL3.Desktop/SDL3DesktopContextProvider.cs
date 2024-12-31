@@ -28,19 +28,19 @@ public class SDL3DesktopContextProvider : SDL3ContextProvider
       if (Native.DisableHint(SDL3_Hints.QUIT_ON_LAST_WINDOW_CLOSE) is false)
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Warning<SDL3DesktopContextProvider>($"Couldn't set the hint to not automatically quit when the last window is closed by default. ({Native.LastError})");
+            Context.Logging.Warning<SDL3DesktopContextProvider>($"Couldn't set the hint to not automatically quit when the last window is closed by default. ({Native.LastError}).");
       }
 
       if (Native.EnableHint(SDL3_Hints.RENDER_VSYNC) is false)
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Warning<SDL3DesktopContextProvider>($"Couldn't set the hint to enable VSync by default. ({Native.LastError})");
+            Context.Logging.Warning<SDL3DesktopContextProvider>($"Couldn't set the hint to enable VSync by default. ({Native.LastError}).");
       }
 
       if (Native.DisableHint(SDL3_Hints.TOUCH_MOUSE_EVENTS) is false)
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Warning<SDL3DesktopContextProvider>($"Couldn't set the hint to prevent touch events from generating synthetic mouse events. ({Native.LastError})");
+            Context.Logging.Warning<SDL3DesktopContextProvider>($"Couldn't set the hint to prevent touch events from generating synthetic mouse events. ({Native.LastError}).");
       }
    }
    #endregion

@@ -104,7 +104,7 @@ public sealed class SDL3MouseInputContext(IContextProvider? provider) : BaseMous
       if (Native.WarpMouseGlobal((float)position.X, (float)position.Y) is false)
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Warning<SDL3MouseInputContext>($"Failed to set the global mouse position ({position}). ({Native.LastError})");
+            Context.Logging.Warning<SDL3MouseInputContext>($"Failed to set the global mouse position ({position}). ({Native.LastError}).");
 
          return false;
       }
@@ -132,7 +132,7 @@ public sealed class SDL3MouseInputContext(IContextProvider? provider) : BaseMous
       if (Native.WarpMouseInWindow(_lastActiveWindow, (float)position.X, (float)position.Y) is false)
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Warning<SDL3MouseInputContext>($"Failed to set the local mouse position ({position}) in the window ({_lastActiveWindow}). ({Native.LastError})");
+            Context.Logging.Warning<SDL3MouseInputContext>($"Failed to set the local mouse position ({position}) in the window ({_lastActiveWindow}). ({Native.LastError}).");
 
          return false;
       }
@@ -162,7 +162,7 @@ public sealed class SDL3MouseInputContext(IContextProvider? provider) : BaseMous
       }
 
       if (Context.Logging.IsAvailable)
-         Context.Logging.Error<SDL3MouseInputContext>($"Failed to start capturing the mouse events. ({Native.LastError})");
+         Context.Logging.Error<SDL3MouseInputContext>($"Failed to start capturing the mouse events. ({Native.LastError}).");
 
       return false;
    }
@@ -183,7 +183,7 @@ public sealed class SDL3MouseInputContext(IContextProvider? provider) : BaseMous
       }
 
       if (Context.Logging.IsAvailable)
-         Context.Logging.Error<SDL3MouseInputContext>($"Failed to stop capturing the mouse events. ({Native.LastError})");
+         Context.Logging.Error<SDL3MouseInputContext>($"Failed to stop capturing the mouse events. ({Native.LastError}).");
 
       return false;
    }

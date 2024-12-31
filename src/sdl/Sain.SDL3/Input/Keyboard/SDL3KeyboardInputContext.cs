@@ -157,7 +157,7 @@ public sealed class SDL3KeyboardInputContext(IContextProvider? provider) : BaseK
          if (native is null)
          {
             if (Context.Logging.IsAvailable)
-               Context.Logging.Error<SDL3DisplayContext>($"Couldn't get the keyboard devices. ({Native.LastError})");
+               Context.Logging.Error<SDL3DisplayContext>($"Couldn't get the keyboard devices. ({Native.LastError}).");
 
             yield break;
          }
