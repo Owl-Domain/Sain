@@ -27,8 +27,21 @@ public interface IApplicationBuilder<TSelf> where TSelf : IApplicationBuilder<TS
 
    /// <summary>Uses the given context <paramref name="provider"/> when resolving requested application contexts.</summary>
    /// <param name="provider">The context provider to use.</param>
+   /// <param name="customise">The (optional) callback that can be used to customise the <paramref name="provider"/>.</param>
    /// <returns>The used builder instance.</returns>
-   TSelf WithProvider(IContextProvider provider);
+   /// <remarks>Only a single instance for the same context provider type will be added.</remarks>
+   TSelf WithProvider(IContextProvider provider, Action<IContextProvider>? customise = null);
+
+   /// <summary>Creates an instance of a context provider for the given type <typeparamref name="T"/> and uses it when resolving requested application contexts.</summary>
+   /// <typeparam name="T">The type of the context provider to create and use.</typeparam>
+   /// <param name="customise">The (optional) callback that can be used to customise the created provider.</param>
+   /// <returns>The used builder instance.</returns>
+   /// <remarks>Only a single instance for the same context provider type will be added.</remarks>
+   TSelf WithProvider<T>(Action<IContextProvider>? customise = null) where T : notnull, IContextProvider, new();
+
+   /// <summary>Uses the context providers that the application builder thinks of as the default providers.</summary>
+   /// <returns>The used builder instance.</returns>
+   TSelf WithDefaultProviders();
 
    /// <summary>Makes the given <paramref name="context"/> available to the application.</summary>
    /// <param name="context">The context to make available.</param>
@@ -62,6 +75,18 @@ public interface IApplicationBuilder<TSelf> where TSelf : IApplicationBuilder<TS
    /// </returns>
    bool HasContext(string contextKind);
 
+   /// <summary>Invokes the given <paramref name="customise"/> callback on every context provider of the given type <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The type of the context providers to call the <paramref name="customise"/> callback on.</typeparam>
+   /// <param name="customise">The callback to call on every context provider of the given type <typeparamref name="T"/>.</param>
+   /// <returns>The used builder instance.</returns>
+   TSelf CustomiseProviders<T>(Action<T> customise) where T : notnull, IContextProvider;
+
+   /// <summary>Invokes the given <paramref name="customise"/> callback on every context of the given type <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The type of the contexts to call the <paramref name="customise"/> callback on.</typeparam>
+   /// <param name="customise">The callback to call on every contexts of the given type <typeparamref name="T"/>.</param>
+   /// <returns>The used builder instance.</returns>
+   TSelf CustomiseContexts<T>(Action<T> customise) where T : notnull, IContext;
+
    /// <summary>Builds the application.</summary>
    /// <returns>The built application.</returns>
    IApplication Build();
@@ -74,22 +99,6 @@ public interface IApplicationBuilder<TSelf> where TSelf : IApplicationBuilder<TS
 public static class IApplicationBuilderExtensions
 {
    #region Methods
-   /// <summary>Creates a new instance of, and uses a context provider of the given type <typeparamref name="TProvider"/>.</summary>
-   /// <typeparam name="TSelf">The type of the <paramref name="builder"/>.</typeparam>
-   /// <typeparam name="TProvider">The type of the context provider to create and use.</typeparam>
-   /// <param name="customise">The (optional) callback that can be used to customise the built context provider.</param>
-   /// <param name="builder">The application builder to use.</param>
-   /// <returns>The used builder instance.</returns>
-   public static TSelf WithProvider<TSelf, TProvider>(this TSelf builder, Action<TProvider>? customise = null)
-      where TSelf : IApplicationBuilder<TSelf>
-      where TProvider : IContextProvider, new()
-   {
-      TProvider provider = new();
-      customise?.Invoke(provider);
-
-      return builder.WithProvider(provider);
-   }
-
    /// <summary>Provides the <see cref="ILoggingContext"/> to the application and optionally customises it with the given callback.</summary>
    /// <typeparam name="TSelf">The type of the <paramref name="builder"/>.</typeparam>
    /// <param name="builder">The application builder to use.</param>
@@ -99,6 +108,17 @@ public static class IApplicationBuilderExtensions
       where TSelf : IApplicationBuilder<TSelf>
    {
       return builder.WithContext(customise);
+   }
+
+   /// <summary>Calls the given <paramref name="customise"/> callback on the registered <see cref="ILoggingContext"/>.</summary>
+   /// <typeparam name="TSelf">The type of the <paramref name="builder"/>.</typeparam>
+   /// <param name="builder">The application builder to use.</param>
+   /// <param name="customise">The callback to invoke on the registered <see cref="ILoggingContext"/>.</param>
+   /// <returns>The used builder instance.</returns>
+   public static TSelf CustomiseLogging<TSelf>(this TSelf builder, Action<ILoggingContext> customise)
+      where TSelf : IApplicationBuilder<TSelf>
+   {
+      return builder.CustomiseContexts(customise);
    }
 
    /// <summary>Provides the <see cref="IMouseInputContext"/> to the application and optionally customises it with the given callback.</summary>
@@ -112,6 +132,17 @@ public static class IApplicationBuilderExtensions
       return builder.WithContext(customise);
    }
 
+   /// <summary>Calls the given <paramref name="customise"/> callback on the registered <see cref="IMouseInputContext"/>.</summary>
+   /// <typeparam name="TSelf">The type of the <paramref name="builder"/>.</typeparam>
+   /// <param name="builder">The application builder to use.</param>
+   /// <param name="customise">The callback to invoke on the registered <see cref="ILoggingContext"/>.</param>
+   /// <returns>The used builder instance.</returns>
+   public static TSelf CustomiseMouseInput<TSelf>(this TSelf builder, Action<IMouseInputContext> customise)
+      where TSelf : IApplicationBuilder<TSelf>
+   {
+      return builder.CustomiseContexts(customise);
+   }
+
    /// <summary>Provides the <see cref="IKeyboardInputContext"/> to the application and optionally customises it with the given callback.</summary>
    /// <typeparam name="TSelf">The type of the <paramref name="builder"/>.</typeparam>
    /// <param name="builder">The application builder to use.</param>
@@ -121,6 +152,17 @@ public static class IApplicationBuilderExtensions
       where TSelf : IApplicationBuilder<TSelf>
    {
       return builder.WithContext(customise);
+   }
+
+   /// <summary>Calls the given <paramref name="customise"/> callback on the registered <see cref="IKeyboardInputContext"/>.</summary>
+   /// <typeparam name="TSelf">The type of the <paramref name="builder"/>.</typeparam>
+   /// <param name="builder">The application builder to use.</param>
+   /// <param name="customise">The callback to invoke on the registered <see cref="IKeyboardInputContext"/>.</param>
+   /// <returns>The used builder instance.</returns>
+   public static TSelf CustomiseKeyboardInput<TSelf>(this TSelf builder, Action<IKeyboardInputContext> customise)
+      where TSelf : IApplicationBuilder<TSelf>
+   {
+      return builder.CustomiseContexts(customise);
    }
    #endregion
 }

@@ -46,11 +46,19 @@ public abstract class DesktopApplicationBuilder<TSelf> : BaseApplicationBuilder<
    public TSelf WithStartupWindowType<T>() => WithStartupWindowType(typeof(T));
 
    /// <inheritdoc/>
+   protected override void AddDefaultContexts()
+   {
+      base.AddDefaultContexts();
+
+      TryRequestContext<IDisplayContext>(CoreContextKinds.Display);
+      TryRequestContext<IMouseInputContext>(CoreContextKinds.MouseInput);
+      TryRequestContext<IDesktopWindowingContext>(DesktopContextKinds.Windowing);
+   }
+
+   /// <inheritdoc/>
    protected override IApplication BuildCore()
    {
       _shutdownMode ??= DesktopApplicationShutdownMode.OnLastWindowClose;
-      if (HasContext(DesktopContextKinds.Windowing) is false)
-         WithContext<IDesktopWindowingContext>();
 
       DesktopApplicationContext context = new(_shutdownMode.Value, _startupWindowType, Providers, Contexts);
       Application application = new(Id, Name, Version, context);

@@ -59,7 +59,7 @@ public static class IApplicationBuilderSDL3ContextProviderExtensions
    public static TSelf WithSDL3Desktop<TSelf>(this TSelf builder)
    where TSelf : IApplicationBuilder<TSelf>
    {
-      return builder.WithProvider<TSelf, SDL3DesktopContextProvider>();
+      return builder.WithProvider<SDL3DesktopContextProvider>();
    }
    #endregion
 }

@@ -228,7 +228,7 @@ public static class IApplicationBuilderSDL3ContextProviderExtensions
    public static TSelf WithSDL3<TSelf>(this TSelf builder)
    where TSelf : IApplicationBuilder<TSelf>
    {
-      return builder.WithProvider<TSelf, SDL3ContextProvider>();
+      return builder.WithProvider<SDL3ContextProvider>();
    }
    #endregion
 }

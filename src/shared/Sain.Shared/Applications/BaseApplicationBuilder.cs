@@ -79,9 +79,43 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    }
 
    /// <inheritdoc/>
-   public TSelf WithProvider(IContextProvider provider)
+   public TSelf WithProvider(IContextProvider provider, Action<IContextProvider>? customise = null)
    {
+      Type type = provider.GetType();
+      foreach (IContextProvider current in _availableProviders)
+      {
+         // Note(Nightowl): Don't add providers of the same type multiple times;
+         if (type == current.GetType())
+            break;
+      }
+
       _availableProviders.Add(provider);
+      customise?.Invoke(provider);
+
+      return Instance;
+   }
+
+   /// <inheritdoc/>
+   public TSelf WithProvider<T>(Action<IContextProvider>? customise = null) where T : notnull, IContextProvider, new()
+   {
+      foreach (IContextProvider current in _availableProviders)
+      {
+         if (current is T)
+            break;
+      }
+
+      T provider = new();
+      _availableProviders.Add(provider);
+      customise?.Invoke(provider);
+
+      return Instance;
+   }
+
+   /// <inheritdoc/>
+   public virtual TSelf WithDefaultProviders()
+   {
+      WithProvider<DefaultContextProvider>();
+
       return Instance;
    }
 
@@ -142,6 +176,30 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    public bool HasContext(string contextKind) => _providedContexts.ContainsKey(contextKind);
 
    /// <inheritdoc/>
+   public TSelf CustomiseProviders<T>(Action<T> customise) where T : notnull, IContextProvider
+   {
+      foreach (IContextProvider current in _availableProviders)
+      {
+         if (current is T typed)
+            customise.Invoke(typed);
+      }
+
+      return Instance;
+   }
+
+   /// <inheritdoc/>
+   public TSelf CustomiseContexts<T>(Action<T> customise) where T : notnull, IContext
+   {
+      foreach (IContext current in _providedContexts.Values)
+      {
+         if (current is T typed)
+            customise.Invoke(typed);
+      }
+
+      return Instance;
+   }
+
+   /// <inheritdoc/>
    public IApplication Build()
    {
       Assembly targetAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly();
@@ -151,16 +209,41 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
       if (_version is null)
          Instance.WithVersionFromAssembly(targetAssembly);
 
-      AddRequired<IDispatcherContext>(CoreContextKinds.Dispatcher);
-
-      TryAddDefault<ILoggingContext, UnavailableLoggingContext>(CoreContextKinds.Logging);
-      TryAddDefault<IDisplayContext, UnavailableDisplayContext>(CoreContextKinds.Display);
-      TryAddDefault<IMouseInputContext, UnavailableMouseInputContext>(CoreContextKinds.MouseInput);
-
-      TryAddUnavailable<UnavailableAudioPlaybackContext>(CoreContextKinds.AudioPlayback);
-      TryAddUnavailable<UnavailableAudioCaptureContext>(CoreContextKinds.AudioCapture);
+      AddRequiredContexts();
+      AddDefaultContexts();
+      AddUnavailableContexts();
 
       return BuildCore();
+   }
+
+   /// <summary>Adds the contexts that are deemed to be required.</summary>
+   /// <remarks>You should use the <see cref="AddRequiredContext{T}(string)"/> method inside this method.</remarks>
+   protected virtual void AddRequiredContexts()
+   {
+      AddRequiredContext<IDispatcherContext>(CoreContextKinds.Dispatcher);
+   }
+
+   /// <summary>Adds the default implementations for commonly used contexts.</summary>
+   /// <remarks>You should use the <see cref="TryRequestContext{T}(string)"/> method inside this method.</remarks>
+   protected virtual void AddDefaultContexts()
+   {
+      TryRequestContext<ILoggingContext>(CoreContextKinds.Logging);
+   }
+
+   /// <summary>Adds the unavailable implementations for commonly used contexts (contexts that are directly provided by the <see cref="IApplicationContext"/>).</summary>
+   /// <remarks>
+   ///   You should use the <see cref="TryAddUnavailableContext{T}(string)"/> method inside this method, this should
+   ///   be done for every context that is directly provided by the built <see cref="IApplicationContext"/>.
+   /// </remarks>
+   protected virtual void AddUnavailableContexts()
+   {
+      TryAddUnavailableContext<UnavailableLoggingContext>(CoreContextKinds.Logging);
+      TryAddUnavailableContext<UnavailableDisplayContext>(CoreContextKinds.Display);
+
+      TryAddUnavailableContext<UnavailableMouseInputContext>(CoreContextKinds.MouseInput);
+
+      TryAddUnavailableContext<UnavailableAudioPlaybackContext>(CoreContextKinds.AudioPlayback);
+      TryAddUnavailableContext<UnavailableAudioCaptureContext>(CoreContextKinds.AudioCapture);
    }
 
    /// <summary>Builds the application.</summary>
@@ -169,25 +252,45 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    #endregion
 
    #region Helpers
-   private void AddRequired<T>(string kind) where T : notnull, IContext
+   /// <summary>Adds a context of the given type <typeparamref name="T"/> as a required context.</summary>
+   /// <typeparam name="T">The type of the <see cref="IContext"/> to add.</typeparam>
+   /// <param name="kind">The kind of the context.</param>
+   /// <remarks>Use this when a context is always required.</remarks>
+   protected void AddRequiredContext<T>(string kind) where T : notnull, IContext
    {
       if (HasContext(kind) is false)
          WithContext<T>();
    }
-   private void TryAddDefault<TContext, TUnavailable>(string kind)
+
+   /// <summary>Tries to request a context of the given type <typeparamref name="TContext"/> if a context of the same <paramref name="kind"/> hasn't already been added.</summary>
+   /// <typeparam name="TContext">The type of the context to try to add.</typeparam>
+   /// <param name="kind">The kind of the context to try to add.</param>
+   /// <remarks>
+   ///   Use this to add default implementations for contexts that haven't been explicitly added, but that will typically be wanted.
+   /// </remarks>
+   protected void TryRequestContext<TContext>(string kind)
       where TContext : notnull, IContext
-      where TUnavailable : notnull, TContext, new()
    {
       if (HasContext(kind) is false)
          TryWithContext<TContext>();
-
-      TryAddUnavailable<TUnavailable>(kind);
    }
-   private void TryAddUnavailable<T>(string kind) where T : notnull, IContext, new()
+
+   /// <summary>Tries to add an unavailable implementation of a context if a context of the same <paramref name="kind"/> hasn't already been added.</summary>
+   /// <typeparam name="T">
+   ///   The type of the unavailable implementation. An unavailable implementation is a context implementation that is always
+   ///   unavailable, primarily used for contexts that are available by default in the <see cref="IApplicationContext"/>.
+   /// </typeparam>
+   /// <param name="kind">The kind of the context to try to add.</param>
+   /// <exception cref="InvalidOperationException">Thrown if the context of the type <typeparamref name="T"/> isn't marked as unavailable.</exception>
+   protected void TryAddUnavailableContext<T>(string kind) where T : notnull, IContext, new()
    {
       if (HasContext(kind) is false)
       {
          T context = new();
+
+         if (context.IsAvailable)
+            throw new InvalidOperationException($"The context of the given type ({typeof(T)}) is expected to always be unavailable.");
+
          WithContext(context);
       }
    }

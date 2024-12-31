@@ -23,21 +23,3 @@ public abstract class ApplicationBuilder<TSelf> : BaseApplicationBuilder<TSelf>
 ///   Represents a builder for a general application.
 /// </summary>
 public sealed class ApplicationBuilder : ApplicationBuilder<ApplicationBuilder> { }
-
-/// <summary>
-///   Contains various extension methods related to the <see cref="IApplicationBuilder{TSelf}"/>.
-/// </summary>
-public static class ApplicationBuilderExtensions
-{
-   #region Methods
-   /// <summary>Uses the default context provider.</summary>
-   /// <typeparam name="TSelf">The type of the application builder.</typeparam>
-   /// <param name="builder">The application builder to use.</param>
-   /// <returns>The used builder instance.</returns>
-   public static TSelf WithDefaultProvider<TSelf>(this TSelf builder)
-   where TSelf : IApplicationBuilder<TSelf>
-   {
-      return builder.WithProvider<TSelf, DefaultContextProvider>();
-   }
-   #endregion
-}
