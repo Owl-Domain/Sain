@@ -9,6 +9,7 @@ internal enum SDL3_DisplayOrientation : byte
    PortraitFlipped
 }
 
+[StructLayout(LayoutKind.Sequential)]
 internal readonly struct SDL3_DisplayId(uint id)
 {
    #region Fields

@@ -39,8 +39,8 @@ public enum KeyModifiers : ushort
    NumLock = 1 << 8,
 
    /// <summary>The mode key is pressed.</summary>
-   /// <remarks>I have no idea what the mode key is.</remarks>
-   Mode = 1 << 9,
+   /// <remarks>I have discovered that mode is the Alt Gr key.</remarks>
+   AltGr = 1 << 9,
 }
 
 /// <summary>

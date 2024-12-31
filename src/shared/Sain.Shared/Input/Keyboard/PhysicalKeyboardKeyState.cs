@@ -1,12 +1,12 @@
-namespace Sain.Shared.Input.Mouse;
+namespace Sain.Shared.Input.Keyboard;
 
 /// <summary>
-///   Represents state information about a single mouse button.
+///   Represents state information about a single physical keyboard key.
 /// </summary>
-/// <param name="button">The mouse button.</param>
-/// <param name="name">The name of the mouse button.</param>
-/// <param name="isDown">Whether the mouse button is currently pressed down.</param>
-public sealed class MouseButtonState(MouseButton button, string name, bool isDown) : ObservableBase, IMouseButtonState
+/// <param name="physicalKey">The physical location of the key.</param>
+/// <param name="name">The name of the key.</param>
+/// <param name="isDown">Whether the key is currently pressed down.</param>
+public class PhysicalKeyboardKeyState(PhysicalKey physicalKey, string name, bool isDown) : ObservableBase, IPhysicalKeyboardKeyState
 {
    #region Fields
    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -18,7 +18,7 @@ public sealed class MouseButtonState(MouseButton button, string name, bool isDow
 
    #region Properties
    /// <inheritdoc/>
-   public MouseButton Button { get; } = button;
+   public PhysicalKey PhysicalKey { get; } = physicalKey;
 
    /// <inheritdoc/>
    public string Name

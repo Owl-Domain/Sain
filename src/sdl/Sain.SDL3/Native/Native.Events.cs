@@ -191,6 +191,8 @@ internal readonly struct SDL3_Event
    [FieldOffset(0)] private readonly SDL3_MouseMotionEvent _mouseMotion;
    [FieldOffset(0)] private readonly SDL3_MouseButtonEvent _mouseButton;
    [FieldOffset(0)] private readonly SDL3_MouseWheelEvent _mouseWheel;
+   [FieldOffset(0)] private readonly SDL3_KeyboardDeviceEvent _keyboardDevice;
+   [FieldOffset(0)] private readonly SDL3_KeyboardEvent _keyboard;
    #endregion
 
    #region Methods
@@ -248,6 +250,7 @@ internal readonly struct SDL3_Event
       display = default;
       return false;
    }
+
    public readonly bool IsMouseDeviceEvent(out SDL3_MouseDeviceEvent device)
    {
       if (Type is SDL3_EventType.MouseAdded or SDL3_EventType.MouseRemoved)
@@ -290,6 +293,29 @@ internal readonly struct SDL3_Event
       }
 
       wheel = default;
+      return false;
+   }
+
+   public readonly bool IsKeyboardDeviceEvent(out SDL3_KeyboardDeviceEvent device)
+   {
+      if (Type is SDL3_EventType.KeyboardAdded or SDL3_EventType.KeyboardRemoved)
+      {
+         device = _keyboardDevice;
+         return true;
+      }
+
+      device = default;
+      return false;
+   }
+   public readonly bool IsKeyboardEvent(out SDL3_KeyboardEvent keyboard)
+   {
+      if (Type is SDL3_EventType.KeyDown or SDL3_EventType.KeyUp)
+      {
+         keyboard = _keyboard;
+         return true;
+      }
+
+      keyboard = default;
       return false;
    }
    #endregion

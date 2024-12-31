@@ -1,4 +1,3 @@
-
 namespace Sain.Shared.Applications;
 
 /// <summary>
@@ -14,9 +13,6 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
    public IReadOnlyCollection<IContext> Contexts { get; }
 
    /// <inheritdoc/>
-   public IAudioContextGroup Audio { get; }
-
-   /// <inheritdoc/>
    public IDispatcherContext Dispatcher { get; }
 
    /// <inheritdoc/>
@@ -24,6 +20,12 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
 
    /// <inheritdoc/>
    public IDisplayContext Display { get; }
+
+   /// <inheritdoc/>
+   public IInputContextGroup Input { get; }
+
+   /// <inheritdoc/>
+   public IAudioContextGroup Audio { get; }
    #endregion
 
    #region Constructors
@@ -35,15 +37,40 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
       ContextProviders = contextProviders;
       Contexts = contexts;
 
-      Audio = AudioContextGroup.Create(this);
-
       Dispatcher = GetContext<IDispatcherContext>();
       Logging = GetContext<ILoggingContext>();
       Display = GetContext<IDisplayContext>();
+
+      Input = InputContextGroup.Create(this);
+      Audio = AudioContextGroup.Create(this);
    }
    #endregion
 
    #region Methods
+   /// <inheritdoc/>
+   public bool HasContext<T>() where T : notnull, IContext
+   {
+      foreach (IContext current in Contexts)
+      {
+         if (current is T)
+            return true;
+      }
+
+      return false;
+   }
+
+   /// <inheritdoc/>
+   public bool IsContextAvailable<T>() where T : notnull, IContext
+   {
+      foreach (IContext current in Contexts)
+      {
+         if (current is T typed && typed.IsAvailable)
+            return true;
+      }
+
+      return false;
+   }
+
    /// <inheritdoc/>
    public T GetContext<T>() where T : notnull, IContext
    {
@@ -59,6 +86,22 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
       foreach (IContext current in Contexts)
       {
          if (current is T typed)
+         {
+            context = typed;
+            return true;
+         }
+      }
+
+      context = default;
+      return false;
+   }
+
+   /// <inheritdoc/>
+   public bool TryGetContextIfAvailable<T>([MaybeNullWhen(false)] out T context) where T : notnull, IContext
+   {
+      foreach (IContext current in Contexts)
+      {
+         if (current is T typed && typed.IsAvailable)
          {
             context = typed;
             return true;

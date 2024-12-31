@@ -1,7 +1,7 @@
 namespace Sain.Shared.Audio;
 
 /// <summary>
-///   Represents the application's context for audio.
+///   Represents a context group for the application's audio contexts.
 /// </summary>
 public interface IAudioContextGroup
 {

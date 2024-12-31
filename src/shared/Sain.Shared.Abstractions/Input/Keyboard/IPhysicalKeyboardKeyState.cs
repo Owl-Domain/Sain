@@ -3,7 +3,7 @@ namespace Sain.Shared.Input.Keyboard;
 /// <summary>
 ///   Represents state information about a single physical keyboard key.
 /// </summary>
-public interface IKeyboardPhysicalKeyState
+public interface IPhysicalKeyboardKeyState
 {
    #region Properties
    /// <summary>The physical location of the key.</summary>

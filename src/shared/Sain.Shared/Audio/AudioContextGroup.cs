@@ -1,7 +1,7 @@
 namespace Sain.Shared.Audio;
 
 /// <summary>
-///   Represents the application's context for audio.
+///   Represents a context group for the application's audio contexts.
 /// </summary>
 /// <param name="playback">The application's context for playing audio.</param>
 /// <param name="capture">The application's context for capturing audio.</param>

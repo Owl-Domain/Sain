@@ -9,6 +9,7 @@ global using Sain.Shared.Contexts;
 global using Sain.Shared.Devices;
 global using Sain.Shared.Dispatch;
 global using Sain.Shared.Display;
+global using Sain.Shared.Input;
 global using Sain.Shared.Input.Keyboard;
 global using Sain.Shared.Input.Mouse;
 global using Sain.Shared.Logging;

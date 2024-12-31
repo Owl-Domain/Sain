@@ -49,6 +49,7 @@ internal enum SDL3_MouseButtonFlags : uint
    X2 = 1u << 4
 }
 
+[StructLayout(LayoutKind.Sequential)]
 internal readonly struct SDL3_MouseId(uint id)
 {
    #region Fields

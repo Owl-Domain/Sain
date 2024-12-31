@@ -18,7 +18,25 @@ public interface IKeyboardInputContext : IContext
    ///   the physical state of the keyboard, instead it should only be used for collecting input.
    /// </remarks>
    /// <exception cref="InvalidOperationException">Might be thrown if accessed when the context is unavailable.</exception>
-   IReadOnlyCollection<IKeyboardPhysicalKeyState> Keys { get; }
+   IReadOnlyCollection<IPhysicalKeyboardKeyState> Keys { get; }
+   #endregion
+
+   #region Events
+   /// <summary>Raised whenever a keyboard key is released.</summary>
+   /// <remarks>
+   ///   Depending on the implementation, this event might only
+   ///   be raised when an active window has keyboard focus.
+   /// </remarks>
+   /// <exception cref="InvalidOperationException">Might be thrown if accessed when the context is unavailable.</exception>
+   event KeyboardKeyEventHandler? KeyboardKeyUp;
+
+   /// <summary>Raised whenever a keyboard key is pressed down.</summary>
+   /// <remarks>
+   ///   Depending on the implementation, this event might only
+   ///   be raised when an active window has keyboard focus.
+   /// </remarks>
+   /// <exception cref="InvalidOperationException">Might be thrown if accessed when the context is unavailable.</exception>
+   event KeyboardKeyEventHandler? KeyboardKeyDown;
    #endregion
 
    #region Methods

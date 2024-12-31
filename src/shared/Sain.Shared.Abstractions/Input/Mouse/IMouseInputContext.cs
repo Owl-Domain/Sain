@@ -54,14 +54,26 @@ public interface IMouseInputContext : IContext, INotifyPropertyChanging, INotify
    event MouseMoveEventHandler? MouseMoved;
 
    /// <summary>Raised whenever a mouse button is released.</summary>
+   /// <remarks>
+   ///   Depending on the implementation, this event might only be raised when an active
+   ///   window has mouse focus, and not just when it's in the virtual screen space.
+   /// </remarks>
    /// <exception cref="InvalidOperationException">Might be thrown if accessed when the context is unavailable.</exception>
    event MouseButtonEventHandler? MouseButtonUp;
 
    /// <summary>Raised whenever a mouse button is pressed down.</summary>
+   /// <remarks>
+   ///   Depending on the implementation, this event might only be raised when an active
+   ///   window has mouse focus, and not just when it's in the virtual screen space.
+   /// </remarks>
    /// <exception cref="InvalidOperationException">Might be thrown if accessed when the context is unavailable.</exception>
    event MouseButtonEventHandler? MouseButtonDown;
 
    /// <summary>Raised whenever a mouse wheel is scrolled.</summary>
+   /// <remarks>
+   ///   Depending on the implementation, this event might only be raised when an active
+   ///   window has mouse focus, and not just when it's in the virtual screen space.
+   /// </remarks>
    /// <exception cref="InvalidOperationException">Might be thrown if accessed when the context is unavailable.</exception>
    event MouseWheelScrollEventHandler? MouseWheelScrolled;
    #endregion
