@@ -309,7 +309,7 @@ public sealed class SDL3MouseInputContext(IContextProvider? provider) : BaseMous
          if (native is null)
          {
             if (Context.Logging.IsAvailable)
-               Context.Logging.Error<SDL3DisplayContext>($"Couldn't get the mouse devices. ({Native.LastError})");
+               Context.Logging.Error<SDL3DisplayContext>($"Couldn't get the mouse devices. ({Native.LastError}).");
 
             yield break;
          }
@@ -340,7 +340,7 @@ public sealed class SDL3MouseInputContext(IContextProvider? provider) : BaseMous
       _devices.Remove(device);
 
       if (Context.Logging.IsAvailable)
-         Context.Logging.Debug<SDL3MouseInputContext>($"Mouse device removed, id = ({device.Id}), mouse id = ({device.MouseId})");
+         Context.Logging.Debug<SDL3MouseInputContext>($"Mouse device removed, id = ({device.Id}), mouse id = ({device.MouseId}).");
    }
    private void AddDevice(SDL3_MouseId id)
    {
@@ -359,7 +359,7 @@ public sealed class SDL3MouseInputContext(IContextProvider? provider) : BaseMous
       _devices.Add(device);
 
       if (Context.Logging.IsAvailable)
-         Context.Logging.Debug<SDL3MouseInputContext>($"Mouse device added, id = ({device.Id}), mouse id = ({device.MouseId})");
+         Context.Logging.Debug<SDL3MouseInputContext>($"Mouse device added, id = ({device.Id}), mouse id = ({device.MouseId}).");
    }
    private void RefreshGlobalState(bool notifyLocal)
    {

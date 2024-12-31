@@ -633,6 +633,14 @@ static unsafe partial class Native
 
    [LibraryImport(LibName, EntryPoint = "SDL_GetKeyboardState")]
    public static partial byte* GetKeyboardState(out int count);
+   public static ReadOnlySpan<byte> GetKeyboardState()
+   {
+      byte* native = GetKeyboardState(out int count);
+      return new(native, count);
+   }
+
+   [LibraryImport(LibName, EntryPoint = "SDL_GetKeyFromScancode")]
+   public static partial SDL3_KeyCode GetKeyFromScanCode(SDL3_ScanCode scanCode, SDL3_KeyModifiers modifiers, [MarshalAs(Bool)] bool keyEvent);
 
    [LibraryImport(LibName, EntryPoint = "SDL_SetTextInputArea")]
    [return: MarshalAs(Bool)]

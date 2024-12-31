@@ -1,14 +1,19 @@
-using System.Reflection.Metadata.Ecma335;
 using ScanCode = Sain.SDL3.SDL3_ScanCode;
+using KeyCode = Sain.SDL3.SDL3_KeyCode;
 
 namespace Sain.SDL3.Input.Keyboard;
 
+/// <summary>
+///   Represents the SDL3 specific context for keyboard input.
+/// </summary>
+/// <param name="provider">The context provider that the context comes from.</param>
 public sealed class SDL3KeyboardInputContext(IContextProvider? provider) : BaseKeyboardInputContext(provider), ISDL3Context
 {
    #region Fields
    private readonly DeviceCollection<SDL3KeyboardDevice> _devices = [];
    private readonly Dictionary<SDL3_KeyboardId, SDL3KeyboardDevice> _deviceLookup = [];
    private readonly Dictionary<PhysicalKey, PhysicalKeyboardKeyState> _keys = [];
+   private SDL3_WindowId _lastActiveWindow;
    #endregion
 
    #region Properties
@@ -22,6 +27,37 @@ public sealed class SDL3KeyboardInputContext(IContextProvider? provider) : BaseK
    #endregion
 
    #region Methods
+   /// <inheritdoc/>
+   protected override void Initialise()
+   {
+      SetupKeys();
+      RefreshDevices();
+   }
+   private void SetupKeys()
+   {
+      Debug.Assert(_keys.Count is 0);
+
+      ReadOnlySpan<byte> keys = Native.GetKeyboardState();
+      for (int i = 0; i < keys.Length; i++)
+      {
+         ScanCode scanCode = (ScanCode)i;
+         bool isDown = keys[i] is not 0;
+
+         PhysicalKey physicalKey = Translate(scanCode);
+         string name = Native.GetScanCodeName(scanCode);
+
+         _keys.Add(physicalKey, new(physicalKey, name, isDown));
+      }
+   }
+
+   /// <inheritdoc/>
+   protected override void Cleanup()
+   {
+      _devices.Clear();
+      _deviceLookup.Clear();
+      _keys.Clear();
+   }
+
    /// <inheritdoc/>
    public override bool IsKeyUp(PhysicalKey key)
    {
@@ -69,7 +105,42 @@ public sealed class SDL3KeyboardInputContext(IContextProvider? provider) : BaseK
    }
 
    /// <inheritdoc/>
-   public override void RefreshKeys() => throw new NotImplementedException();
+   public override void RefreshKeys()
+   {
+      ReadOnlySpan<byte> keys = Native.GetKeyboardState();
+      Debug.Assert(keys.Length == _keys.Count);
+
+      if (keys.Length != _keys.Count && Context.Logging.IsAvailable)
+         Context.Logging.Warning<SDL3KeyboardInputContext>($"The amount of keys returned from the keyboard state ({keys.Length}), doesn't match the length of the internal keyboard state ({_keys.Count}).");
+
+      for (int i = 0; i < keys.Length; i++)
+      {
+         ScanCode scanCode = (ScanCode)i;
+         bool isDown = keys[i] is not 0;
+
+         PhysicalKey physicalKey = Translate(scanCode);
+
+         if (_keys.TryGetValue(physicalKey, out PhysicalKeyboardKeyState? state) is false)
+         {
+            if (Context.Logging.IsAvailable)
+               Context.Logging.Warning<SDL3KeyboardInputContext>($"Tried to update the state of an unknown keyboard key ({physicalKey}), native scan code = ({scanCode}).");
+
+            continue;
+         }
+
+         KeyCode keyCode = Native.GetKeyFromScanCode(scanCode, SDL3_KeyModifiers.None, false);
+         VirtualKey virtualKey = Translate(keyCode);
+         string virtualKeyName = Native.GetKeyName(keyCode);
+
+         if (state.SetIsDown(isDown))
+         {
+            if (state.IsDown)
+               RaiseKeyboardKeyDown(physicalKey, state.Name, virtualKey, virtualKeyName, KeyModifiers.None, false);
+            else
+               RaiseKeyboardKeyUp(physicalKey, state.Name, virtualKey, virtualKeyName, KeyModifiers.None, false);
+         }
+      }
+   }
    #endregion
 
    #region Helpers
@@ -117,7 +188,7 @@ public sealed class SDL3KeyboardInputContext(IContextProvider? provider) : BaseK
       _devices.Remove(device);
 
       if (Context.Logging.IsAvailable)
-         Context.Logging.Debug<SDL3KeyboardInputContext>($"Keyboard device removed, id = ({device.Id}), keyboard id = ({device.KeyboardId})");
+         Context.Logging.Debug<SDL3KeyboardInputContext>($"Keyboard device removed, id = ({device.Id}), keyboard id = ({device.KeyboardId}).");
    }
    private void AddDevice(SDL3_KeyboardId id)
    {
@@ -136,11 +207,9 @@ public sealed class SDL3KeyboardInputContext(IContextProvider? provider) : BaseK
       _devices.Add(device);
 
       if (Context.Logging.IsAvailable)
-         Context.Logging.Debug<SDL3KeyboardInputContext>($"Keyboard device added, id = ({device.Id}), keyboard id = ({device.KeyboardId})");
+         Context.Logging.Debug<SDL3KeyboardInputContext>($"Keyboard device added, id = ({device.Id}), keyboard id = ({device.KeyboardId}).");
    }
-
-   void ISDL3Context.OnEvent(in SDL3_Event ev) => throw new NotImplementedException();
-   private PhysicalKey Translate(ScanCode code)
+   private static PhysicalKey Translate(ScanCode code)
    {
       return code switch
       {
@@ -188,7 +257,7 @@ public sealed class SDL3KeyboardInputContext(IContextProvider? provider) : BaseK
          #endregion
          #region Programmer keys
          ScanCode.MINUS => new(PhysicalKeyKind.Minus),
-         ScanCode.EQUALS => new(PhysicalKeyKind.Minus),
+         ScanCode.EQUALS => new(PhysicalKeyKind.Equals),
          ScanCode.LEFTBRACKET => new(PhysicalKeyKind.LeftBracket),
          ScanCode.RIGHTBRACKET => new(PhysicalKeyKind.RightBracket),
          ScanCode.BACKSLASH => new(PhysicalKeyKind.Backslash),
@@ -422,6 +491,74 @@ public sealed class SDL3KeyboardInputContext(IContextProvider? provider) : BaseK
 
          _ => new(PhysicalKeyKind.Other, (uint)code)
       };
+   }
+   private static VirtualKey Translate(KeyCode code)
+   {
+      return code switch
+      {
+         KeyCode.UNKNOWN => VirtualKey.Unknown,
+
+         _ => new(VirtualKeyKind.Other, (uint)code)
+      };
+   }
+   private static KeyModifiers Translate(SDL3_KeyModifiers sdl)
+   {
+      KeyModifiers modifiers = KeyModifiers.None;
+
+      if (sdl.HasFlag(SDL3_KeyModifiers.LeftControl)) modifiers |= KeyModifiers.LeftControl;
+      if (sdl.HasFlag(SDL3_KeyModifiers.RightControl)) modifiers |= KeyModifiers.RightControl;
+      if (sdl.HasFlag(SDL3_KeyModifiers.LeftShift)) modifiers |= KeyModifiers.LeftShift;
+      if (sdl.HasFlag(SDL3_KeyModifiers.RightShift)) modifiers |= KeyModifiers.RightShift;
+      if (sdl.HasFlag(SDL3_KeyModifiers.LeftAlt)) modifiers |= KeyModifiers.LeftAlt;
+      if (sdl.HasFlag(SDL3_KeyModifiers.RightAlt)) modifiers |= KeyModifiers.RightAlt;
+      if (sdl.HasFlag(SDL3_KeyModifiers.LeftMeta)) modifiers |= KeyModifiers.LeftMeta;
+      if (sdl.HasFlag(SDL3_KeyModifiers.RightMeta)) modifiers |= KeyModifiers.RightMeta;
+      if (sdl.HasFlag(SDL3_KeyModifiers.Mode)) modifiers |= KeyModifiers.AltGr;
+      if (sdl.HasFlag(SDL3_KeyModifiers.CapsLock)) modifiers |= KeyModifiers.CapsLock;
+      if (sdl.HasFlag(SDL3_KeyModifiers.ScrollLock)) modifiers |= KeyModifiers.ScrollLock;
+
+      return modifiers;
+   }
+   void ISDL3Context.OnEvent(in SDL3_Event ev)
+   {
+      if (ev.IsKeyboardDeviceEvent(out SDL3_KeyboardDeviceEvent device))
+      {
+         if (ev.Type is SDL3_EventType.KeyboardAdded)
+            AddDevice(device.KeyboardId);
+         else if (device.Type is SDL3_EventType.KeyboardRemoved)
+            RemoveDevice(device.KeyboardId);
+         else if (Context.Logging.IsAvailable)
+            Context.Logging.Warning<SDL3KeyboardInputContext>($"Unknown keyboard device event ({device.Type}), this should've been known but wasn't handled properly here.");
+      }
+      else if (ev.IsKeyboardEvent(out SDL3_KeyboardEvent keyboard))
+         OnKeyboardEvent(keyboard);
+   }
+   private void OnKeyboardEvent(SDL3_KeyboardEvent keyboard)
+   {
+      _lastActiveWindow = keyboard.WindowId;
+
+      PhysicalKey physicalKey = Translate(keyboard.ScanCode);
+
+      if (_keys.TryGetValue(physicalKey, out PhysicalKeyboardKeyState? state) is false)
+      {
+         if (Context.Logging.IsAvailable)
+            Context.Logging.Warning<SDL3KeyboardInputContext>($"Tried to update the state of an unknown keyboard key ({physicalKey}) during a keyboard key event, native scan code = ({keyboard.ScanCode}).");
+
+         return;
+      }
+
+      VirtualKey virtualKey = Translate(keyboard.KeyCode);
+      string virtualKeyName = Native.GetKeyName(keyboard.KeyCode);
+
+      KeyModifiers modifiers = Translate(keyboard.Modifiers);
+
+      if (state.SetIsDown(keyboard.IsDown) || keyboard.IsRepeat)
+      {
+         if (keyboard.IsDown)
+            RaiseKeyboardKeyDown(physicalKey, state.Name, virtualKey, virtualKeyName, modifiers, keyboard.IsRepeat);
+         else
+            RaiseKeyboardKeyUp(physicalKey, state.Name, virtualKey, virtualKeyName, modifiers, keyboard.IsRepeat);
+      }
    }
    #endregion
 }

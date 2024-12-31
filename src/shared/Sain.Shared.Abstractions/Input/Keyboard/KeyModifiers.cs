@@ -38,9 +38,16 @@ public enum KeyModifiers : ushort
    /// <summary>The Num Lock key is pressed.</summary>
    NumLock = 1 << 8,
 
+   /// <summary>The Caps Lock key is pressed.</summary>
+   CapsLock = 1 << 9,
+
    /// <summary>The mode key is pressed.</summary>
    /// <remarks>I have discovered that mode is the Alt Gr key.</remarks>
-   AltGr = 1 << 9,
+   AltGr = 1 << 10,
+
+   /// <summary>The scroll lock modifier key is pressed.</summary>
+   /// <remarks>Scroll lock is a modifier key?</remarks>
+   ScrollLock = 1 << 11,
 }
 
 /// <summary>

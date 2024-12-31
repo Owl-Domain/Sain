@@ -30,6 +30,12 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
          return true;
       }
 
+      if (type == typeof(IKeyboardInputContext) || type == typeof(SDL3KeyboardInputContext))
+      {
+         context = (T)(IContext)new SDL3KeyboardInputContext(this);
+         return true;
+      }
+
       context = default;
       return false;
    }
@@ -155,8 +161,6 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
    }
    private void OnEvent(SDL3_Event ev)
    {
-      Debug.WriteLine($"OnEvent: {ev.Type}");
-
       foreach (ISDL3Context context in _providedContexts)
          context.OnEvent(ev);
    }

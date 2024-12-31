@@ -240,6 +240,7 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
       TryAddUnavailableContext<UnavailableLoggingContext>(CoreContextKinds.Logging);
       TryAddUnavailableContext<UnavailableDisplayContext>(CoreContextKinds.Display);
 
+      TryAddUnavailableContext<UnavailableKeyboardInputContext>(CoreContextKinds.KeyboardInput);
       TryAddUnavailableContext<UnavailableMouseInputContext>(CoreContextKinds.MouseInput);
 
       TryAddUnavailableContext<UnavailableAudioPlaybackContext>(CoreContextKinds.AudioPlayback);
