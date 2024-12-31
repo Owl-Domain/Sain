@@ -301,6 +301,8 @@ public sealed class SDL3MouseInputContext(IContextProvider? provider) : BaseMous
       nint ptr;
       SDL3_MouseId[] ids;
 
+      // Todo(Nightowl): Optimise ids allocation using ArrayPool?
+
       unsafe
       {
          SDL3_MouseId* native = Native.GetMice(out int count);
@@ -329,7 +331,7 @@ public sealed class SDL3MouseInputContext(IContextProvider? provider) : BaseMous
       if (_deviceLookup.TryGetValue(id, out SDL3MouseDevice? device) is false)
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Warning<SDL3MouseInputContext>($"A display mouse with an unknown mouse id was removed ({id}).");
+            Context.Logging.Warning<SDL3MouseInputContext>($"A mouse device with an unknown mouse id was removed ({id}).");
 
          return;
       }

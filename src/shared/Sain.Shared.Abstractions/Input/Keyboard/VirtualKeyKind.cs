@@ -706,6 +706,10 @@ public enum VirtualKeyKind : ushort
    /// <summary>The right meta key.</summary>
    /// <remarks>This is the OS specific key, e.g: the windows key (on Windows), the command key (on Apple devices), etc.</remarks>
    RightMeta,
+
+   /// <summary>The Alt Gr modifier key.</summary>
+   /// <remarks><i>I think...</i></remarks>
+   AltGr,
    #endregion
 
    #region Mobile keys
@@ -790,9 +794,6 @@ public enum VirtualKeyKind : ushort
    /// <summary>The execute key.</summary>
    /// <remarks>What does it execute...?</remarks>
    Execute,
-
-   /// <summary>I genuinely do not have a clue.</summary>
-   Mode,
 }
 
 /// <summary>

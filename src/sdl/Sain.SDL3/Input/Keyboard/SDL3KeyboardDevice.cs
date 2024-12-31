@@ -1,9 +1,9 @@
-namespace Sain.SDL3.Input.Mouse;
+namespace Sain.SDL3.Input.Keyboard;
 
 /// <summary>
-///   Represents SDL3 specific information about a mouse device.
+///   Represents SDL3 specific information about a keyboard device.
 /// </summary>
-public class SDL3MouseDevice : ObservableBase, IMouseDevice
+public class SDL3KeyboardDevice : ObservableBase, IKeyboardDevice
 {
    #region Fields
    private readonly IApplicationContext _context;
@@ -16,7 +16,7 @@ public class SDL3MouseDevice : ObservableBase, IMouseDevice
    #endregion
 
    #region Properties
-   internal SDL3_MouseId MouseId { get; }
+   internal SDL3_KeyboardId KeyboardId { get; }
 
    /// <inheritdoc/>
    public Guid Id { get; }
@@ -45,11 +45,11 @@ public class SDL3MouseDevice : ObservableBase, IMouseDevice
    #endregion
 
    #region Constructors
-   internal SDL3MouseDevice(IApplicationContext context, SDL3_MouseId id)
+   internal SDL3KeyboardDevice(IApplicationContext context, SDL3_KeyboardId id)
    {
       _context = context;
 
-      MouseId = id;
+      KeyboardId = id;
       Id = Guid.NewGuid();
 
       Refresh();
@@ -74,17 +74,17 @@ public class SDL3MouseDevice : ObservableBase, IMouseDevice
    [MemberNotNull(nameof(_deviceId))]
    public void RefreshDeviceId()
    {
-      DeviceId = new DeviceId($"{MouseId}", Name);
+      DeviceId = new DeviceId($"{KeyboardId}", Name);
    }
 
    /// <inheritdoc/>
    [MemberNotNull(nameof(_name))]
    public void RefreshName()
    {
-      string? name = Native.GetMouseNameForId(MouseId);
+      string? name = Native.GetKeyboardNameForId(KeyboardId);
 
       if (name is null && _context.Logging.IsAvailable)
-         _context.Logging.Error<SDL3MouseDevice>($"Failed to get the name for the mouse ({MouseId}). ({Native.LastError})");
+         _context.Logging.Error<SDL3KeyboardDevice>($"Failed to get the name for the keyboard ({KeyboardId}). ({Native.LastError})");
 
       Name = name ?? string.Empty;
    }

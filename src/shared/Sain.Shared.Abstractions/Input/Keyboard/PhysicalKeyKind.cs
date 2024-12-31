@@ -99,43 +99,43 @@ public enum PhysicalKeyKind : ushort
    #region Number keys
    /// <summary>The number 1 key on the keyboard.</summary>
    /// <remarks>This is typically the number on the top row of the keyboard.</remarks>
-   N1,
+   Num1,
 
    /// <summary>The number 2 key on the keyboard.</summary>
    /// <remarks>This is typically the number on the top row of the keyboard.</remarks>
-   N2,
+   Num2,
 
    /// <summary>The number 3 key on the keyboard.</summary>
    /// <remarks>This is typically the number on the top row of the keyboard.</remarks>
-   N3,
+   Num3,
 
    /// <summary>The number 4 key on the keyboard.</summary>
    /// <remarks>This is typically the number on the top row of the keyboard.</remarks>
-   N4,
+   Num4,
 
    /// <summary>The number 5 key on the keyboard.</summary>
    /// <remarks>This is typically the number on the top row of the keyboard.</remarks>
-   N5,
+   Num5,
 
    /// <summary>The number 6 key on the keyboard.</summary>
    /// <remarks>This is typically the number on the top row of the keyboard.</remarks>
-   N6,
+   Num6,
 
    /// <summary>The number 7 key on the keyboard.</summary>
    /// <remarks>This is typically the number on the top row of the keyboard.</remarks>
-   N7,
+   Num7,
 
    /// <summary>The number 8 key on the keyboard.</summary>
    /// <remarks>This is typically the number on the top row of the keyboard.</remarks>
-   N8,
+   Num8,
 
    /// <summary>The number 9 key on the keyboard.</summary>
    /// <remarks>This is typically the number on the top row of the keyboard.</remarks>
-   N9,
+   Num9,
 
    /// <summary>The number 0 key on the keyboard.</summary>
    /// <remarks>This is typically the number on the top row of the keyboard.</remarks>
-   N0,
+   Num0,
    #endregion
 
    #region Programmer keys
@@ -162,7 +162,7 @@ public enum PhysicalKeyKind : ushort
 
    /// <summary>The hash key (#) on the keyboard.</summary>
    /// <remarks>This key is not used in the US for some reason.</remarks>
-   NonUsHash,
+   Hash,
 
    /// <summary>The semicolon key on the keyboard.</summary>
    Semicolon,
@@ -510,82 +510,82 @@ public enum PhysicalKeyKind : ushort
    KeypadHexadecimal,
    #endregion
 
-   #region Office keys
-   /// <summary>The (office) help key on the keyboard.</summary>
+   #region Application keys
+   /// <summary>The application help key on the keyboard.</summary>
    /// <remarks>Damn, didn't know there was a button dedicated to it.</remarks>
-   OfficeHelp,
+   ApplicationHelp,
 
-   /// <summary>The (office) menu key on the keyboard.</summary>
+   /// <summary>The application menu key on the keyboard.</summary>
    /// <remarks>This sounds like <see cref="Context"/>,
    /// but apparently it's different?</remarks>
-   OfficeMenu,
+   ApplicationMenu,
 
-   /// <summary>The (office) select key on the keyboard.</summary>
-   OfficeSelect,
+   /// <summary>The application select key on the keyboard.</summary>
+   ApplicationSelect,
 
-   /// <summary>The (office) stop key on the keyboard.</summary>
-   OfficeStop,
+   /// <summary>The application stop key on the keyboard.</summary>
+   ApplicationStop,
 
-   /// <summary>The (office) again key on the keyboard.</summary>
-   OfficeAgain,
+   /// <summary>The application again key on the keyboard.</summary>
+   ApplicationAgain,
 
-   /// <summary>The (office) undo key on the keyboard.</summary>
-   OfficeUndo,
+   /// <summary>The application undo key on the keyboard.</summary>
+   ApplicationUndo,
 
-   /// <summary>The (office) cut key on the keyboard.</summary>
-   OfficeCut,
+   /// <summary>The application cut key on the keyboard.</summary>
+   ApplicationCut,
 
-   /// <summary>The (office) copy key on the keyboard.</summary>
-   OfficeCopy,
+   /// <summary>The application copy key on the keyboard.</summary>
+   ApplicationCopy,
 
-   /// <summary>The (office) paste key on the keyboard.</summary>
-   OfficePaste,
+   /// <summary>The application paste key on the keyboard.</summary>
+   ApplicationPaste,
 
-   /// <summary>The (office) find key on the keyboard.</summary>
-   OfficeFind,
+   /// <summary>The application find key on the keyboard.</summary>
+   ApplicationFind,
 
-   /// <summary>The (office) new key on the keyboard.</summary>
-   OfficeNew,
+   /// <summary>The application new key on the keyboard.</summary>
+   ApplicationNew,
 
-   /// <summary>The (office) open key on the keyboard.</summary>
-   OfficeOpen,
+   /// <summary>The application open key on the keyboard.</summary>
+   ApplicationOpen,
 
-   /// <summary>The (office) close key on the keyboard.</summary>
-   OfficeClose,
+   /// <summary>The application close key on the keyboard.</summary>
+   ApplicationClose,
 
-   /// <summary>The (office) exit key on the keyboard.</summary>
-   OfficeExit,
+   /// <summary>The application exit key on the keyboard.</summary>
+   ApplicationExit,
 
-   /// <summary>The (office) save key on the keyboard.</summary>
-   OfficeSave,
+   /// <summary>The application save key on the keyboard.</summary>
+   ApplicationSave,
 
-   /// <summary>The (office) print key on the keyboard.</summary>
-   OfficePrint,
+   /// <summary>The application print key on the keyboard.</summary>
+   ApplicationPrint,
 
-   /// <summary>The (office) properties key on the keyboard.</summary>
-   OfficeProperties,
+   /// <summary>The application properties key on the keyboard.</summary>
+   ApplicationProperties,
 
-   /// <summary>The (office) search key on the keyboard.</summary>
-   OfficeSearch,
+   /// <summary>The application search key on the keyboard.</summary>
+   ApplicationSearch,
 
-   /// <summary>The (office) home key on the keyboard.</summary>
-   OfficeHome,
+   /// <summary>The application home key on the keyboard.</summary>
+   ApplicationHome,
 
-   /// <summary>The (office) back key on the keyboard.</summary>
-   OfficeBack,
+   /// <summary>The application back key on the keyboard.</summary>
+   ApplicationBack,
 
-   /// <summary>The (office) forward key on the keyboard.</summary>
-   OfficeForward,
+   /// <summary>The application forward key on the keyboard.</summary>
+   ApplicationForward,
 
-   /// <summary>The (office) stop key on the keyboard.</summary>
+   /// <summary>The application stop key on the keyboard.</summary>
    /// <remarks>Why are there 2?</remarks>
-   OfficeStop2,
+   ApplicationStop2,
 
-   /// <summary>The (office) refresh key on the keyboard.</summary>
-   OfficeRefresh,
+   /// <summary>The application refresh key on the keyboard.</summary>
+   ApplicationRefresh,
 
-   /// <summary>The (office) bookmarks key on the keyboard.</summary>
-   OfficeBookmarks,
+   /// <summary>The application bookmarks key on the keyboard.</summary>
+   ApplicationBookmarks,
    #endregion
 
    #region Media keys
@@ -800,16 +800,20 @@ public enum PhysicalKeyKind : ushort
    /// <summary>The right meta key on the keyboard.</summary>
    /// <remarks>This is the OS specific key, e.g: the windows key (on Windows), the command key (on Apple devices), etc.</remarks>
    RightMeta,
+
+   /// <summary>The Alt Gr modifier key on the keyboard.</summary>
+   /// <remarks><i>I think...</i></remarks>
+   AltGr,
    #endregion
 
    #region Mobile keys
    /// <summary>The software specific mobile phone key.</summary>
    /// <remarks>This key is usually on the left side of the mobile phone.</remarks>
-   SoftwareLeft,
+   MobileLeft,
 
    /// <summary>The software specific mobile phone key.</summary>
    /// <remarks>This key is usually on the right side of the mobile phone.</remarks>
-   SoftwareRight,
+   MobileRight,
 
    /// <summary>The mobile phone key for accepting calls.</summary>
    AcceptCall,
@@ -818,6 +822,7 @@ public enum PhysicalKeyKind : ushort
    EndCall,
    #endregion
 
+   #region Special keys
    /// <summary>The return key on the keyboard.</summary>
    /// <remarks>This is the enter key.</remarks>
    Return,
@@ -884,9 +889,7 @@ public enum PhysicalKeyKind : ushort
    /// <summary>The execute key on the keyboard.</summary>
    /// <remarks>What does it execute...?</remarks>
    Execute,
-
-   /// <summary>I genuinely do not have a clue.</summary>
-   Mode,
+   #endregion
 }
 
 /// <summary>
