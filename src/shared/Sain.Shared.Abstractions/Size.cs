@@ -9,6 +9,7 @@ namespace Sain.Shared;
 public readonly struct Size(double width, double height) :
 #if NET7_0_OR_GREATER
    IEqualityOperators<Size, Size, bool>,
+   IComparisonOperators<Size, Size, bool>,
    IAdditionOperators<Size, Size, Size>,
    IAdditionOperators<Size, Point, Size>,
    ISubtractionOperators<Size, Size, Size>,
@@ -19,7 +20,8 @@ public readonly struct Size(double width, double height) :
    IUnaryNegationOperators<Size, Size>,
    IModulusOperators<Size, Size, Size>,
 #endif
-   IEquatable<Size>
+   IEquatable<Size>,
+   IComparable<Size>
 {
    #region Nested types
    /// <summary>
@@ -55,6 +57,21 @@ public readonly struct Size(double width, double height) :
    public bool Equals(Size other) => other.Width == Width && other.Height == other.Height;
 
    /// <inheritdoc/>
+   public int CompareTo(Size other)
+   {
+      double width = Width - other.Width;
+      double height = Height - other.Height;
+
+      if (width is 0 && height is 0)
+         return 0;
+
+      if (width < 0 || height < 0)
+         return int.Min((int)double.Min(width, height), -1);
+
+      return int.Max((int)double.Max(width, height), 1);
+   }
+
+   /// <inheritdoc/>
    public override bool Equals([NotNullWhen(true)] object? obj)
    {
       if (obj is Size other)
@@ -83,6 +100,30 @@ public readonly struct Size(double width, double height) :
    /// <param name="right">The value to compare with <paramref name="left"/>.</param>
    /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>, <see langword="false"/> otherwise.</returns>
    public static bool operator !=(Size left, Size right) => left.Equals(right) is false;
+
+   /// <summary>Compares two values to determine which is lesser.</summary>
+   /// <param name="left">The value to compare with <paramref name="right"/>.</param>
+   /// <param name="right">The value to compare with <paramref name="left"/>.</param>
+   /// <returns><see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>, <see langword="false"/> otherwise.</returns>
+   public static bool operator <(Size left, Size right) => left.Width < right.Width || left.Height < right.Height;
+
+   /// <summary>Compares two values to determine which is greater.</summary>
+   /// <param name="left">The value to compare with <paramref name="right"/>.</param>
+   /// <param name="right">The value to compare with <paramref name="left"/>.</param>
+   /// <returns><see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>, <see langword="false"/> otherwise.</returns>
+   public static bool operator >(Size left, Size right) => left.Width > right.Width && left.Height > right.Height;
+
+   /// <summary>Compares two values to determine which is lesser or equal.</summary>
+   /// <param name="left">The value to compare with <paramref name="right"/>.</param>
+   /// <param name="right">The value to compare with <paramref name="left"/>.</param>
+   /// <returns><see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>, <see langword="false"/> otherwise.</returns>
+   public static bool operator <=(Size left, Size right) => left.Width <= right.Width || left.Height <= right.Height;
+
+   /// <summary>Compares two values to determine which is greater or equal.</summary>
+   /// <param name="left">The value to compare with <paramref name="right"/>.</param>
+   /// <param name="right">The value to compare with <paramref name="left"/>.</param>
+   /// <returns><see langword="true"/> if <paramref name="left"/> is greater than or equal to <paramref name="right"/>, <see langword="false"/> otherwise.</returns>
+   public static bool operator >=(Size left, Size right) => left.Width >= right.Width && left.Height >= right.Height;
 
    /// <summary>Adds two values together to compute their sum.</summary>
    /// <param name="left">The value to which <paramref name="right"/> is added.</param>
