@@ -213,8 +213,15 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
       AddDefaultContexts();
       AddUnavailableContexts();
 
-      return BuildCore();
+      ApplicationInfo info = new(Id, Name, Version);
+
+      return BuildCore(info);
    }
+
+   /// <summary>Builds the application.</summary>
+   /// <param name="info">The information about the application being built.</param>
+   /// <returns>The built application.</returns>
+   protected abstract IApplication BuildCore(IApplicationInfo info);
 
    /// <summary>Adds the contexts that are deemed to be required.</summary>
    /// <remarks>You should use the <see cref="AddRequiredContext{T}(string)"/> method inside this method.</remarks>
@@ -246,10 +253,6 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
       TryAddUnavailableContext<UnavailableAudioPlaybackContext>(CoreContextKinds.AudioPlayback);
       TryAddUnavailableContext<UnavailableAudioCaptureContext>(CoreContextKinds.AudioCapture);
    }
-
-   /// <summary>Builds the application.</summary>
-   /// <returns>The built application.</returns>
-   protected abstract IApplication BuildCore();
    #endregion
 
    #region Helpers

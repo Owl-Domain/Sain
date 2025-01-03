@@ -12,14 +12,8 @@ public delegate void ApplicationEventHandler(IApplication application);
 public interface IApplication
 {
    #region Properties
-   /// <summary>The (optional) unique id of the application.</summary>
-   string Id { get; }
-
-   /// <summary>The name of the application.</summary>
-   string Name { get; }
-
-   /// <summary>The version of the application.</summary>
-   IVersion Version { get; }
+   /// <summary>The information about the application.</summary>
+   IApplicationInfo Info { get; }
 
    /// <summary>The context of the application.</summary>
    IApplicationContext Context { get; }

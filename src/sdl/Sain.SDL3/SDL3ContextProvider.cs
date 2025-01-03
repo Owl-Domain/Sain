@@ -72,7 +72,7 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
          Context.Logging.Debug<SDL3ContextProvider>($"Using SDL3, version = ({version}), revision = ({revision}).");
       }
 
-      if (Native.SetAppMetadata(Application.Name, Application.Version.DisplayName, Application.Id) is false)
+      if (Native.SetAppMetadata(Application.Info.Name, Application.Info.Version.DisplayName, Application.Info.Id) is false)
       {
          if (Context.Logging.IsAvailable)
             Context.Logging.Error<SDL3ContextProvider>($"Couldn't set the application metadata. ({Native.LastError}).");

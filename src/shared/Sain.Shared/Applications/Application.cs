@@ -3,11 +3,9 @@ namespace Sain.Shared.Applications;
 /// <summary>
 ///   Represents a Sain application.
 /// </summary>
-/// <param name="id">The unique id of the application.</param>
-/// <param name="name">The name of the application.</param>
-/// <param name="version">The version of the application,</param>
+/// <param name="info">The information about the application.</param>
 /// <param name="context">The context of the application.</param>
-public sealed class Application(string id, string name, IVersion version, IApplicationContext context) : IApplication
+public sealed class Application(IApplicationInfo info, IApplicationContext context) : IApplication
 {
    #region Fields
    private volatile bool _shouldBeRunning;
@@ -15,13 +13,7 @@ public sealed class Application(string id, string name, IVersion version, IAppli
 
    #region Properties
    /// <inheritdoc/>
-   public string Id { get; } = id;
-
-   /// <inheritdoc/>
-   public string Name { get; } = name;
-
-   /// <inheritdoc/>
-   public IVersion Version { get; } = version;
+   public IApplicationInfo Info { get; } = info;
 
    /// <inheritdoc/>
    public IApplicationContext Context { get; } = context;
@@ -65,7 +57,7 @@ public sealed class Application(string id, string name, IVersion version, IAppli
       if (Context.Logging.IsAvailable)
 
       {
-         Context.Logging.Info<Application>($"Running application Id = ({Id}), Name = ({Name}), Version = ({Version.DisplayName}).");
+         Context.Logging.Info<Application>($"Running application Id = ({Info.Id}), Name = ({Info.Name}), Version = ({Info.Version.DisplayName}).");
          Context.Logging.Trace<Application>($"Between {nameof(Context.PreInitialise)} and {nameof(Context.Initialise)} steps.");
       }
       Context.Initialise(this);

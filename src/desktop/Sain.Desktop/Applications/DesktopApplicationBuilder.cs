@@ -56,12 +56,12 @@ public abstract class DesktopApplicationBuilder<TSelf> : BaseApplicationBuilder<
    }
 
    /// <inheritdoc/>
-   protected override IApplication BuildCore()
+   protected override IApplication BuildCore(IApplicationInfo info)
    {
       _shutdownMode ??= DesktopApplicationShutdownMode.OnLastWindowClose;
 
       DesktopApplicationContext context = new(_shutdownMode.Value, _startupWindowType, Providers, Contexts);
-      Application application = new(Id, Name, Version, context);
+      Application application = new(info, context);
 
       return application;
    }

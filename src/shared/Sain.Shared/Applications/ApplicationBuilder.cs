@@ -9,10 +9,10 @@ public abstract class ApplicationBuilder<TSelf> : BaseApplicationBuilder<TSelf>
 {
    #region Methods
    /// <inheritdoc/>
-   protected override IApplication BuildCore()
+   protected override IApplication BuildCore(IApplicationInfo info)
    {
       ApplicationContext context = new(Providers, Contexts);
-      Application application = new(Id, Name, Version, context);
+      Application application = new(info, context);
 
       return application;
    }
