@@ -53,7 +53,6 @@ public abstract class DesktopApplicationBuilder<TSelf> : BaseApplicationBuilder<
       TryRequestContext<IDisplayContext>(CoreContextKinds.Display);
       TryRequestContext<IMouseInputContext>(CoreContextKinds.MouseInput);
       TryRequestContext<IKeyboardInputContext>(CoreContextKinds.KeyboardInput);
-      TryRequestContext<IDesktopWindowingContext>(DesktopContextKinds.Windowing);
    }
 
    /// <inheritdoc/>

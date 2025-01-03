@@ -11,9 +11,6 @@ public class DesktopApplicationContext : ApplicationContext, IDesktopApplication
 
    /// <inheritdoc/>
    public Type? StartupWindowType { get; }
-
-   /// <inheritdoc/>
-   public IDesktopWindowingContext Windowing { get; }
    #endregion
 
    #region Constructors
@@ -31,19 +28,6 @@ public class DesktopApplicationContext : ApplicationContext, IDesktopApplication
    {
       ShutdownMode = shutdownMode;
       StartupWindowType = startupWindowType;
-
-      Windowing = GetContext<IDesktopWindowingContext>();
-
-      if (shutdownMode is DesktopApplicationShutdownMode.OnLastWindowClose)
-         Windowing.Windows.CollectionChanged += WindowCollectionChanged;
-   }
-   #endregion
-
-   #region Methods
-   private void WindowCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-   {
-      if (Windowing.Windows.Count is 0)
-         Application.Stop();
    }
    #endregion
 }

@@ -12,8 +12,5 @@ public interface IDesktopApplicationContext : IApplicationContext
    /// <summary>The type of the window to open when the application starts.</summary>
    /// <remarks>Opening this window should be handled by the selected UI framework.</remarks>
    Type? StartupWindowType { get; }
-
-   /// <summary>The desktop application's context for managing windows.</summary>
-   IDesktopWindowingContext Windowing { get; }
    #endregion
 }

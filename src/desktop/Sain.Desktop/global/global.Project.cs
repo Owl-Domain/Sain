@@ -10,4 +10,3 @@ global using Sain.Shared.Input.Keyboard;
 
 
 global using Sain.Desktop.Contexts;
-global using Sain.Desktop.Windowing;
