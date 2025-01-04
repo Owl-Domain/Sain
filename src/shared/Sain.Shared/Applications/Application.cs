@@ -59,6 +59,21 @@ public sealed class Application(IApplicationInfo info, IApplicationContext conte
       {
          Context.Logging.Info<Application>($"Running application Id = ({Info.Id}), Name = ({Info.Name}), Version = ({Info.Version.DisplayName}).");
          Context.Logging.Trace<Application>($"Between {nameof(Context.PreInitialise)} and {nameof(Context.Initialise)} steps.");
+
+         foreach (IContextProvider provider in Context.ContextProviders)
+         {
+            Type type = provider.GetType();
+            Context.Logging.Debug<Application>($"Available context provider: {type.FullName ?? type.Name}.");
+         }
+
+         foreach (IContext context in Context.Contexts)
+         {
+            if (context.IsAvailable is false)
+               continue;
+
+            Type type = context.GetType();
+            Context.Logging.Debug<Application>($"Available context ({context.Kind}): {type.FullName ?? type.Name}.");
+         }
       }
       Context.Initialise(this);
       if (Context.Logging.IsAvailable) Context.Logging.Trace<Application>($"Between {nameof(Context.Initialise)} and {nameof(Context.PostInitialise)} steps.");
