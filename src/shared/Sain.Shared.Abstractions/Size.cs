@@ -66,9 +66,19 @@ public readonly struct Size(double width, double height) :
          return 0;
 
       if (width < 0 || height < 0)
+      {
+#if NET7_0_OR_GREATER
          return int.Min((int)double.Min(width, height), -1);
+#else
+         return Math.Min((int)Math.Min(width, height), -1);
+#endif
+      }
 
+#if NET7_0_OR_GREATER
       return int.Max((int)double.Max(width, height), 1);
+#else
+      return Math.Max((int)Math.Max(width, height), 1);
+#endif
    }
 
    /// <inheritdoc/>
