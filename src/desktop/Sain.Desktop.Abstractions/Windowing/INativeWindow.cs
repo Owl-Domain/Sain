@@ -87,6 +87,12 @@ public interface INativeWindow
 
    /// <summary>Raised when the window loses focus.</summary>
    event NativeWindowLostFocusEventHandler? LostFocus;
+
+   /// <summary>Raised when a keyboard key is released while the window has focus.</summary>
+   event NativeWindowKeyboardKeyEventHandler? KeyboardKeyUp;
+
+   /// <summary>Raised when a keyboard key is pressed down while the window has focus.</summary>
+   event NativeWindowKeyboardKeyEventHandler? KeyboardKeyDown;
    #endregion
 
    #region Methods

@@ -115,6 +115,12 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
 
    /// <inheritdoc/>
    public event NativeWindowLostFocusEventHandler? LostFocus;
+
+   /// <inheritdoc/>
+   public event NativeWindowKeyboardKeyEventHandler? KeyboardKeyUp;
+
+   /// <inheritdoc/>
+   public event NativeWindowKeyboardKeyEventHandler? KeyboardKeyDown;
    #endregion
 
    #region Constructors
@@ -370,13 +376,24 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
             if (_context.Logging.IsAvailable)
                _context.Logging.Debug<SDL3NativeWindow>($"Native window has obtained focus, Id = ({Id}), WindowId = ({WindowId}).");
 
+            if (_context.Input.Keyboard.IsAvailable)
+            {
+               _context.Input.Keyboard.KeyboardKeyUp += OnKeyboardKey;
+               _context.Input.Keyboard.KeyboardKeyDown += OnKeyboardKey;
+            }
+
             GotFocus?.Invoke(this);
          }
          else
          {
-
             if (_context.Logging.IsAvailable)
                _context.Logging.Debug<SDL3NativeWindow>($"Native window has lost focus, Id = ({Id}), WindowId = ({WindowId}).");
+
+            if (_context.Input.Keyboard.IsAvailable)
+            {
+               _context.Input.Keyboard.KeyboardKeyUp -= OnKeyboardKey;
+               _context.Input.Keyboard.KeyboardKeyDown -= OnKeyboardKey;
+            }
 
             LostFocus?.Invoke(this);
          }
@@ -395,17 +412,17 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
             if (_context.Logging.IsAvailable)
                _context.Logging.Debug<SDL3NativeWindow>($"The mouse has entered the native window, Id = ({Id}), WindowId = ({WindowId}).");
 
-            MouseEntered?.Invoke(this, new(MousePosition));
-
             if (_context.Input.Mouse.IsAvailable)
             {
                _context.Input.Mouse.MouseMoved += OnMouseMoved;
-               _context.Input.Mouse.MouseButtonUp += OnMouseButtonUp;
-               _context.Input.Mouse.MouseButtonDown += OnMouseButtonDown;
+               _context.Input.Mouse.MouseButtonUp += OnMouseButton;
+               _context.Input.Mouse.MouseButtonDown += OnMouseButton;
                _context.Input.Mouse.MouseWheelScrolled += OnMouseWheelScrolled;
 
                _lastPosition = _context.Input.Mouse.LocalPosition;
             }
+
+            MouseEntered?.Invoke(this, new(MousePosition));
          }
          else
          {
@@ -415,8 +432,8 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
             if (_context.Input.Mouse.IsAvailable)
             {
                _context.Input.Mouse.MouseMoved -= OnMouseMoved;
-               _context.Input.Mouse.MouseButtonUp -= OnMouseButtonUp;
-               _context.Input.Mouse.MouseButtonDown -= OnMouseButtonDown;
+               _context.Input.Mouse.MouseButtonUp -= OnMouseButton;
+               _context.Input.Mouse.MouseButtonDown -= OnMouseButton;
                _context.Input.Mouse.MouseWheelScrolled -= OnMouseWheelScrolled;
             }
 
@@ -440,24 +457,13 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
 
    #region Event handlers
    private void OnMouseMoved(IMouseInputContext context, MouseMoveEventArgs args) => CheckMousePositionChanged();
-   private void OnMouseButtonUp(IMouseInputContext context, MouseButtonEventArgs args)
+   private void OnMouseButton(IMouseInputContext context, MouseButtonEventArgs args)
    {
-      Debug.Assert(args.IsDown is false);
-
       if (IsMouseInside)
       {
          // Note(Nightowl): Should already be on the Input dispatch priority;
-         MouseButtonUp?.Invoke(this, new(MousePosition, args.Button, args.Name, false));
-      }
-   }
-   private void OnMouseButtonDown(IMouseInputContext context, MouseButtonEventArgs args)
-   {
-      Debug.Assert(args.IsDown);
-
-      if (IsMouseInside)
-      {
-         // Note(Nightowl): Should already be on the Input dispatch priority;
-         MouseButtonDown?.Invoke(this, new(MousePosition, args.Button, args.Name, true));
+         NativeWindowMouseButtonEventHandler? handler = args.IsDown ? MouseButtonDown : MouseButtonUp;
+         handler?.Invoke(this, new(MousePosition, args.Button, args.Name, args.IsDown));
       }
    }
    private void OnMouseWheelScrolled(IMouseInputContext context, MouseWheelScrollEventArgs args)
@@ -466,6 +472,23 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
       {
          // Note(Nightowl): Should already be on the Input dispatch priority;
          MouseWheelScrolled?.Invoke(this, new(MousePosition, args.DeltaX, args.DeltaY));
+      }
+   }
+   private void OnKeyboardKey(IKeyboardInputContext context, KeyboardKeyEventArgs args)
+   {
+      if (HasFocus)
+      {
+         NativeWindowKeyboardKeyEventHandler? handler = args.IsDown ? KeyboardKeyDown : KeyboardKeyUp;
+         handler?.Invoke(
+            this,
+            new(
+               args.PhysicalKey,
+               args.PhysicalKeyName,
+               args.VirtualKey,
+               args.VirtualKeyName,
+               args.Modifiers,
+               args.IsDown,
+               args.IsRepeat));
       }
    }
    void ISDL3EventHandler<SDL3_WindowEvent>.OnEvent(in SDL3_WindowEvent ev)

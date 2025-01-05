@@ -513,8 +513,9 @@ public sealed class SDL3KeyboardInputContext(IContextProvider? provider) : BaseK
       if (sdl.HasFlag(SDL3_KeyModifiers.RightAlt)) modifiers |= KeyModifiers.RightAlt;
       if (sdl.HasFlag(SDL3_KeyModifiers.LeftMeta)) modifiers |= KeyModifiers.LeftMeta;
       if (sdl.HasFlag(SDL3_KeyModifiers.RightMeta)) modifiers |= KeyModifiers.RightMeta;
-      if (sdl.HasFlag(SDL3_KeyModifiers.Mode)) modifiers |= KeyModifiers.AltGr;
+      if (sdl.HasFlag(SDL3_KeyModifiers.NumLock)) modifiers |= KeyModifiers.NumLock;
       if (sdl.HasFlag(SDL3_KeyModifiers.CapsLock)) modifiers |= KeyModifiers.CapsLock;
+      if (sdl.HasFlag(SDL3_KeyModifiers.Mode)) modifiers |= KeyModifiers.AltGr;
       if (sdl.HasFlag(SDL3_KeyModifiers.ScrollLock)) modifiers |= KeyModifiers.ScrollLock;
 
       return modifiers;
