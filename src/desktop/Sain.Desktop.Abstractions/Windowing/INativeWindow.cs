@@ -50,6 +50,9 @@ public interface INativeWindow
    /// <summary>Raised when the window state is changed.</summary>
    event NativeWindowStateChangedEventHandler? StateChanged;
 
+   /// <summary>Raised when the window title is changed.</summary>
+   event NativeWindowTitleChangedEventHandler? TitleChanged;
+
    /// <summary>Raised when the window has received a request to be closed.</summary>
    event NativeWindowCloseRequestedEventHandler? CloseRequested;
 

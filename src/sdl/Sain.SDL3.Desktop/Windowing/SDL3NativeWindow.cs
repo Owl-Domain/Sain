@@ -16,6 +16,7 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
    private bool _lastHasFocus;
    private Point _lastMousePosition;
    private bool _isDrawing;
+   private string _lastTitle;
    #endregion
 
    #region Properties
@@ -80,6 +81,9 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
    public event NativeWindowStateChangedEventHandler? StateChanged;
 
    /// <inheritdoc/>
+   public event NativeWindowTitleChangedEventHandler? TitleChanged;
+
+   /// <inheritdoc/>
    public event NativeWindowCloseRequestedEventHandler? CloseRequested;
 
    /// <inheritdoc/>
@@ -121,8 +125,8 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
       _lastState = GetState();
       _lastIsMouseInside = GetIsMouseInside();
       _lastHasFocus = GetHasFocus();
-
       _lastMousePosition = GetMousePosition();
+      _lastTitle = GetTitle();
    }
    #endregion
 
@@ -262,8 +266,13 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
    }
    private void SetTitle(string title)
    {
+      string last = _lastTitle;
+
       if (Native.SetWindowTitle(Window, title) is false && _context.Logging.IsAvailable)
          _context.Logging.Error<SDL3NativeWindow>($"Failed to set the title ({title}) of the window, Id = ({Id}), WindowId = ({WindowId}). ({Native.LastError})");
+
+      _lastTitle = title;
+      TitleChanged?.Invoke(this, new(last, title));
    }
    private void SetSize(Size size)
    {
