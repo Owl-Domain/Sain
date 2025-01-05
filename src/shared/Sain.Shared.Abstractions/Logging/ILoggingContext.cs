@@ -12,6 +12,11 @@ public delegate void LogEntryEventHandler(ILoggingContext context, ILogEntry ent
 /// </summary>
 public interface ILoggingContext : IContext
 {
+   #region Properties
+   /// <summary>The collection of the file path prefixes that are used to turn the source file paths into relative ones.</summary>
+   IReadOnlyList<string> FilePathPrefixes { get; }
+   #endregion
+
    #region Events
    /// <summary>The event that is raised whenever a new log entry is added.</summary>
    /// <exception cref="InvalidOperationException">Might be thrown if the logging context is unavailable.</exception>
@@ -19,6 +24,12 @@ public interface ILoggingContext : IContext
    #endregion
 
    #region Methods
+   /// <summary>Adds a new file path <paramref name="prefix"/>.</summary>
+   /// <param name="prefix">The file path prefix to use when turning the source file paths into relative ones.</param>
+   /// <returns>The used logging context.</returns>
+   /// <remarks>This path should be the entire path of the project that is before the <c>/src/</c> directory.</remarks>
+   ILoggingContext AddFilePathPrefix(string prefix);
+
    /// <summary>Logs a new message in the log.</summary>
    /// <param name="severity">The severity of the log message.</param>
    /// <param name="context">The context that the log message came from.</param>
@@ -45,7 +56,7 @@ public interface ILoggingContext : IContext
 /// </summary>
 public static class ILoggingContextExtensions
 {
-   #region Methods
+   #region Log methods
    /// <summary>Logs a new message in the log with the severity level <see cref="LogSeverity.Fatal"/>.</summary>
    /// <param name="log">The logging context to use.</param>
    /// <param name="context">The context that the log message came from.</param>

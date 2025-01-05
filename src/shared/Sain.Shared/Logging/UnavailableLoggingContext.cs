@@ -1,3 +1,4 @@
+
 namespace Sain.Shared.Logging;
 
 /// <summary>
@@ -8,6 +9,9 @@ public sealed class UnavailableLoggingContext : BaseUnavailableContext, ILogging
    #region Properties
    /// <inheritdoc/>
    public override string Kind => CoreContextKinds.Logging;
+
+   /// <inheritdoc/>
+   public IReadOnlyList<string> FilePathPrefixes => ThrowForUnavailable<IReadOnlyList<string>>();
    #endregion
 
    #region Events
@@ -20,6 +24,9 @@ public sealed class UnavailableLoggingContext : BaseUnavailableContext, ILogging
    #endregion
 
    #region Methods
+   /// <inheritdoc/>
+   public ILoggingContext AddFilePathPrefix(string prefix) => ThrowForUnavailable<ILoggingContext>();
+
    /// <inheritdoc/>
    public ILoggingContext Log(
       LogSeverity severity,
