@@ -16,7 +16,7 @@ public enum DispatchPriority : byte
    /// <summary>The dispatched operation will be processed along with other regular application operations.</summary>
    Normal,
 
-   /// <summary>The dispatched operation will eb processed at the same priority as data related events.</summary>
+   /// <summary>The dispatched operation will be processed at the same priority as data related events.</summary>
    Data,
 
    /// <summary>The dispatched operation will be processed at the same priority as visual events.</summary>

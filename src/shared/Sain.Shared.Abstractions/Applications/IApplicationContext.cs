@@ -60,7 +60,7 @@ public interface IApplicationContext : IHasApplicationInit
    ///   <see langword="true"/> if the <paramref name="context"/>
    ///   could be obtained, <see langword="false"/> otherwise.
    /// </returns>
-   bool TryGetContext<T>([MaybeNullWhen(false)] out T context) where T : notnull, IContext;
+   bool TryGetContext<T>([NotNullWhen(true)] out T? context) where T : notnull, IContext;
 
    /// <summary>Tries to get a context of the given type <typeparamref name="T"/>, but only if it is marked as being available.</summary>
    /// <typeparam name="T">The type of the context to try and get.</typeparam>
@@ -72,6 +72,6 @@ public interface IApplicationContext : IHasApplicationInit
    ///   <see langword="true"/> if the <paramref name="context"/>
    ///   could be obtained, <see langword="false"/> otherwise.
    /// </returns>
-   bool TryGetContextIfAvailable<T>([MaybeNullWhen(false)] out T context) where T : notnull, IContext;
+   bool TryGetContextIfAvailable<T>([NotNullWhen(true)] out T? context) where T : notnull, IContext;
    #endregion
 }
