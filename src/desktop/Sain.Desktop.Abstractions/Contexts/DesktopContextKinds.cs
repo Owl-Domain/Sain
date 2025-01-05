@@ -6,5 +6,7 @@ namespace Sain.Desktop.Contexts;
 public class DesktopContextKinds
 {
    #region Constants
+   /// <summary>The kind of the <see cref="IDesktopWindowingContext"/></summary>
+   public const string Windowing = "core.desktop.windowing";
    #endregion
 }

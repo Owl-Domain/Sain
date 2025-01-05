@@ -77,6 +77,14 @@ static unsafe partial class Native
    [return: MarshalAs(Bool)]
    public static partial bool SetWindowPosition(SDL3_Window* window, int x, int y);
 
+   [LibraryImport(LibName, EntryPoint = "SDL_SetWindowSize")]
+   [return: MarshalAs(Bool)]
+   public static partial bool SetWindowSize(SDL3_Window* window, int width, int height);
+
+   [LibraryImport(LibName, EntryPoint = "SDL_SetWindowTitle", StringMarshalling = String)]
+   [return: MarshalAs(Bool)]
+   public static partial bool SetWindowTitle(SDL3_Window* window, string title);
+
    [LibraryImport(LibName, EntryPoint = "SDL_GetWindowTitle")]
    private static partial byte* _GetWindowTitle(SDL3_Window* window);
    public static string? GetWindowTitle(SDL3_Window* window)
@@ -85,12 +93,19 @@ static unsafe partial class Native
       return Utf8StringMarshaller.ConvertToManaged(native);
    }
 
-   [LibraryImport(LibName, EntryPoint = "SDL_SetWindowTitle", StringMarshalling = String)]
-   [return: MarshalAs(Bool)]
-   public static partial bool SetWindowTitle(SDL3_Window* window, string title);
-
    [LibraryImport(LibName, EntryPoint = "SDL_GetWindowID")]
    public static partial SDL3_WindowId GetWindowId(SDL3_Window* window);
+
+   [LibraryImport(LibName, EntryPoint = "SDL_GetWindowPosition")]
+   [return: MarshalAs(Bool)]
+   public static partial bool GetWindowPosition(SDL3_Window* window, out int x, out int y);
+
+   [LibraryImport(LibName, EntryPoint = "SDL_GetWindowSize")]
+   [return: MarshalAs(Bool)]
+   public static partial bool GetWindowSize(SDL3_Window* window, out int width, out int height);
+
+   [LibraryImport(LibName, EntryPoint = "SDL_GetWindowFlags")]
+   public static partial SDL3_WindowFlags GetWindowFlags(SDL3_Window* window);
    #endregion
 
    #region Screen saver functions

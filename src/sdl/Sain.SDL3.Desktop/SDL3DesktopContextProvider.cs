@@ -11,6 +11,12 @@ public class SDL3DesktopContextProvider : SDL3ContextProvider
    {
       Type type = typeof(T);
 
+      if (type == typeof(IDesktopWindowingContext) || type == typeof(SDL3DesktopWindowingContext))
+      {
+         context = (T)(IContext)new SDL3DesktopWindowingContext(this);
+         return true;
+      }
+
       return base.TryProvide(out context);
    }
 

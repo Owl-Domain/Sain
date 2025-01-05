@@ -15,6 +15,8 @@ global using Sain.Shared.Observable;
 
 global using Sain.Desktop;
 global using Sain.Desktop.Contexts;
+global using Sain.Desktop.Windowing;
 
 
 global using Sain.SDL3.Contexts;
+global using Sain.SDL3.Desktop.Windowing;
