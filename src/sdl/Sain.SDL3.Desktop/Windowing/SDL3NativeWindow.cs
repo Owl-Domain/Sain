@@ -102,6 +102,15 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
    public event NativeWindowMouseMovedEventHandler? MouseMoved;
 
    /// <inheritdoc/>
+   public event NativeWindowMouseButtonEventHandler? MouseButtonUp;
+
+   /// <inheritdoc/>
+   public event NativeWindowMouseButtonEventHandler? MouseButtonDown;
+
+   /// <inheritdoc/>
+   public event NativeWindowMouseWheelScrolledEventHandler? MouseWheelScrolled;
+
+   /// <inheritdoc/>
    public event NativeWindowGotFocusEventHandler? GotFocus;
 
    /// <inheritdoc/>
@@ -223,6 +232,18 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
          IsOpen = false;
       }
    }
+
+   /// <inheritdoc/>
+   public void AskForRedraw()
+   {
+      if (NeedsRedraw)
+         return;
+
+      NeedsRedraw = true;
+
+      // Note(Nightowl): Should already be on the Visual dispatch priority;
+      RedrawRequested?.Invoke(this);
+   }
    #endregion
 
    #region Helpers
@@ -329,6 +350,10 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
       if (last != current)
       {
          _lastState = current;
+
+         if (_context.Logging.IsAvailable)
+            _context.Logging.Debug<SDL3NativeWindow>($"Native window has changed stated ({last}) -> ({current}), Id = ({Id}), WindowId = ({WindowId}).");
+
          StateChanged?.Invoke(this, new(last, current));
       }
    }
@@ -341,9 +366,20 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
       {
          _lastHasFocus = current;
          if (current)
+         {
+            if (_context.Logging.IsAvailable)
+               _context.Logging.Debug<SDL3NativeWindow>($"Native window has obtained focus, Id = ({Id}), WindowId = ({WindowId}).");
+
             GotFocus?.Invoke(this);
+         }
          else
+         {
+
+            if (_context.Logging.IsAvailable)
+               _context.Logging.Debug<SDL3NativeWindow>($"Native window has lost focus, Id = ({Id}), WindowId = ({WindowId}).");
+
             LostFocus?.Invoke(this);
+         }
       }
    }
    private void CheckIsMouseInsideChanged()
@@ -356,18 +392,33 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
          _lastIsMouseInside = current;
          if (current)
          {
+            if (_context.Logging.IsAvailable)
+               _context.Logging.Debug<SDL3NativeWindow>($"The mouse has entered the native window, Id = ({Id}), WindowId = ({WindowId}).");
+
             MouseEntered?.Invoke(this, new(MousePosition));
 
             if (_context.Input.Mouse.IsAvailable)
             {
                _context.Input.Mouse.MouseMoved += OnMouseMoved;
+               _context.Input.Mouse.MouseButtonUp += OnMouseButtonUp;
+               _context.Input.Mouse.MouseButtonDown += OnMouseButtonDown;
+               _context.Input.Mouse.MouseWheelScrolled += OnMouseWheelScrolled;
+
                _lastPosition = _context.Input.Mouse.LocalPosition;
             }
          }
          else
          {
+            if (_context.Logging.IsAvailable)
+               _context.Logging.Debug<SDL3NativeWindow>($"The mouse has left the native window, Id = ({Id}), WindowId = ({WindowId}).");
+
             if (_context.Input.Mouse.IsAvailable)
+            {
                _context.Input.Mouse.MouseMoved -= OnMouseMoved;
+               _context.Input.Mouse.MouseButtonUp -= OnMouseButtonUp;
+               _context.Input.Mouse.MouseButtonDown -= OnMouseButtonDown;
+               _context.Input.Mouse.MouseWheelScrolled -= OnMouseWheelScrolled;
+            }
 
             MouseLeft?.Invoke(this, new(MousePosition));
          }
@@ -389,6 +440,34 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
 
    #region Event handlers
    private void OnMouseMoved(IMouseInputContext context, MouseMoveEventArgs args) => CheckMousePositionChanged();
+   private void OnMouseButtonUp(IMouseInputContext context, MouseButtonEventArgs args)
+   {
+      Debug.Assert(args.IsDown is false);
+
+      if (IsMouseInside)
+      {
+         // Note(Nightowl): Should already be on the Input dispatch priority;
+         MouseButtonUp?.Invoke(this, new(MousePosition, args.Button, args.Name, false));
+      }
+   }
+   private void OnMouseButtonDown(IMouseInputContext context, MouseButtonEventArgs args)
+   {
+      Debug.Assert(args.IsDown);
+
+      if (IsMouseInside)
+      {
+         // Note(Nightowl): Should already be on the Input dispatch priority;
+         MouseButtonDown?.Invoke(this, new(MousePosition, args.Button, args.Name, true));
+      }
+   }
+   private void OnMouseWheelScrolled(IMouseInputContext context, MouseWheelScrollEventArgs args)
+   {
+      if (IsMouseInside)
+      {
+         // Note(Nightowl): Should already be on the Input dispatch priority;
+         MouseWheelScrolled?.Invoke(this, new(MousePosition, args.DeltaX, args.DeltaY));
+      }
+   }
    void ISDL3EventHandler<SDL3_WindowEvent>.OnEvent(in SDL3_WindowEvent ev)
    {
       if (ev.Type is SDL3_EventType.WindowMoved)
@@ -400,7 +479,7 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
       else if (ev.Type is SDL3_EventType.WindowDestroyed)
          Close();
       else if (ev.Type is SDL3_EventType.WindowExposed)
-         TryRaiseRedrawRequested();
+         AskForRedraw();
       else if (ev.Type is SDL3_EventType.WindowMinimized or SDL3_EventType.WindowMaximized or SDL3_EventType.WindowRestored)
          CheckStateChange();
       else if (ev.Type is SDL3_EventType.WindowMouseEnter or SDL3_EventType.WindowMouseLeave)
@@ -429,14 +508,6 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
       _lastActualSize = newSize;
 
       Resized?.Invoke(this, new(oldSize, newSize));
-   }
-   private void TryRaiseRedrawRequested()
-   {
-      if (NeedsRedraw)
-         return;
-
-      NeedsRedraw = true;
-      RedrawRequested?.Invoke(this);
    }
    #endregion
 }

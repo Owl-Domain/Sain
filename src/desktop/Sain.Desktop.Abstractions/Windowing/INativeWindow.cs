@@ -73,6 +73,15 @@ public interface INativeWindow
    /// <summary>Raised when the mouse is moved over the window.</summary>
    event NativeWindowMouseMovedEventHandler? MouseMoved;
 
+   /// <summary>Raised when a mouse button is released while the mouse is inside of the window.</summary>
+   event NativeWindowMouseButtonEventHandler? MouseButtonUp;
+
+   /// <summary>Raised when a mouse button is pressed down while the mouse is inside of the window.</summary>
+   event NativeWindowMouseButtonEventHandler? MouseButtonDown;
+
+   /// <summary>Raised when the mouse wheel is scrolled whlie the mouse is inside of the window.</summary>
+   event NativeWindowMouseWheelScrolledEventHandler? MouseWheelScrolled;
+
    /// <summary>Raised when the window obtains focus.</summary>
    event NativeWindowGotFocusEventHandler? GotFocus;
 
@@ -93,6 +102,9 @@ public interface INativeWindow
 
    /// <summary>Stops redrawing the window.</summary>
    void EndDraw();
+
+   /// <summary>Marks the window as requesting a redraw.</summary>
+   void AskForRedraw();
    #endregion
 }
 

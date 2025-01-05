@@ -115,6 +115,50 @@ public readonly struct NativeWindowMouseMovedEventArgs(Point oldPosition, Point 
    #endregion
 }
 
+/// <summary>
+///   Represents the arguments for a window mouse button event.
+/// </summary>
+/// <param name="position">The position of the mouse inside of the window when the event was raised.</param>
+/// <param name="button">The mouse button that the event is for.</param>
+/// <param name="name">The name of the mouse button.</param>
+/// <param name="isDown">Whether the mouse button was pressed down.</param>
+public readonly struct NativeWindowMouseButtonEventArgs(Point position, MouseButton button, string name, bool isDown)
+{
+   #region Properties
+   /// <summary>The position of the mouse inside of the window when the event was raised.</summary>
+   public readonly Point Position { get; } = position;
+
+   /// <summary>The mouse button that the event is for.</summary>
+   public readonly MouseButton Button { get; } = button;
+
+   /// <summary>The name of the mouse button.</summary>
+   public readonly string Name { get; } = name;
+
+   /// <summary>Whether the mouse button was pressed down.</summary>
+   public readonly bool IsDown { get; } = isDown;
+   #endregion
+}
+
+/// <summary>
+///   Represents the arguments for a window mouse wheel scroll event.
+/// </summary>
+/// <param name="position">The position of the mouse inside of the window when the event was raised.</param>
+/// <param name="deltaX">The amount that the mouse wheel was scrolled horizontally.</param>
+/// <param name="deltaY">The amount that the mouse wheel was scrolled vertically.</param>
+public readonly struct NativeWindowMouseWheelScrolledEventArgs(Point position, double deltaX, double deltaY)
+{
+   #region Properties
+   /// <summary>The position of the mouse inside of the window when the event was raised.</summary>
+   public readonly Point Position { get; } = position;
+
+   /// <summary>The amount that the mouse wheel was scrolled horizontally.</summary>
+   public readonly double DeltaX { get; } = deltaX;
+
+   /// <summary>The amount that the mouse wheel was scrolled vertically.</summary>
+   public readonly double DeltaY { get; } = deltaY;
+   #endregion
+}
+
 /// <summary>Represents the event handler for a window move event.</summary>
 /// <param name="window">The window that has moved.</param>
 /// <param name="args">The arguments for the move event.</param>
@@ -174,3 +218,13 @@ public delegate void NativeWindowMouseLeftEventHandler(INativeWindow window, Nat
 /// <param name="window">The window that the mouse has moved in.</param>
 /// <param name="args">The arguments for the window mouse move event.</param>
 public delegate void NativeWindowMouseMovedEventHandler(INativeWindow window, NativeWindowMouseMovedEventArgs args);
+
+/// <summary>Represents the event handler for a window mouse button event.</summary>
+/// <param name="window">The window that the mouse button was used in.</param>
+/// <param name="args">The arguments for the window mouse button event.</param>
+public delegate void NativeWindowMouseButtonEventHandler(INativeWindow window, NativeWindowMouseButtonEventArgs args);
+
+/// <summary>Represents the event handler for a window mouse wheel scroll event.</summary>
+/// <param name="window">The window that the mouse wheel was scrolled in.</param>
+/// <param name="args">The arguments for the window mouse wheel scroll event.</param>
+public delegate void NativeWindowMouseWheelScrolledEventHandler(INativeWindow window, NativeWindowMouseWheelScrolledEventArgs args);
