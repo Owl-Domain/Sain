@@ -30,6 +30,30 @@ static unsafe partial class Native
    [LibraryImport(LibName, EntryPoint = "SDL_RenderClear")]
    [return: MarshalAs(Bool)]
    public static partial bool RenderClear(SDL3_Renderer* renderer);
+
+   [LibraryImport(LibName, EntryPoint = "SDL_GetNumRenderDrivers")]
+   public static partial int GetNumRenderDrivers();
+
+   [LibraryImport(LibName, EntryPoint = "SDL_GetRenderDriver")]
+   private static partial byte* _GetRenderDriverName(int index);
+   public static string GetRenderDriverName(int index)
+   {
+      byte* native = _GetRenderDriverName(index);
+      return Utf8StringMarshaller.ConvertToManaged(native) ?? string.Empty;
+   }
+   public static string[] GetRenderDriverNames()
+   {
+      int count = GetNumRenderDrivers();
+      string[] array = new string[count];
+
+      for (int i = 0; i < count; i++)
+      {
+         string name = GetRenderDriverName(i);
+         array[i] = name;
+      }
+
+      return array;
+   }
    #endregion
 
    #region Render points
