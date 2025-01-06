@@ -35,6 +35,9 @@ public interface INativeWindow
 
    /// <summary>Gets the last known mouse position inside of the window.</summary>
    Point MousePosition { get; }
+
+   /// <summary>The current visibility of the window.</summary>
+   NativeWindowVisibility Visibility { get; }
    #endregion
 
    #region Events
@@ -93,6 +96,15 @@ public interface INativeWindow
 
    /// <summary>Raised when a keyboard key is pressed down while the window has focus.</summary>
    event NativeWindowKeyboardKeyEventHandler? KeyboardKeyDown;
+
+   /// <summary>Raised when the window is hidden.</summary>
+   event NativeWindowHiddenEventHandler? Hidden;
+
+   /// <summary>Raised when the window is shown.</summary>
+   event NativeWindowShownEventHandler? Shown;
+
+   /// <summary>Raised when the visibility of the window has changed.</summary>
+   event NativeWindowVisibilityChangedEventHandler? VisibilityChanged;
    #endregion
 
    #region Methods
@@ -111,6 +123,21 @@ public interface INativeWindow
 
    /// <summary>Marks the window as requesting a redraw.</summary>
    void AskForRedraw();
+
+   /// <summary>Hides the window.</summary>
+   void Hide();
+
+   /// <summary>Shows the window.</summary>
+   void Show();
+
+   /// <summary>Minimizes the window.</summary>
+   void Minimize();
+
+   /// <summary>Maximizes the window.</summary>
+   void Maximize();
+
+   /// <summary>Restores the window to the state it was before it was either minimized or maximized.</summary>
+   void Restore();
    #endregion
 }
 

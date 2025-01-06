@@ -106,6 +106,26 @@ static unsafe partial class Native
 
    [LibraryImport(LibName, EntryPoint = "SDL_GetWindowFlags")]
    public static partial SDL3_WindowFlags GetWindowFlags(SDL3_Window* window);
+
+   [LibraryImport(LibName, EntryPoint = "SDL_ShowWindow")]
+   [return: MarshalAs(Bool)]
+   public static partial bool ShowWindow(SDL3_Window* window);
+
+   [LibraryImport(LibName, EntryPoint = "SDL_HideWindow")]
+   [return: MarshalAs(Bool)]
+   public static partial bool HideWindow(SDL3_Window* window);
+
+   [LibraryImport(LibName, EntryPoint = "SDL_MinimizeWindow")]
+   [return: MarshalAs(Bool)]
+   public static partial bool MinimizeWindow(SDL3_Window* window);
+
+   [LibraryImport(LibName, EntryPoint = "SDL_MaximizeWindow")]
+   [return: MarshalAs(Bool)]
+   public static partial bool MaximizeWindow(SDL3_Window* window);
+
+   [LibraryImport(LibName, EntryPoint = "SDL_RestoreWindow")]
+   [return: MarshalAs(Bool)]
+   public static partial bool RestoreWindow(SDL3_Window* window);
    #endregion
 
    #region Screen saver functions

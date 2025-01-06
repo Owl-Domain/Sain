@@ -203,6 +203,22 @@ public readonly struct NativeWindowKeyboardKeyEventArgs(
    #endregion
 }
 
+/// <summary>
+///   Represents the arguments for a window visibility change event.
+/// </summary>
+/// <param name="oldVisibility">The old visibility of the window.</param>
+/// <param name="newVisibility">The new visibility of the window.</param>
+public readonly struct NativeWindowVisibilityChangeEventArgs(NativeWindowVisibility oldVisibility, NativeWindowVisibility newVisibility)
+{
+   #region Properties
+   /// <summary>The old visibility of the window.</summary>
+   public readonly NativeWindowVisibility OldVisibility { get; } = oldVisibility;
+
+   /// <summary>The new visibility of the window.</summary>
+   public readonly NativeWindowVisibility NewVisibility { get; } = newVisibility;
+   #endregion
+}
+
 /// <summary>Represents the event handler for a window move event.</summary>
 /// <param name="window">The window that has moved.</param>
 /// <param name="args">The arguments for the move event.</param>
@@ -277,3 +293,16 @@ public delegate void NativeWindowMouseWheelScrolledEventHandler(INativeWindow wi
 /// <param name="window">The window that received the keyboard key event.</param>
 /// <param name="args">The arguments for the window keyboard key event.</param>
 public delegate void NativeWindowKeyboardKeyEventHandler(INativeWindow window, NativeWindowKeyboardKeyEventArgs args);
+
+/// <summary>Represents the event handler for a window hidden event.</summary>
+/// <param name="window">The window that was hidden.</param>
+public delegate void NativeWindowHiddenEventHandler(INativeWindow window);
+
+/// <summary>Represents the event handler for a window shown event.</summary>
+/// <param name="window">The window that was shown.</param>
+public delegate void NativeWindowShownEventHandler(INativeWindow window);
+
+/// <summary>Represents the event handler for a window visibility change event.</summary>
+/// <param name="window">The window of which the visibility has changed.</param>
+/// <param name="args">The arguments for the window visibility change event.</param>
+public delegate void NativeWindowVisibilityChangedEventHandler(INativeWindow window, NativeWindowVisibilityChangeEventArgs args);

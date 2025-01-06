@@ -34,7 +34,7 @@ public class DesktopApplicationContext : ApplicationContext, IDesktopApplication
 
       Windowing = GetContext<IDesktopWindowingContext>();
 
-      if (Windowing.IsAvailable && shutdownMode is DesktopApplicationShutdownMode.OnLastWindowClose)
+      if (Windowing.IsAvailable)
          Windowing.Windows.CollectionChanged += WindowCollectionChanged;
    }
    #endregion
@@ -44,8 +44,21 @@ public class DesktopApplicationContext : ApplicationContext, IDesktopApplication
    {
       Debug.Assert(Windowing.IsAvailable);
 
-      if (Windowing.Windows.Count is 0)
+      if (Windowing.Windows.Count is not 0)
+         return;
+
+      if (ShutdownMode is DesktopApplicationShutdownMode.OnLastWindowClose)
+      {
+         if (Logging.IsAvailable)
+            Logging.Debug<DesktopApplicationContext>($"Last window has closed, due to the shutdown mode being ({DesktopApplicationShutdownMode.OnLastWindowClose}), the application will now be stopped.");
+
          Application.Stop();
+      }
+      else if (ShutdownMode is DesktopApplicationShutdownMode.OnExplicitShutdown)
+      {
+         if (Logging.IsAvailable)
+            Logging.Debug<DesktopApplicationContext>($"Last window has closed, due to the shutdown mode being ({DesktopApplicationShutdownMode.OnExplicitShutdown}), the application will now run in the background.");
+      }
    }
    #endregion
 }

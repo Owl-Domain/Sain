@@ -52,8 +52,11 @@ public sealed class NativeWindowCollection<T> : INativeWindowCollection<T>, IRea
    /// <inheritdoc/>
    public void Clear()
    {
-      _windows.Clear();
-      CollectionChanged?.Invoke(this, new(NotifyCollectionChangedAction.Reset));
+      if (_windows.Count > 0)
+      {
+         _windows.Clear();
+         CollectionChanged?.Invoke(this, new(NotifyCollectionChangedAction.Reset));
+      }
    }
 
    /// <inheritdoc/>

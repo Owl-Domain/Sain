@@ -17,6 +17,7 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
    private Point _lastMousePosition;
    private bool _isDrawing;
    private string _lastTitle;
+   private NativeWindowVisibility _lastVisibility;
    #endregion
 
    #region Properties
@@ -65,6 +66,9 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
 
    /// <inheritdoc/>
    public Point MousePosition => _context.Dispatcher.TryDispatch(GetMousePosition).Result;
+
+   /// <inheritdoc/>
+   public NativeWindowVisibility Visibility => _context.Dispatcher.TryDispatch(GetVisibility).Result;
    #endregion
 
    #region Events
@@ -121,6 +125,15 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
 
    /// <inheritdoc/>
    public event NativeWindowKeyboardKeyEventHandler? KeyboardKeyDown;
+
+   /// <inheritdoc/>
+   public event NativeWindowHiddenEventHandler? Hidden;
+
+   /// <inheritdoc/>
+   public event NativeWindowShownEventHandler? Shown;
+
+   /// <inheritdoc/>
+   public event NativeWindowVisibilityChangedEventHandler? VisibilityChanged;
    #endregion
 
    #region Constructors
@@ -142,6 +155,7 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
       _lastHasFocus = GetHasFocus();
       _lastMousePosition = GetMousePosition();
       _lastTitle = GetTitle();
+      _lastVisibility = GetVisibility();
    }
    #endregion
 
@@ -249,6 +263,53 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
 
       // Note(Nightowl): Should already be on the Visual dispatch priority;
       RedrawRequested?.Invoke(this);
+   }
+
+   /// <inheritdoc/>
+   public void Hide()
+   {
+      if (Visibility is NativeWindowVisibility.Hidden)
+         return;
+
+      if (Native.HideWindow(Window) is false && _context.Logging.IsAvailable)
+         _context.Logging.Error<SDL3NativeWindow>($"Failed to hide the window, Id = ({Id}), WindowId = ({WindowId}). ({Native.LastError})");
+   }
+
+   /// <inheritdoc/>
+   public void Show()
+   {
+      if (Visibility is not NativeWindowVisibility.Hidden)
+         return;
+
+      if (Native.ShowWindow(Window) is false && _context.Logging.IsAvailable)
+         _context.Logging.Error<SDL3NativeWindow>($"Failed to show the window, Id = ({Id}), WindowId = ({WindowId}). ({Native.LastError})");
+   }
+
+   /// <inheritdoc/>
+   public void Minimize()
+   {
+      if (State is NativeWindowState.Minimized)
+         return;
+
+      if (Native.MinimizeWindow(Window) is false && _context.Logging.IsAvailable)
+         _context.Logging.Error<SDL3NativeWindow>($"Failed to minimize the window, Id = ({Id}), WindowId = ({WindowId}). ({Native.LastError})");
+   }
+
+   /// <inheritdoc/>
+   public void Maximize()
+   {
+      if (State is NativeWindowState.Maximized)
+         return;
+
+      if (Native.MaximizeWindow(Window) is false && _context.Logging.IsAvailable)
+         _context.Logging.Error<SDL3NativeWindow>($"Failed to maximize the window, Id = ({Id}), WindowId = ({WindowId}). ({Native.LastError})");
+   }
+
+   /// <inheritdoc/>
+   public void Restore()
+   {
+      if (Native.RestoreWindow(Window) is false && _context.Logging.IsAvailable)
+         _context.Logging.Error<SDL3NativeWindow>($"Failed to maximize the window, Id = ({Id}), WindowId = ({WindowId}). ({Native.LastError})");
    }
    #endregion
 
@@ -453,6 +514,29 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
          MouseMoved?.Invoke(this, new(last, current));
       }
    }
+   private NativeWindowVisibility GetVisibility()
+   {
+      SDL3_WindowFlags flags = Native.GetWindowFlags(Window);
+
+      if (flags.HasFlag(SDL3_WindowFlags.Hidden))
+         return NativeWindowVisibility.Hidden;
+
+      if (flags.HasFlag(SDL3_WindowFlags.Minimized))
+         return NativeWindowVisibility.Collapsed;
+
+      return NativeWindowVisibility.Visible;
+   }
+   private void CheckVisibilityChanged()
+   {
+      NativeWindowVisibility last = _lastVisibility;
+      NativeWindowVisibility current = GetVisibility();
+
+      if (last != current)
+      {
+         _lastVisibility = current;
+         VisibilityChanged?.Invoke(this, new(last, current));
+      }
+   }
    #endregion
 
    #region Event handlers
@@ -504,7 +588,10 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
       else if (ev.Type is SDL3_EventType.WindowExposed)
          AskForRedraw();
       else if (ev.Type is SDL3_EventType.WindowMinimized or SDL3_EventType.WindowMaximized or SDL3_EventType.WindowRestored)
+      {
          CheckStateChange();
+         CheckVisibilityChanged();
+      }
       else if (ev.Type is SDL3_EventType.WindowMouseEnter or SDL3_EventType.WindowMouseLeave)
          CheckIsMouseInsideChanged();
       else if (ev.Type is SDL3_EventType.WindowFocusLost or SDL3_EventType.WindowFocusGained)
@@ -513,8 +600,16 @@ public sealed unsafe class SDL3NativeWindow : INativeWindow, ISDL3EventHandler<S
       {
          // Note(Nightowl): Safe to ignore I think;
       }
-      else
-         Console.WriteLine($"Other window event {ev.Type}.");
+      else if (ev.Type is SDL3_EventType.WindowShown)
+      {
+         Shown?.Invoke(this);
+         CheckVisibilityChanged();
+      }
+      else if (ev.Type is SDL3_EventType.WindowHidden)
+      {
+         Hidden?.Invoke(this);
+         CheckVisibilityChanged();
+      }
    }
    private void OnWindowMoved(in SDL3_WindowEvent window)
    {
