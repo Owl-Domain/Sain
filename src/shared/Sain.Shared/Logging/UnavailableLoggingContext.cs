@@ -8,8 +8,12 @@ public sealed class UnavailableLoggingContext : BaseUnavailableContext, ILogging
    #region Properties
    /// <inheritdoc/>
    public override string Kind => CoreContextKinds.Logging;
+
    /// <inheritdoc/>
    public IReadOnlyList<ILogPathPrefix> PathPrefixes => ThrowForUnavailable<IReadOnlyList<ILogPathPrefix>>();
+
+   /// <inheritdoc/>
+   public IReadOnlyList<ILogSink> Sinks => ThrowForUnavailable<IReadOnlyList<ILogSink>>();
    #endregion
 
    #region Events
@@ -23,15 +27,7 @@ public sealed class UnavailableLoggingContext : BaseUnavailableContext, ILogging
 
    #region Methods
    /// <inheritdoc/>
-   public ILoggingContext AddPathPrefix(string prefix, string project) => ThrowForUnavailable<ILoggingContext>();
-
-   /// <inheritdoc/>
-   public bool TryGetRelative(string fullPath, [NotNullWhen(true)] out string? relativePath)
-   {
-      relativePath = null;
-
-      return ThrowForUnavailable<bool>();
-   }
+   public ILoggingContext WithPathPrefix(string prefix, string project) => ThrowForUnavailable<ILoggingContext>();
 
    /// <inheritdoc/>
    public bool TryGetRelative(string fullPath, [NotNullWhen(true)] out string? relativePath, [NotNullWhen(true)] out ILogPathPrefix? prefix)
@@ -41,6 +37,9 @@ public sealed class UnavailableLoggingContext : BaseUnavailableContext, ILogging
 
       return ThrowForUnavailable<bool>();
    }
+
+   /// <inheritdoc/>
+   public ILoggingContext WithSink(ILogSink sink) => ThrowForUnavailable<ILoggingContext>();
 
    /// <inheritdoc/>
    public ILoggingContext Log(

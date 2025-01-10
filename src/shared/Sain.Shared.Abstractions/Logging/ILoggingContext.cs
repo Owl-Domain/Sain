@@ -15,6 +15,9 @@ public interface ILoggingContext : IContext
    #region Properties
    /// <summary>The collection of the log path prefixes that are used to turn the source file paths into relative ones.</summary>
    IReadOnlyList<ILogPathPrefix> PathPrefixes { get; }
+
+   /// <summary>The sinks that have been attached to the logging context.</summary>
+   IReadOnlyList<ILogSink> Sinks { get; }
    #endregion
 
    #region Events
@@ -29,7 +32,12 @@ public interface ILoggingContext : IContext
    /// <param name="project">The project that the given <paramref name="prefix"/> belongs to.</param>
    /// <returns>The used logging context.</returns>
    /// <remarks>This path should be the entire path of the project that is before the <c>/src/</c> directory.</remarks>
-   ILoggingContext AddPathPrefix(string prefix, string project);
+   ILoggingContext WithPathPrefix(string prefix, string project);
+
+   /// <summary>Attaches the given log <paramref name="sink"/> to the logging context.</summary>
+   /// <param name="sink">The log sink to attach.</param>
+   /// <returns>The used logging context.</returns>
+   ILoggingContext WithSink(ILogSink sink);
 
    /// <summary>Tries to get the <paramref name="relativePath"/> from the given <paramref name="fullPath"/>.</summary>
    /// <param name="fullPath">The full path to get the relative path for.</param>
@@ -66,13 +74,38 @@ public static class ILoggingContextExtensions
 {
    #region General methods
    /// <summary>Tries to get the <paramref name="relativePath"/> from the given <paramref name="fullPath"/>.</summary>
-   /// <param name="log">The logging context to use.</param>
+   /// <param name="context">The logging context to use.</param>
    /// <param name="fullPath">The full path to get the relative path for.</param>
    /// <param name="relativePath">The calculated relative path.</param>
    /// <returns><see langword="true"/> if the <paramref name="relativePath"/> could be calculated, <see langword="false"/> otherwise.</returns>
-   public static bool TryGetRelative(this ILoggingContext log, string fullPath, [NotNullWhen(true)] out string? relativePath)
+   public static bool TryGetRelative(this ILoggingContext context, string fullPath, [NotNullWhen(true)] out string? relativePath)
    {
-      return log.TryGetRelative(fullPath, out relativePath, out _);
+      return context.TryGetRelative(fullPath, out relativePath, out _);
+   }
+
+   /// <summary>Attaches the given log <paramref name="sink"/> to the logging context.</summary>
+   /// <param name="context">The logging context to use.</param>
+   /// <param name="sink">The log sink to attach.</param>
+   /// <param name="customise">The (optional) callback that can be used to customise the given <paramref name="sink"/>.</param>
+   /// <returns>The used logging context.</returns>
+   public static ILoggingContext WithSink(this ILoggingContext context, ILogSink sink, Action<ILogSink> customise)
+   {
+      customise.Invoke(sink);
+      return context.WithSink(sink);
+   }
+
+   /// <summary>Creates a new log sink of the given type <typeparamref name="T"/> and attached it to the given logging <paramref name="context"/>.</summary>
+   /// <typeparam name="T">The type of the log sink to create and attach to the given logging <paramref name="context"/>.</typeparam>
+   /// <param name="context">The logging context to use.</param>
+   /// <param name="customise">The (optional) callback that can be used to customise the created sink.</param>
+   /// <returns>The used logging context.</returns>
+   public static ILoggingContext WithSink<T>(this ILoggingContext context, Action<T>? customise = null)
+      where T : ILogSink, new()
+   {
+      T sink = new();
+      customise?.Invoke(sink);
+
+      return context.WithSink(sink);
    }
    #endregion
 
