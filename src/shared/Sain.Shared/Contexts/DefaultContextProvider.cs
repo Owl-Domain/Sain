@@ -23,6 +23,12 @@ public sealed class DefaultContextProvider : BaseContextProvider
          return true;
       }
 
+      if (type == typeof(ISystemTimeContext) || type == typeof(DefaultSystemTimeContext))
+      {
+         context = (T)(IContext)new DefaultSystemTimeContext(this);
+         return true;
+      }
+
       context = default;
       return false;
    }

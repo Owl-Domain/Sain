@@ -26,6 +26,9 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
    public sealed override string Kind => CoreContextKinds.Logging;
 
    /// <inheritdoc/>
+   public override IReadOnlyCollection<string> DependsOnContexts { get; } = [CoreContextKinds.SystemTime];
+
+   /// <inheritdoc/>
    public IReadOnlyList<ILogPathPrefix> PathPrefixes => [.. _filePathPrefixes.Values];
 
    /// <inheritdoc/>
@@ -172,7 +175,13 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
 
    /// <summary>Gets the current time.</summary>
    /// <returns>The current time.</returns>
-   protected virtual DateTimeOffset GetCurrentTime() => DateTimeOffset.Now;
+   protected virtual DateTimeOffset GetCurrentTime()
+   {
+      if (IsInitialised && Context.System.Time.IsAvailable)
+         return Context.System.Time.Now;
+
+      return DateTimeOffset.Now;
+   }
    #endregion
 
    #region Helpers

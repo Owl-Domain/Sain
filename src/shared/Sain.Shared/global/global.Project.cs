@@ -15,6 +15,8 @@ global using Sain.Shared.Input.Mouse;
 global using Sain.Shared.Locking;
 global using Sain.Shared.Logging;
 global using Sain.Shared.Observable;
+global using Sain.Shared.System;
+global using Sain.Shared.System.Time;
 global using Sain.Shared.Versioning;
 
 

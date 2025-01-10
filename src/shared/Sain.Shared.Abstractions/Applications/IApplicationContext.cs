@@ -29,6 +29,9 @@ public interface IApplicationContext : IHasApplicationInit
 
    /// <summary>The application's context group for audio.</summary>
    IAudioContextGroup Audio { get; }
+
+   /// <summary>The application's context group for system contexts.</summary>
+   ISystemContextGroup System { get; }
    #endregion
 
    #region Methods

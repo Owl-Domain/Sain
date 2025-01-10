@@ -238,7 +238,11 @@ public abstract class BaseApplicationBuilder<TSelf, TContext, TApplication> : IA
    /// <remarks>You should use the <see cref="TryRequestContext{T}(string)"/> method inside this method.</remarks>
    protected virtual void AddDefaultContexts()
    {
+      // General
       TryRequestContext<ILoggingContext>(CoreContextKinds.Logging);
+
+      // System
+      TryRequestContext<ISystemTimeContext>(CoreContextKinds.SystemTime);
    }
 
    /// <summary>Adds the unavailable implementations for commonly used contexts (contexts that are directly provided by the <see cref="IApplicationContext"/>).</summary>
@@ -248,14 +252,20 @@ public abstract class BaseApplicationBuilder<TSelf, TContext, TApplication> : IA
    /// </remarks>
    protected virtual void AddUnavailableContexts()
    {
+      // General
       TryAddUnavailableContext<UnavailableLoggingContext>(CoreContextKinds.Logging);
       TryAddUnavailableContext<UnavailableDisplayContext>(CoreContextKinds.Display);
 
+      // Input
       TryAddUnavailableContext<UnavailableKeyboardInputContext>(CoreContextKinds.KeyboardInput);
       TryAddUnavailableContext<UnavailableMouseInputContext>(CoreContextKinds.MouseInput);
 
+      // Audio
       TryAddUnavailableContext<UnavailableAudioPlaybackContext>(CoreContextKinds.AudioPlayback);
       TryAddUnavailableContext<UnavailableAudioCaptureContext>(CoreContextKinds.AudioCapture);
+
+      // system
+      TryAddUnavailableContext<UnavailableSystemTimeContext>(CoreContextKinds.SystemTime);
    }
    #endregion
 

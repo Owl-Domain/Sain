@@ -44,6 +44,9 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
 
    /// <inheritdoc/>
    public IAudioContextGroup Audio { get; }
+
+   /// <inheritdoc/>
+   public ISystemContextGroup System { get; }
    #endregion
 
    #region Constructors
@@ -61,6 +64,7 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
 
       Input = InputContextGroup.Create(this);
       Audio = AudioContextGroup.Create(this);
+      System = SystemContextGroup.Create(this);
 
       InitialisationOrder = CalculateInitialisationOrder();
    }

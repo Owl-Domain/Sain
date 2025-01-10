@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace Sain.Shared.Applications;
 
 /// <summary>
@@ -156,12 +158,14 @@ public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext
 
       Context.Logging.Info<ApplicationBase>($"Running application Id = ({Info.Id}), Name = ({Info.Name}), Version = ({Info.Version.DisplayName}).");
 
+      Context.Logging.Info<ApplicationBase>($"Available context providers: {Context.ContextProviders.Count:n0}");
       foreach (IContextProvider provider in Context.ContextProviders)
       {
          Type type = provider.GetType();
          Context.Logging.Debug<ApplicationBase>($"Available context provider: {type.FullName ?? type.Name}.");
       }
 
+      Context.Logging.Info<ApplicationBase>($"Available contexts: {Context.Contexts.Count(c => c.IsAvailable):n0}");
       foreach (IContext context in Context.Contexts)
       {
          if (context.IsAvailable is false)
@@ -176,6 +180,8 @@ public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext
       Debug.Assert(Context.Logging.IsAvailable);
 
       int i = 1;
+
+      Context.Logging.Info<ApplicationBase>($"Components to initialise: {Context.InitialisationOrder.Count:n0}");
       foreach (IHasApplicationInit init in Context.InitialisationOrder)
       {
          Type type = init.GetType();
