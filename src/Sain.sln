@@ -43,6 +43,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sain.SDL3", "sdl\Sain.SDL3\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sain.SDL3.Desktop", "sdl\Sain.SDL3.Desktop\Sain.SDL3.Desktop.csproj", "{AF9D23ED-B1D1-4842-82BA-885BD4491660}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fixes", "fixes", "{D69D6485-3418-433A-B7FC-3CD35BE0CF27}"
+	ProjectSection(SolutionItems) = preProject
+		..\playground_fix.sh = ..\playground_fix.sh
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -114,5 +119,6 @@ Global
 		{780B914D-0B56-4514-BC63-CA3FA7575294} = {E9D37C70-2189-45C7-B416-C3E84CAF7A70}
 		{527C4F93-27D9-4A1F-946E-6690C2463F8F} = {D168A21B-A28C-416E-9A6D-AD70BDB59D23}
 		{AF9D23ED-B1D1-4842-82BA-885BD4491660} = {D168A21B-A28C-416E-9A6D-AD70BDB59D23}
+		{D69D6485-3418-433A-B7FC-3CD35BE0CF27} = {3A7E3795-0846-4289-BBE6-0C35463967FC}
 	EndGlobalSection
 EndGlobal
