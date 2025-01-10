@@ -4,12 +4,19 @@ namespace Sain.Desktop.Applications;
 ///   Represents a builder for a desktop application.
 /// </summary>
 /// <typeparam name="TSelf">The type of the application builder.</typeparam>
-public abstract class DesktopApplicationBuilder<TSelf> : BaseApplicationBuilder<TSelf>
-   where TSelf : DesktopApplicationBuilder<TSelf>
+/// <typeparam name="TContext">The type of the application's context.</typeparam>
+/// <typeparam name="TApplication">The type of the desktop application.</typeparam>
+public abstract class DesktopApplicationBuilder<TSelf, TContext, TApplication> : BaseApplicationBuilder<TSelf, TContext, TApplication>
+   where TSelf : DesktopApplicationBuilder<TSelf, TContext, TApplication>
+   where TContext : IDesktopApplicationContext
+   where TApplication : IDesktopApplication<TContext, TApplication>
 {
-   #region Fields
-   private DesktopApplicationShutdownMode? _shutdownMode;
-   private Type? _startupWindowType;
+   #region Properties
+   /// <summary>The shutdown mode of the desktop application.</summary>
+   protected DesktopApplicationShutdownMode? ShutdownMode { get; private set; }
+
+   /// <summary>The type of the window to open when the application starts.</summary>
+   protected Type? StartupWindowType { get; private set; }
    #endregion
 
    #region Methods
@@ -19,10 +26,10 @@ public abstract class DesktopApplicationBuilder<TSelf> : BaseApplicationBuilder<
    /// <exception cref="InvalidOperationException">Thrown if the shutdown mode has already been specified.</exception>
    public TSelf WithShutdownMode(DesktopApplicationShutdownMode shutdownMode)
    {
-      if (_shutdownMode is not null)
+      if (ShutdownMode is not null)
          throw new InvalidOperationException("The shutdown mode of the application has already been specified.");
 
-      _shutdownMode = shutdownMode;
+      ShutdownMode = shutdownMode;
       return Instance;
    }
 
@@ -32,10 +39,10 @@ public abstract class DesktopApplicationBuilder<TSelf> : BaseApplicationBuilder<
    /// <exception cref="InvalidOperationException">Thrown if the startup window type has already been specified.</exception>
    public TSelf WithStartupWindowType(Type startupWindowType)
    {
-      if (_startupWindowType is not null)
+      if (StartupWindowType is not null)
          throw new InvalidOperationException("The type of the startup window has already been specified.");
 
-      _startupWindowType = startupWindowType;
+      StartupWindowType = startupWindowType;
       return Instance;
    }
 
@@ -55,21 +62,25 @@ public abstract class DesktopApplicationBuilder<TSelf> : BaseApplicationBuilder<
       TryRequestContext<IKeyboardInputContext>(CoreContextKinds.KeyboardInput);
       TryRequestContext<IDesktopWindowingContext>(DesktopContextKinds.Windowing);
    }
-
-   /// <inheritdoc/>
-   protected override IApplication BuildCore(IApplicationInfo info)
-   {
-      _shutdownMode ??= DesktopApplicationShutdownMode.OnLastWindowClose;
-
-      DesktopApplicationContext context = new(_shutdownMode.Value, _startupWindowType, Providers, Contexts);
-      Application application = new(info, context);
-
-      return application;
-   }
    #endregion
 }
 
 /// <summary>
 ///   Represents a builder for a desktop application.
 /// </summary>
-public sealed class DesktopApplicationBuilder : DesktopApplicationBuilder<DesktopApplicationBuilder> { }
+public sealed class DesktopApplicationBuilder : DesktopApplicationBuilder<DesktopApplicationBuilder, IDesktopApplicationContext, IDesktopApplication>
+{
+   #region Methods
+
+   /// <inheritdoc/>
+   protected override IDesktopApplication BuildCore(IApplicationInfo info)
+   {
+      DesktopApplicationShutdownMode shutdownMode = ShutdownMode ?? DesktopApplicationShutdownMode.OnLastWindowClose;
+
+      DesktopApplicationContext context = new(shutdownMode, StartupWindowType, Providers, Contexts);
+      DesktopApplication application = new(info, context);
+
+      return application;
+   }
+   #endregion
+}

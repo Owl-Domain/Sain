@@ -3,7 +3,11 @@ namespace Sain.Desktop.Applications;
 /// <summary>
 ///   Contains functionality for creating new desktop applications.
 /// </summary>
-public static class DesktopApplication
+/// <param name="info">The information about the application.</param>
+/// <param name="context">The context of the application.</param>
+public sealed class DesktopApplication(IApplicationInfo info, IDesktopApplicationContext context) :
+   Application<IDesktopApplicationContext, IDesktopApplication>(info, context),
+   IDesktopApplication
 {
    #region Functions
    /// <summary>Creates a builder for a new desktop application.</summary>

@@ -126,7 +126,7 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
          }
       }
    }
-   private void ApplicationIteration(IApplication application)
+   private void ApplicationIteration(IApplicationBase application)
    {
       SDL3_Event latestMouseMotion = default;
       bool hasMouseMotion = false;

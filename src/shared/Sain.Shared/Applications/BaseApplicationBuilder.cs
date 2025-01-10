@@ -6,8 +6,12 @@ namespace Sain.Shared.Applications;
 ///   Represents the base implementation for an application builder.
 /// </summary>
 /// <typeparam name="TSelf">The type of the application builder.</typeparam>
-public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
-   where TSelf : BaseApplicationBuilder<TSelf>
+/// <typeparam name="TContext">The type of the application's context.</typeparam>
+/// <typeparam name="TApplication">The type of the application.</typeparam>
+public abstract class BaseApplicationBuilder<TSelf, TContext, TApplication> : IApplicationBuilder<TSelf, TContext, TApplication>
+   where TSelf : BaseApplicationBuilder<TSelf, TContext, TApplication>
+   where TContext : IApplicationContext
+   where TApplication : IApplication<TContext>
 {
    #region Fields
    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -200,7 +204,7 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    }
 
    /// <inheritdoc/>
-   public IApplication Build()
+   public TApplication Build()
    {
       Assembly targetAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly();
       _name ??= targetAssembly.GetName().Name ?? throw new InvalidOperationException("Couldn't extract the application name from the assembly information.");
@@ -221,7 +225,7 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
    /// <summary>Builds the application.</summary>
    /// <param name="info">The information about the application being built.</param>
    /// <returns>The built application.</returns>
-   protected abstract IApplication BuildCore(IApplicationInfo info);
+   protected abstract TApplication BuildCore(IApplicationInfo info);
 
    /// <summary>Adds the contexts that are deemed to be required.</summary>
    /// <remarks>You should use the <see cref="AddRequiredContext{T}(string)"/> method inside this method.</remarks>
@@ -266,17 +270,17 @@ public abstract class BaseApplicationBuilder<TSelf> : IApplicationBuilder<TSelf>
          WithContext<T>();
    }
 
-   /// <summary>Tries to request a context of the given type <typeparamref name="TContext"/> if a context of the same <paramref name="kind"/> hasn't already been added.</summary>
-   /// <typeparam name="TContext">The type of the context to try to add.</typeparam>
+   /// <summary>Tries to request a context of the given type <typeparamref name="T"/> if a context of the same <paramref name="kind"/> hasn't already been added.</summary>
+   /// <typeparam name="T">The type of the context to try to add.</typeparam>
    /// <param name="kind">The kind of the context to try to add.</param>
    /// <remarks>
    ///   Use this to add default implementations for contexts that haven't been explicitly added, but that will typically be wanted.
    /// </remarks>
-   protected void TryRequestContext<TContext>(string kind)
-      where TContext : notnull, IContext
+   protected void TryRequestContext<T>(string kind)
+      where T : notnull, IContext
    {
       if (HasContext(kind) is false)
-         TryWithContext<TContext>();
+         TryWithContext<T>();
    }
 
    /// <summary>Tries to add an unavailable implementation of a context if a context of the same <paramref name="kind"/> hasn't already been added.</summary>

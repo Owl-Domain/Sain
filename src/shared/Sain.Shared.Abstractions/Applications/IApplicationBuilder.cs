@@ -89,7 +89,44 @@ public interface IApplicationBuilder<TSelf> where TSelf : IApplicationBuilder<TS
 
    /// <summary>Builds the application.</summary>
    /// <returns>The built application.</returns>
-   IApplication Build();
+   IApplicationBase Build();
+   #endregion
+}
+
+/// <summary>
+///   Represents a builder for an application.
+/// </summary>
+/// <typeparam name="TSelf">The type of the application builder.</typeparam>
+/// <typeparam name="TContext">The type of the application's context.</typeparam>
+public interface IApplicationBuilder<TSelf, TContext> : IApplicationBuilder<TSelf>
+   where TSelf : IApplicationBuilder<TSelf, TContext>
+   where TContext : IApplicationContext
+{
+   #region Methods
+   /// <summary>Builds the application.</summary>
+   /// <returns>The built application.</returns>
+   new IApplication<TContext> Build();
+   IApplicationBase IApplicationBuilder<TSelf>.Build() => Build();
+   #endregion
+}
+
+/// <summary>
+///   Represents a builder for an application.
+/// </summary>
+/// <typeparam name="TSelf">The type of the application builder.</typeparam>
+/// <typeparam name="TContext">The type of the application's context.</typeparam>
+/// <typeparam name="TApplication">The type of the application.</typeparam>
+public interface IApplicationBuilder<TSelf, TContext, TApplication> : IApplicationBuilder<TSelf, TContext>
+   where TSelf : IApplicationBuilder<TSelf, TContext, TApplication>
+   where TContext : IApplicationContext
+   where TApplication : IApplication<TContext>
+{
+   #region Methods
+   /// <summary>Builds the application.</summary>
+   /// <returns>The built application.</returns>
+   new TApplication Build();
+   IApplicationBase IApplicationBuilder<TSelf>.Build() => Build();
+   IApplication<TContext> IApplicationBuilder<TSelf, TContext>.Build() => Build();
    #endregion
 }
 

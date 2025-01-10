@@ -3,137 +3,192 @@ namespace Sain.Shared.Applications;
 /// <summary>
 ///   Represents a Sain application.
 /// </summary>
+/// <typeparam name="TContext">The type of the application's context.</typeparam>
 /// <param name="info">The information about the application.</param>
 /// <param name="context">The context of the application.</param>
-public sealed class Application(IApplicationInfo info, IApplicationContext context) : IApplication
+public abstract class Application<TContext>(IApplicationInfo info, TContext context) :
+   ApplicationBase(info, context),
+   IApplication<TContext>
+   where TContext : IApplicationContext
 {
    #region Fields
-   private volatile bool _shouldBeRunning;
+   private ApplicationEventHandler<TContext>? _starting;
+   private ApplicationEventHandler<TContext>? _started;
+   private ApplicationEventHandler<TContext>? _stopping;
+   private ApplicationEventHandler<TContext>? _stopped;
+   private ApplicationEventHandler<TContext>? _iteration;
    #endregion
 
    #region Properties
-   /// <inheritdoc/>
-   public IApplicationInfo Info { get; } = info;
-
-   /// <inheritdoc/>
-   public IApplicationContext Context { get; } = context;
-
-   /// <inheritdoc/>
-   public ApplicationState State { get; private set; }
-
-   /// <inheritdoc/>
-   public TimeSpan LastIterationDuration { get; private set; }
+   TContext IApplication<TContext>.Context => (TContext)Context;
    #endregion
 
    #region Events
-   /// <inheritdoc/>
-   public event ApplicationEventHandler? Starting;
-
-   /// <inheritdoc/>
-   public event ApplicationEventHandler? Started;
-
-   /// <inheritdoc/>
-   public event ApplicationEventHandler? Stopping;
-
-   /// <inheritdoc/>
-   public event ApplicationEventHandler? Stopped;
-
-   /// <inheritdoc/>
-   public event ApplicationEventHandler? Iteration;
+   event ApplicationEventHandler<TContext>? IApplication<TContext>.Starting
+   {
+      add => _starting += value;
+      remove => _starting -= value;
+   }
+   event ApplicationEventHandler<TContext>? IApplication<TContext>.Started
+   {
+      add => _started += value;
+      remove => _started -= value;
+   }
+   event ApplicationEventHandler<TContext>? IApplication<TContext>.Stopping
+   {
+      add => _stopping += value;
+      remove => _stopping -= value;
+   }
+   event ApplicationEventHandler<TContext>? IApplication<TContext>.Stopped
+   {
+      add => _stopped += value;
+      remove => _stopped -= value;
+   }
+   event ApplicationEventHandler<TContext>? IApplication<TContext>.Iteration
+   {
+      add => _iteration += value;
+      remove => _iteration -= value;
+   }
    #endregion
 
-   #region Methods
+   #region Helpers
    /// <inheritdoc/>
-   public void Run()
+   protected override void RaiseStarting()
    {
-      if (State is not ApplicationState.Stopped)
-         throw new InvalidOperationException($"The application is either currently running or has not fully stopped yet, meaning it cannot be started again.");
-
-      _shouldBeRunning = true;
-      State = ApplicationState.Starting;
-      Starting?.Invoke(this);
-
-      Context.PreInitialise(this);
-      if (Context.Logging.IsAvailable)
-
-      {
-         Context.Logging.Info<Application>($"Running application Id = ({Info.Id}), Name = ({Info.Name}), Version = ({Info.Version.DisplayName}).");
-         Context.Logging.Trace<Application>($"Between {nameof(Context.PreInitialise)} and {nameof(Context.Initialise)} steps.");
-
-         foreach (IContextProvider provider in Context.ContextProviders)
-         {
-            Type type = provider.GetType();
-            Context.Logging.Debug<Application>($"Available context provider: {type.FullName ?? type.Name}.");
-         }
-
-         foreach (IContext context in Context.Contexts)
-         {
-            if (context.IsAvailable is false)
-               continue;
-
-            Type type = context.GetType();
-            Context.Logging.Debug<Application>($"Available context ({context.Kind}): {type.FullName ?? type.Name}.");
-         }
-      }
-      Context.Initialise(this);
-      if (Context.Logging.IsAvailable) Context.Logging.Trace<Application>($"Between {nameof(Context.Initialise)} and {nameof(Context.PostInitialise)} steps.");
-      Context.PostInitialise(this);
-      if (Context.Logging.IsAvailable) Context.Logging.Trace<Application>($"Application started (after {nameof(Context.PostInitialise)}).");
-
-      State = ApplicationState.Running;
-      Started?.Invoke(this);
-
-      if (Context.Logging.IsAvailable) Context.Logging.Trace<Application>("Application loop starting.");
-
-      Stopwatch watch = new();
-      while (_shouldBeRunning)
-      {
-         watch.Restart();
-
-         Context.Dispatcher.Process();
-
-         Iteration?.Invoke(this);
-         LastIterationDuration = watch.Elapsed;
-
-         if (LastIterationDuration.TotalMilliseconds < 10)
-            Thread.Sleep(10 - (int)LastIterationDuration.TotalMilliseconds);
-         else if (Context.Logging.IsAvailable)
-         {
-            if (LastIterationDuration.TotalMilliseconds > 250)
-               Context.Logging.Warning<Application>($"Last iteration took over 250ms, something is affecting performance a lot ({LastIterationDuration.TotalMilliseconds:n2}ms).");
-            else if (LastIterationDuration.TotalMilliseconds > 100)
-               Context.Logging.Warning<Application>($"Last iteration took over 100ms, something is affecting performance ({LastIterationDuration.TotalMilliseconds:n2}ms).");
-            else if (LastIterationDuration.TotalMilliseconds > 50)
-               Context.Logging.Debug<Application>($"Last iteration took over 50ms ({LastIterationDuration.TotalMilliseconds:n2}ms).");
-            else if (LastIterationDuration.TotalMilliseconds > 30)
-               Context.Logging.Debug<Application>($"Last iteration took over 30ms ({LastIterationDuration.TotalMilliseconds:n2}ms).");
-         }
-      }
-
-      if (Context.Logging.IsAvailable)
-         Context.Logging.Trace<Application>("Application stopping.");
-
-      State = ApplicationState.Stopping;
-      Stopping?.Invoke(this);
-
-      State = ApplicationState.Stopped;
-
-      if (Context.Logging.IsAvailable)
-         Context.Logging.Trace<Application>($"Application stopped (before {nameof(Context.PreCleanup)}).");
-
-      Context.PreCleanup(this);
-      if (Context.Logging.IsAvailable) Context.Logging.Trace<Application>($"Between {nameof(Context.PreCleanup)} and {nameof(Context.Cleanup)} steps.");
-      Context.Cleanup(this);
-      if (Context.Logging.IsAvailable) Context.Logging.Trace<Application>($"Between {nameof(Context.Cleanup)} and {nameof(Context.PostCleanup)} steps.");
-      Context.PostCleanup(this);
-
-      Stopped?.Invoke(this);
+      base.RaiseStarting();
+      _starting?.Invoke(this);
    }
 
    /// <inheritdoc/>
-   public void Stop() => _shouldBeRunning = false;
+   protected override void RaiseStarted()
+   {
+      base.RaiseStarted();
+      _started?.Invoke(this);
+   }
+
+   /// <inheritdoc/>
+   protected override void RaiseStopping()
+   {
+      base.RaiseStopping();
+      _stopping?.Invoke(this);
+   }
+
+   /// <inheritdoc/>
+   protected override void RaiseStopped()
+   {
+      base.RaiseStopped();
+      _stopped?.Invoke(this);
+   }
+
+   /// <inheritdoc/>
+   protected override void RaiseIteration()
+   {
+      base.RaiseIteration();
+      _iteration?.Invoke(this);
+   }
+   #endregion
+}
+
+/// <summary>
+///   Represents a Sain application.
+/// </summary>
+/// <typeparam name="TContext">The type of the application's context.</typeparam>
+/// <typeparam name="TApplication">The type of the application.</typeparam>
+/// <param name="info">The information about the application.</param>
+/// <param name="context">The context of the application.</param>
+public abstract class Application<TContext, TApplication>(IApplicationInfo info, TContext context) :
+   Application<TContext>(info, context),
+   IApplication<TContext, TApplication>
+   where TContext : IApplicationContext
+   where TApplication : IApplication<TContext, TApplication>
+{
+   #region Fields
+   private ApplicationEventHandler<TContext, TApplication>? _starting;
+   private ApplicationEventHandler<TContext, TApplication>? _started;
+   private ApplicationEventHandler<TContext, TApplication>? _stopping;
+   private ApplicationEventHandler<TContext, TApplication>? _stopped;
+   private ApplicationEventHandler<TContext, TApplication>? _iteration;
    #endregion
 
+   #region Properties
+   private TApplication Self => (TApplication)(IApplicationBase)this;
+   #endregion
+
+   #region Events
+   event ApplicationEventHandler<TContext, TApplication>? IApplication<TContext, TApplication>.Starting
+   {
+      add => _starting += value;
+      remove => _starting -= value;
+   }
+   event ApplicationEventHandler<TContext, TApplication>? IApplication<TContext, TApplication>.Started
+   {
+      add => _started += value;
+      remove => _started -= value;
+   }
+   event ApplicationEventHandler<TContext, TApplication>? IApplication<TContext, TApplication>.Stopping
+   {
+      add => _stopping += value;
+      remove => _stopping -= value;
+   }
+   event ApplicationEventHandler<TContext, TApplication>? IApplication<TContext, TApplication>.Stopped
+   {
+      add => _stopped += value;
+      remove => _stopped -= value;
+   }
+   event ApplicationEventHandler<TContext, TApplication>? IApplication<TContext, TApplication>.Iteration
+   {
+      add => _iteration += value;
+      remove => _iteration -= value;
+   }
+   #endregion
+
+   #region Helpers
+   /// <inheritdoc/>
+   protected override void RaiseStarting()
+   {
+      base.RaiseStarting();
+      _starting?.Invoke(Self);
+   }
+
+   /// <inheritdoc/>
+   protected override void RaiseStarted()
+   {
+      base.RaiseStarted();
+      _started?.Invoke(Self);
+   }
+
+   /// <inheritdoc/>
+   protected override void RaiseStopping()
+   {
+      base.RaiseStopping();
+      _stopping?.Invoke(Self);
+   }
+
+   /// <inheritdoc/>
+   protected override void RaiseStopped()
+   {
+      base.RaiseStopped();
+      _stopped?.Invoke(Self);
+   }
+
+   /// <inheritdoc/>
+   protected override void RaiseIteration()
+   {
+      base.RaiseIteration();
+      _iteration?.Invoke(Self);
+   }
+   #endregion
+}
+
+/// <summary>
+///   Represents a general Sain application.
+/// </summary>
+/// <param name="info">The information about the application.</param>
+/// <param name="context">The context of the application.</param>
+public sealed class Application(IApplicationInfo info, IApplicationContext context) :
+   Application<IApplicationContext, IApplication>(info, context),
+   IApplication
+{
    #region Functions
    /// <summary>Creates a builder for a new application.</summary>
    /// <returns>The application builder which can be used to configure the application.</returns>

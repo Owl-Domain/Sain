@@ -24,7 +24,7 @@ public abstract class BaseHasApplicationInit : ObservableBase, IHasApplicationIn
    private readonly object _initLock = new();
 
    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-   private IApplication? _application;
+   private IApplicationBase? _application;
 
    private Stage _stage = Stage.Unitialised;
    #endregion
@@ -39,7 +39,7 @@ public abstract class BaseHasApplicationInit : ObservableBase, IHasApplicationIn
    /// <summary>The application that the component belongs to.</summary>
    /// <exception cref="InvalidOperationException">Thrown if the property is accessed when the component has not been initialised.</exception>
    [NotNull]
-   protected IApplication? Application
+   protected IApplicationBase? Application
    {
       get => _application ?? throw new InvalidOperationException($"The {GetName()} doesn't belong to an application yet, wait for it to be initialised.");
       private set => _application = value;
@@ -56,7 +56,7 @@ public abstract class BaseHasApplicationInit : ObservableBase, IHasApplicationIn
 
    #region Methods
    /// <inheritdoc/>
-   public void PreInitialise(IApplication application)
+   public void PreInitialise(IApplicationBase application)
    {
       lock (_initLock)
       {
@@ -88,7 +88,7 @@ public abstract class BaseHasApplicationInit : ObservableBase, IHasApplicationIn
    }
 
    /// <inheritdoc/>
-   public void Initialise(IApplication application)
+   public void Initialise(IApplicationBase application)
    {
       lock (_initLock)
       {
@@ -119,7 +119,7 @@ public abstract class BaseHasApplicationInit : ObservableBase, IHasApplicationIn
    }
 
    /// <inheritdoc/>
-   public void PostInitialise(IApplication application)
+   public void PostInitialise(IApplicationBase application)
    {
       lock (_initLock)
       {
@@ -161,7 +161,7 @@ public abstract class BaseHasApplicationInit : ObservableBase, IHasApplicationIn
    protected virtual void PostInitialise() { }
 
    /// <inheritdoc/>
-   public void PreCleanup(IApplication application)
+   public void PreCleanup(IApplicationBase application)
    {
       lock (_initLock)
       {
@@ -190,7 +190,7 @@ public abstract class BaseHasApplicationInit : ObservableBase, IHasApplicationIn
    }
 
    /// <inheritdoc/>
-   public void Cleanup(IApplication application)
+   public void Cleanup(IApplicationBase application)
    {
       lock (_initLock)
       {
@@ -219,7 +219,7 @@ public abstract class BaseHasApplicationInit : ObservableBase, IHasApplicationIn
    }
 
    /// <inheritdoc/>
-   public void PostCleanup(IApplication application)
+   public void PostCleanup(IApplicationBase application)
    {
       lock (_initLock)
       {
