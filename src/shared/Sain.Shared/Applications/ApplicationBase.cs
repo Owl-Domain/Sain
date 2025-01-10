@@ -67,11 +67,9 @@ public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext
       RaiseStarting();
 
       if (Context.Logging.IsAvailable)
-         Context.Logging.Initialise(this);
-
-      if (Context.Logging.IsAvailable)
       {
          LogInitialisationInformation();
+         LogInitialisationOrder();
          Context.Logging.Trace<ApplicationBase>($"Application is starting.");
       }
 
@@ -82,27 +80,6 @@ public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext
 
       State = ApplicationState.Running;
       RaiseStarted();
-   }
-   private void LogInitialisationInformation()
-   {
-      Debug.Assert(Context.Logging.IsAvailable);
-
-      Context.Logging.Info<ApplicationBase>($"Running application Id = ({Info.Id}), Name = ({Info.Name}), Version = ({Info.Version.DisplayName}).");
-
-      foreach (IContextProvider provider in Context.ContextProviders)
-      {
-         Type type = provider.GetType();
-         Context.Logging.Debug<ApplicationBase>($"Available context provider: {type.FullName ?? type.Name}.");
-      }
-
-      foreach (IContext context in Context.Contexts)
-      {
-         if (context.IsAvailable is false)
-            continue;
-
-         Type type = context.GetType();
-         Context.Logging.Debug<ApplicationBase>($"Available context ({context.Kind}): {type.FullName ?? type.Name}.");
-      }
    }
    private void MainLoop()
    {
@@ -135,7 +112,7 @@ public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext
       }
 
       if (Context.Logging.IsAvailable)
-         Context.Logging.Trace<ApplicationBase>("Application stopping.");
+         Context.Logging.Trace<ApplicationBase>("Application loop stopping.");
    }
    private void Cleanup()
    {
@@ -145,12 +122,9 @@ public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext
       try
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Trace<ApplicationBase>($"Application stopping.");
+            Context.Logging.Trace<ApplicationBase>($"Cleaning up application.");
 
          Context.Cleanup(this);
-
-         if (Context.Logging.IsAvailable)
-            Context.Logging.Trace<ApplicationBase>($"Application stopped.");
       }
       finally
       {
@@ -158,7 +132,9 @@ public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext
          RaiseStopped();
       }
    }
+   #endregion
 
+   #region Helpers
    /// <summary>Raises the application starting event.</summary>
    protected virtual void RaiseStarting() => Starting?.Invoke(this);
 
@@ -173,5 +149,40 @@ public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext
 
    /// <summary>Raises the application iteration event.</summary>
    protected virtual void RaiseIteration() => Iteration?.Invoke(this);
+
+   private void LogInitialisationInformation()
+   {
+      Debug.Assert(Context.Logging.IsAvailable);
+
+      Context.Logging.Info<ApplicationBase>($"Running application Id = ({Info.Id}), Name = ({Info.Name}), Version = ({Info.Version.DisplayName}).");
+
+      foreach (IContextProvider provider in Context.ContextProviders)
+      {
+         Type type = provider.GetType();
+         Context.Logging.Debug<ApplicationBase>($"Available context provider: {type.FullName ?? type.Name}.");
+      }
+
+      foreach (IContext context in Context.Contexts)
+      {
+         if (context.IsAvailable is false)
+            continue;
+
+         Type type = context.GetType();
+         Context.Logging.Debug<ApplicationBase>($"Available context ({context.Kind}): {type.FullName ?? type.Name}.");
+      }
+   }
+   private void LogInitialisationOrder()
+   {
+      Debug.Assert(Context.Logging.IsAvailable);
+
+      int i = 1;
+      foreach (IHasApplicationInit init in Context.InitialisationOrder)
+      {
+         Type type = init.GetType();
+         string name = type.FullName ?? type.Name;
+
+         Context.Logging.Trace<ApplicationBase>($"Initialisation order ({i++}): {name}");
+      }
+   }
    #endregion
 }

@@ -16,7 +16,7 @@ public sealed class DefaultLoggingContext(IContextProvider? provider) : BaseLogg
    {
       base.Initialise();
 
-      _watch = Stopwatch.StartNew();
+      _watch ??= Stopwatch.StartNew();
    }
 
    /// <inheritdoc/>
@@ -30,7 +30,9 @@ public sealed class DefaultLoggingContext(IContextProvider? provider) : BaseLogg
    /// <inheritdoc/>
    protected override ILogEntry CreateEntry(LogSeverity severity, string context, string message, string member, string file, ILogPathPrefix? prefix, int line)
    {
-      Debug.Assert(_watch is not null);
+      // Note(Nightowl): Initialise watch earlier in case ;
+      _watch ??= Stopwatch.StartNew();
+
       TimeSpan timestamp = _watch.Elapsed;
       DateTimeOffset date = DateTimeOffset.Now;
 

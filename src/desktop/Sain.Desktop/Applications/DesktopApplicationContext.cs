@@ -50,14 +50,14 @@ public class DesktopApplicationContext : ApplicationContext, IDesktopApplication
       if (ShutdownMode is DesktopApplicationShutdownMode.OnLastWindowClose)
       {
          if (Logging.IsAvailable)
-            Logging.Debug<DesktopApplicationContext>($"Last window has closed, due to the shutdown mode being ({DesktopApplicationShutdownMode.OnLastWindowClose}), the application will now be stopped.");
+            Logging.Debug<DesktopApplicationContext>($"Last window has closed. Due to the shutdown mode being ({DesktopApplicationShutdownMode.OnLastWindowClose}), the application will now be stopped.");
 
          Application.Stop();
       }
       else if (ShutdownMode is DesktopApplicationShutdownMode.OnExplicitShutdown)
       {
          if (Logging.IsAvailable)
-            Logging.Debug<DesktopApplicationContext>($"Last window has closed, due to the shutdown mode being ({DesktopApplicationShutdownMode.OnExplicitShutdown}), the application will now run in the background.");
+            Logging.Debug<DesktopApplicationContext>($"Last window has closed. Due to the shutdown mode being ({DesktopApplicationShutdownMode.OnExplicitShutdown}), the application will now run in the background.");
       }
    }
    #endregion

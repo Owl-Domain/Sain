@@ -17,14 +17,13 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
    private readonly SortedList<int, ILogPathPrefix> _filePathPrefixes = new(new Comparer());
    private readonly List<ILogSink> _sinks = [];
    private readonly List<string> _files = [];
+   private readonly List<ILogEntry> _preInitEntries = [];
+   private DateTimeOffset _preInitLogStartTime;
    #endregion
 
    #region Properties
    /// <inheritdoc/>
    public sealed override string Kind => CoreContextKinds.Logging;
-
-   /// <inheritdoc/>
-   public override IReadOnlyCollection<string> DependsOnContexts => [];
 
    /// <inheritdoc/>
    public IReadOnlyList<ILogPathPrefix> PathPrefixes => [.. _filePathPrefixes.Values];
@@ -51,16 +50,26 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
 
       WithPathPrefix("/home/nightowl/repos/Sain/repo/", "Sain");
 
-      DateTimeOffset timestamp = GetCurrentTime();
+      DateTimeOffset timestamp = _preInitEntries.Count > 0 ? _preInitLogStartTime : GetCurrentTime();
 
       foreach (ILogSink sink in _sinks)
          sink.Initialise(Application, timestamp);
+
+      // Note(Nightowl): Specifically use a for loop instead of a foreach loop here in case sinks / event callbacks add extra log entries;
+      for (int i = 0; i < _preInitEntries.Count; i++)
+      {
+         ILogEntry entry = _preInitEntries[i];
+         OnNewEntry(entry);
+      }
+
+      _preInitEntries.Clear();
    }
 
    /// <inheritdoc/>
    protected override void Cleanup()
    {
       base.Cleanup();
+      Debug.Assert(_preInitEntries.Count is 0);
 
       foreach (ILogSink sink in _sinks)
          sink.Cleanup();
@@ -128,10 +137,11 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
    /// <inheritdoc/>
    public ILoggingContext Log(LogSeverity severity, string context, string message, [CallerMemberName] string member = "", [CallerFilePath] string file = "", [CallerLineNumber] int line = 0)
    {
-      ThrowIfNotInitialised();
-
       if (NewEntryLogged is null && _sinks.Count is 0)
          return this;
+
+      if (IsInitialised is false && _preInitEntries.Count is 0)
+         _preInitLogStartTime = GetCurrentTime();
 
       file = GetNormalisedFilePath(file);
 
@@ -140,10 +150,10 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
 
       ILogEntry entry = CreateEntry(severity, context, message, member, file, prefix, line);
 
-      foreach (ILogSink sink in _sinks)
-         sink.AddEntry(entry);
-
-      NewEntryLogged?.Invoke(this, entry);
+      if (IsInitialised)
+         OnNewEntry(entry);
+      else
+         _preInitEntries.Add(entry);
 
       return this;
    }
@@ -174,6 +184,13 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
       file = file.Replace('\\', '/');
 
       return file;
+   }
+   private void OnNewEntry(ILogEntry entry)
+   {
+      foreach (ILogSink sink in _sinks)
+         sink.AddEntry(entry);
+
+      NewEntryLogged?.Invoke(this, entry);
    }
    #endregion
 }

@@ -5,11 +5,6 @@ namespace Sain.Shared.Contexts;
 /// </summary>
 public abstract class BaseContextProvider : BaseHasApplicationInit, IContextProvider
 {
-   #region Properties
-   /// <inheritdoc/>
-   public override IReadOnlyCollection<string> DependsOnContexts => [CoreContextKinds.Logging];
-   #endregion
-
    #region Methods
    /// <inheritdoc/>
    public abstract bool TryProvide<T>([MaybeNullWhen(false)] out T context) where T : notnull, IContext;

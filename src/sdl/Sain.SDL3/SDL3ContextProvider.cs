@@ -12,11 +12,6 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
    private IReadOnlyCollection<ISDL3Context> _providedContexts = [];
    #endregion
 
-   #region Properties
-   /// <inheritdoc/>
-   public override IReadOnlyCollection<string> DependsOnContexts => [CoreContextKinds.Logging];
-   #endregion
-
    #region Methods
    /// <inheritdoc/>
    public override bool TryProvide<T>([MaybeNullWhen(false)] out T context)

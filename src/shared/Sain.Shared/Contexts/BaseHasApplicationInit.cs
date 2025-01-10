@@ -36,7 +36,7 @@ public abstract class BaseHasApplicationInit : ObservableBase, IHasApplicationIn
    }
 
    /// <inheritdoc/>
-   public virtual IReadOnlyCollection<string> DependsOnContexts { get; } = [];
+   public virtual IReadOnlyCollection<string> DependsOnContexts => [];
    #endregion
 
    #region Methods

@@ -67,9 +67,7 @@ public interface ILoggingContext : IContext
    /// <param name="file">The source file that the message was logged in.</param>
    /// <param name="line">The line number (inside the source <paramref name="file"/>) that the message was logged on.</param>
    /// <returns>The used logging context.</returns>
-   /// <exception cref="InvalidOperationException">
-   ///   Might be thrown if the logging context is unavailable, or if it has not been initialised yet.
-   /// </exception>
+   /// <exception cref="InvalidOperationException">Might be thrown if the logging context is unavailable.</exception>
    ILoggingContext Log(
       LogSeverity severity,
       string context,

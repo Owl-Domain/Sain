@@ -1,4 +1,3 @@
-
 namespace Sain.Shared.Contexts;
 
 /// <summary>
@@ -9,6 +8,9 @@ public abstract class BaseUnavailableContext : BaseContext
    #region Properties
    /// <inheritdoc/>
    public sealed override bool IsAvailable => false;
+
+   /// <inheritdoc/>
+   public sealed override IReadOnlyCollection<string> DependsOnContexts => [];
    #endregion
 
    #region Constructors

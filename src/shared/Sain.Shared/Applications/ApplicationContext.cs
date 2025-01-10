@@ -5,8 +5,19 @@ namespace Sain.Shared.Applications;
 /// </summary>
 public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
 {
-   #region Fields
-   private readonly List<IHasApplicationInit> _initialisationOrder;
+   #region Nested types
+   [DebuggerDisplay($"{{{nameof(DebuggerDisplay)}(), nq}}")]
+   private sealed class Component(IHasApplicationInit? ApplicationInit)
+   {
+      #region Properties
+      public IHasApplicationInit? ApplicationInit { get; } = ApplicationInit;
+      public List<Component> Dependencies { get; } = [];
+      #endregion
+
+      #region Methods
+      private string DebuggerDisplay() => $"Component: {ApplicationInit?.GetType().Name ?? "EntryPoint"}";
+      #endregion
+   }
    #endregion
 
    #region Properties
@@ -15,6 +26,9 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
 
    /// <inheritdoc/>
    public IReadOnlyCollection<IContext> Contexts { get; }
+
+   /// <inheritdoc/>
+   public IReadOnlyList<IHasApplicationInit> InitialisationOrder { get; }
 
    /// <inheritdoc/>
    public IDispatcherContext Dispatcher { get; }
@@ -48,7 +62,7 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
       Input = InputContextGroup.Create(this);
       Audio = AudioContextGroup.Create(this);
 
-      _initialisationOrder = CalculateInitialisationOrder();
+      InitialisationOrder = CalculateInitialisationOrder();
    }
    #endregion
 
@@ -121,7 +135,7 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
    /// <inheritdoc/>
    protected override void Initialise()
    {
-      foreach (IHasApplicationInit component in _initialisationOrder)
+      foreach (IHasApplicationInit component in InitialisationOrder)
       {
          if (component.IsInitialised is false)
             component.Initialise(Application);
@@ -131,9 +145,9 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
    /// <inheritdoc/>
    protected override void Cleanup()
    {
-      for (int i = _initialisationOrder.Count - 1; i >= 0; i--)
+      for (int i = InitialisationOrder.Count - 1; i >= 0; i--)
       {
-         IHasApplicationInit component = _initialisationOrder[i];
+         IHasApplicationInit component = InitialisationOrder[i];
 
          if (component.IsInitialised)
             component.Cleanup(Application);
@@ -144,10 +158,106 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
    #region Helpers
    private List<IHasApplicationInit> CalculateInitialisationOrder()
    {
-      return [
-         .. ContextProviders,
-         .. Contexts
-      ];
+      List<Component> components = [];
+      HashSet<Component> resolved = [];
+      HashSet<Component> unresolved = [];
+
+      bool TryGetProvider(IContext context, [NotNullWhen(true)] out Component? component)
+      {
+         if (context.Provider is null)
+         {
+            component = default;
+            return false;
+         }
+
+         foreach (Component current in components)
+         {
+            if (current.ApplicationInit == context.Provider)
+            {
+               component = current;
+               return true;
+            }
+         }
+
+         throw new InvalidOperationException($"The context ({context}) specified a context provider ({context.Provider}) that wasn't made available to the application.");
+      }
+      bool TryGetContext(string kind, [NotNullWhen(true)] out Component? component)
+      {
+         foreach (Component current in components)
+         {
+            if (current.ApplicationInit is IContext context && context.Kind == kind)
+            {
+               component = current;
+               return true;
+            }
+         }
+
+         component = default;
+         return false;
+      }
+      void Resolve(Component component)
+      {
+         unresolved.Add(component);
+
+         foreach (Component edge in component.Dependencies)
+         {
+            if (resolved.Contains(edge))
+               continue;
+
+            if (unresolved.Contains(edge))
+               throw new InvalidOperationException($"Circular dependency detected ({component.ApplicationInit}) -> ({edge.ApplicationInit}).");
+
+            Resolve(edge);
+         }
+
+         resolved.Add(component);
+         unresolved.Remove(component);
+      }
+
+      foreach (IContextProvider provider in ContextProviders)
+         components.Add(new(provider));
+
+      foreach (IContext context in Contexts)
+      {
+         // Note(Nightowl): Unavailable contexts cannot have dependencies;
+
+         if (context.IsAvailable)
+            components.Add(new(context));
+      }
+
+      // Note(Nightowl): Make every component depend on the context provider that it comes from;
+      foreach (Component component in components)
+      {
+         if (component.ApplicationInit is IContext context && TryGetProvider(context, out Component? provider))
+            component.Dependencies.Add(provider);
+      }
+
+      // Note(Nightowl): Add the dependencies based on the context kinds;
+      foreach (Component component in components)
+      {
+         Debug.Assert(component.ApplicationInit is not null);
+         foreach (string kind in component.ApplicationInit.DependsOnContexts)
+         {
+            if (TryGetContext(kind, out Component? context))
+               component.Dependencies.Add(context);
+         }
+      }
+
+      // Note(Nightowl): Make a final component that relies on everything;
+      Component final = new(null);
+      foreach (Component component in components)
+         final.Dependencies.Add(component);
+
+      Resolve(final);
+
+      List<IHasApplicationInit> order = [];
+      foreach (Component component in resolved)
+      {
+         if (component.ApplicationInit is not null)
+            order.Add(component.ApplicationInit);
+      }
+
+      return order;
    }
    #endregion
 }

@@ -15,9 +15,6 @@ public abstract class BaseContext(IContextProvider? provider) : BaseHasApplicati
 
    /// <inheritdoc/>
    public virtual bool IsAvailable => true;
-
-   /// <inheritdoc/>
-   public override IReadOnlyCollection<string> DependsOnContexts => [CoreContextKinds.Logging];
    #endregion
 
    #region Helpers
