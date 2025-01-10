@@ -13,7 +13,7 @@ public sealed class DefaultLoggingContext(IContextProvider? provider) : BaseCont
    #endregion
 
    #region Fields
-   private readonly SortedList<int, string> _filePathPrefixes = new(new Comparer());
+   private readonly SortedList<int, ILogPathPrefix> _filePathPrefixes = new(new Comparer());
    private Stopwatch? _watch;
    #endregion
 
@@ -22,7 +22,7 @@ public sealed class DefaultLoggingContext(IContextProvider? provider) : BaseCont
    public override string Kind => CoreContextKinds.Logging;
 
    /// <inheritdoc/>
-   public IReadOnlyList<string> FilePathPrefixes => [.. _filePathPrefixes.Values];
+   public IReadOnlyList<ILogPathPrefix> PathPrefixes => [.. _filePathPrefixes.Values];
    #endregion
 
    #region Events
@@ -37,7 +37,7 @@ public sealed class DefaultLoggingContext(IContextProvider? provider) : BaseCont
       _watch = Stopwatch.StartNew();
       Debug.Assert(_filePathPrefixes.Count is 0);
 
-      AddFilePathPrefix("/home/nightowl/repos/Sain/repo/");
+      AddPathPrefix("/home/nightowl/repos/Sain/repo/", "Sain");
    }
    /// <inheritdoc/>
    protected override void PostCleanup()
@@ -47,15 +47,37 @@ public sealed class DefaultLoggingContext(IContextProvider? provider) : BaseCont
    }
 
    /// <inheritdoc/>
-   public ILoggingContext AddFilePathPrefix(string prefix)
+   public ILoggingContext AddPathPrefix(string prefix, string project)
    {
       prefix = prefix.Replace('\\', '/');
       if (prefix.EndsWith('/') is false)
          prefix += '/';
 
-      _filePathPrefixes.Add(prefix.Length, prefix);
+      LogPathPrefix pathPrefix = new(prefix, project);
+
+      _filePathPrefixes.Add(prefix.Length, pathPrefix);
 
       return this;
+   }
+
+   /// <inheritdoc/>
+   public bool TryGetRelative(string fullPath, [NotNullWhen(true)] out string? relativePath, [NotNullWhen(true)] out ILogPathPrefix? prefix)
+   {
+      foreach (ILogPathPrefix current in _filePathPrefixes.Values)
+      {
+         if (fullPath.StartsWith(current.Prefix))
+         {
+            relativePath = fullPath[current.Prefix.Length..];
+            prefix = current;
+
+            return true;
+         }
+      }
+
+      relativePath = default;
+      prefix = default;
+
+      return false;
    }
 
    /// <inheritdoc/>
@@ -71,7 +93,10 @@ public sealed class DefaultLoggingContext(IContextProvider? provider) : BaseCont
       DateTimeOffset date = DateTimeOffset.Now;
 
       file = GetNormalisedFilePath(file);
-      LogEntry entry = new(date, timestamp, severity, context, message, member, file, line);
+      if (TryGetRelative(file, out string? relativePath, out ILogPathPrefix? prefix))
+         file = relativePath;
+
+      LogEntry entry = new(date, timestamp, severity, context, message, member, file, prefix, line);
       NewEntryLogged?.Invoke(this, entry);
 
       return this;
@@ -83,12 +108,6 @@ public sealed class DefaultLoggingContext(IContextProvider? provider) : BaseCont
          return file;
 
       file = file.Replace('\\', '/');
-
-      foreach (string prefix in _filePathPrefixes.Values)
-      {
-         if (file.StartsWith(prefix))
-            return file[prefix.Length..];
-      }
 
       return file;
    }

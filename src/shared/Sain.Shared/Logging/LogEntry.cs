@@ -10,6 +10,7 @@ namespace Sain.Shared.Logging;
 /// <param name="message">The message of the log entry.</param>
 /// <param name="member">The member (inside the <paramref name="context"/>) that logged the entry.</param>
 /// <param name="file">The source file in which the entry was logged in.</param>
+/// <param name="filePrefix">The (optional) log path prefix that was used to turn the full path of the source file into a relative one.</param>
 /// <param name="line">The line number (inside of the source <paramref name="file"/>) that the entry was logged on.</param>
 public sealed class LogEntry(
    DateTimeOffset date,
@@ -19,6 +20,7 @@ public sealed class LogEntry(
    string message,
    string member,
    string file,
+   ILogPathPrefix? filePrefix,
    int line)
    : ILogEntry
 {
@@ -43,6 +45,9 @@ public sealed class LogEntry(
 
    /// <inheritdoc/>
    public string File { get; } = file;
+
+   /// <inheritdoc/>
+   public ILogPathPrefix? FilePrefix { get; } = filePrefix;
 
    /// <inheritdoc/>
    public int Line { get; } = line;

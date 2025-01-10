@@ -30,6 +30,10 @@ public interface ILogEntry
    /// <remarks>A value of <see cref="string.Empty"/> means no file was specified.</remarks>
    string File { get; }
 
+   /// <summary>The (optional) log path prefix that was used to turn the full path of the source file into a relative one.</summary>
+   /// <remarks>This is related to the <see cref="File"/> property.</remarks>
+   ILogPathPrefix? FilePrefix { get; }
+
    /// <summary>The line number (inside of the source <see cref="File"/>) that the entry was logged on.</summary>
    /// <remarks>A value of <c>0</c> means no line number was specified.</remarks>
    int Line { get; }

@@ -13,8 +13,8 @@ public delegate void LogEntryEventHandler(ILoggingContext context, ILogEntry ent
 public interface ILoggingContext : IContext
 {
    #region Properties
-   /// <summary>The collection of the file path prefixes that are used to turn the source file paths into relative ones.</summary>
-   IReadOnlyList<string> FilePathPrefixes { get; }
+   /// <summary>The collection of the log path prefixes that are used to turn the source file paths into relative ones.</summary>
+   IReadOnlyList<ILogPathPrefix> PathPrefixes { get; }
    #endregion
 
    #region Events
@@ -24,11 +24,19 @@ public interface ILoggingContext : IContext
    #endregion
 
    #region Methods
-   /// <summary>Adds a new file path <paramref name="prefix"/>.</summary>
+   /// <summary>Adds a new log path <paramref name="prefix"/>.</summary>
    /// <param name="prefix">The file path prefix to use when turning the source file paths into relative ones.</param>
+   /// <param name="project">The project that the given <paramref name="prefix"/> belongs to.</param>
    /// <returns>The used logging context.</returns>
    /// <remarks>This path should be the entire path of the project that is before the <c>/src/</c> directory.</remarks>
-   ILoggingContext AddFilePathPrefix(string prefix);
+   ILoggingContext AddPathPrefix(string prefix, string project);
+
+   /// <summary>Tries to get the <paramref name="relativePath"/> from the given <paramref name="fullPath"/>.</summary>
+   /// <param name="fullPath">The full path to get the relative path for.</param>
+   /// <param name="relativePath">The calculated relative path.</param>
+   /// <param name="prefix">The log path prefix that was used to turn the <paramref name="fullPath"/> into the <paramref name="relativePath"/>.</param>
+   /// <returns><see langword="true"/> if the <paramref name="relativePath"/> could be calculated, <see langword="false"/> otherwise.</returns>
+   bool TryGetRelative(string fullPath, [NotNullWhen(true)] out string? relativePath, [NotNullWhen(true)] out ILogPathPrefix? prefix);
 
    /// <summary>Logs a new message in the log.</summary>
    /// <param name="severity">The severity of the log message.</param>
@@ -56,6 +64,18 @@ public interface ILoggingContext : IContext
 /// </summary>
 public static class ILoggingContextExtensions
 {
+   #region General methods
+   /// <summary>Tries to get the <paramref name="relativePath"/> from the given <paramref name="fullPath"/>.</summary>
+   /// <param name="log">The logging context to use.</param>
+   /// <param name="fullPath">The full path to get the relative path for.</param>
+   /// <param name="relativePath">The calculated relative path.</param>
+   /// <returns><see langword="true"/> if the <paramref name="relativePath"/> could be calculated, <see langword="false"/> otherwise.</returns>
+   public static bool TryGetRelative(this ILoggingContext log, string fullPath, [NotNullWhen(true)] out string? relativePath)
+   {
+      return log.TryGetRelative(fullPath, out relativePath, out _);
+   }
+   #endregion
+
    #region Log methods
    /// <summary>Logs a new message in the log with the severity level <see cref="LogSeverity.Fatal"/>.</summary>
    /// <param name="log">The logging context to use.</param>

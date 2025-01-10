@@ -1,4 +1,3 @@
-
 namespace Sain.Shared.Logging;
 
 /// <summary>
@@ -9,9 +8,8 @@ public sealed class UnavailableLoggingContext : BaseUnavailableContext, ILogging
    #region Properties
    /// <inheritdoc/>
    public override string Kind => CoreContextKinds.Logging;
-
    /// <inheritdoc/>
-   public IReadOnlyList<string> FilePathPrefixes => ThrowForUnavailable<IReadOnlyList<string>>();
+   public IReadOnlyList<ILogPathPrefix> PathPrefixes => ThrowForUnavailable<IReadOnlyList<ILogPathPrefix>>();
    #endregion
 
    #region Events
@@ -25,7 +23,24 @@ public sealed class UnavailableLoggingContext : BaseUnavailableContext, ILogging
 
    #region Methods
    /// <inheritdoc/>
-   public ILoggingContext AddFilePathPrefix(string prefix) => ThrowForUnavailable<ILoggingContext>();
+   public ILoggingContext AddPathPrefix(string prefix, string project) => ThrowForUnavailable<ILoggingContext>();
+
+   /// <inheritdoc/>
+   public bool TryGetRelative(string fullPath, [NotNullWhen(true)] out string? relativePath)
+   {
+      relativePath = null;
+
+      return ThrowForUnavailable<bool>();
+   }
+
+   /// <inheritdoc/>
+   public bool TryGetRelative(string fullPath, [NotNullWhen(true)] out string? relativePath, [NotNullWhen(true)] out ILogPathPrefix? prefix)
+   {
+      relativePath = null;
+      prefix = null;
+
+      return ThrowForUnavailable<bool>();
+   }
 
    /// <inheritdoc/>
    public ILoggingContext Log(
@@ -36,8 +51,7 @@ public sealed class UnavailableLoggingContext : BaseUnavailableContext, ILogging
       [CallerFilePath] string file = "",
       [CallerLineNumber] int line = 0)
    {
-      ThrowForUnavailable();
-      return this;
+      return ThrowForUnavailable<ILoggingContext>();
    }
    #endregion
 }
