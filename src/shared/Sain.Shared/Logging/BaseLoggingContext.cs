@@ -24,6 +24,9 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
    public sealed override string Kind => CoreContextKinds.Logging;
 
    /// <inheritdoc/>
+   public override IReadOnlyCollection<string> DependsOnContexts => [];
+
+   /// <inheritdoc/>
    public IReadOnlyList<ILogPathPrefix> PathPrefixes => [.. _filePathPrefixes.Values];
 
    /// <inheritdoc/>
@@ -40,9 +43,9 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
 
    #region Methods
    /// <inheritdoc/>
-   protected override void PreInitialise()
+   protected override void Initialise()
    {
-      base.PreInitialise();
+      base.Initialise();
 
       Debug.Assert(_files.Count is 0);
 
@@ -55,9 +58,9 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
    }
 
    /// <inheritdoc/>
-   protected override void PostCleanup()
+   protected override void Cleanup()
    {
-      base.PostCleanup();
+      base.Cleanup();
 
       foreach (ILogSink sink in _sinks)
          sink.Cleanup();
@@ -100,7 +103,6 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
 
       return false;
    }
-
 
    /// <inheritdoc/>
    public ILoggingContext WithSink(ILogSink sink)

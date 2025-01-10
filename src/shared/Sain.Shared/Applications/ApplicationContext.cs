@@ -5,6 +5,10 @@ namespace Sain.Shared.Applications;
 /// </summary>
 public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
 {
+   #region Fields
+   private readonly List<IHasApplicationInit> _initialisationOrder;
+   #endregion
+
    #region Properties
    /// <inheritdoc/>
    public IReadOnlyCollection<IContextProvider> ContextProviders { get; }
@@ -43,6 +47,8 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
 
       Input = InputContextGroup.Create(this);
       Audio = AudioContextGroup.Create(this);
+
+      _initialisationOrder = CalculateInitialisationOrder();
    }
    #endregion
 
@@ -113,63 +119,35 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
    }
 
    /// <inheritdoc/>
-   protected override void PreInitialise()
-   {
-      foreach (IContextProvider provider in ContextProviders)
-         provider.PreInitialise(Application);
-
-      foreach (IContext context in Contexts)
-         context.PreInitialise(Application);
-   }
-
-   /// <inheritdoc/>
    protected override void Initialise()
    {
-      foreach (IContextProvider provider in ContextProviders)
-         provider.Initialise(Application);
-
-      foreach (IContext context in Contexts)
-         context.Initialise(Application);
-   }
-
-   /// <inheritdoc/>
-   protected override void PostInitialise()
-   {
-      foreach (IContextProvider provider in ContextProviders)
-         provider.PostInitialise(Application);
-
-      foreach (IContext context in Contexts)
-         context.PostInitialise(Application);
-   }
-
-   /// <inheritdoc/>
-   protected override void PreCleanup()
-   {
-      foreach (IContext context in Contexts)
-         context.PreCleanup(Application);
-
-      foreach (IContextProvider provider in ContextProviders)
-         provider.PreCleanup(Application);
+      foreach (IHasApplicationInit component in _initialisationOrder)
+      {
+         if (component.IsInitialised is false)
+            component.Initialise(Application);
+      }
    }
 
    /// <inheritdoc/>
    protected override void Cleanup()
    {
-      foreach (IContext context in Contexts)
-         context.Cleanup(Application);
+      for (int i = _initialisationOrder.Count - 1; i >= 0; i--)
+      {
+         IHasApplicationInit component = _initialisationOrder[i];
 
-      foreach (IContextProvider provider in ContextProviders)
-         provider.Cleanup(Application);
+         if (component.IsInitialised)
+            component.Cleanup(Application);
+      }
    }
+   #endregion
 
-   /// <inheritdoc/>
-   protected override void PostCleanup()
+   #region Helpers
+   private List<IHasApplicationInit> CalculateInitialisationOrder()
    {
-      foreach (IContext context in Contexts)
-         context.PostCleanup(Application);
-
-      foreach (IContextProvider provider in ContextProviders)
-         provider.PostCleanup(Application);
+      return [
+         .. ContextProviders,
+         .. Contexts
+      ];
    }
    #endregion
 }

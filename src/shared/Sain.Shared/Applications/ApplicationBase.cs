@@ -3,7 +3,9 @@ namespace Sain.Shared.Applications;
 /// <summary>
 ///   Represents a base Sain application.
 /// </summary>
-public abstract class ApplicationBase : IApplicationBase
+/// <param name="info">The information about the application.</param>
+/// <param name="context">The context of the application.</param>
+public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext context) : IApplicationBase
 {
    #region Fields
    private volatile bool _shouldBeRunning;
@@ -11,10 +13,10 @@ public abstract class ApplicationBase : IApplicationBase
 
    #region Properties
    /// <inheritdoc/>
-   public IApplicationInfo Info { get; }
+   public IApplicationInfo Info { get; } = info;
 
    /// <inheritdoc/>
-   public IApplicationContext Context { get; }
+   public IApplicationContext Context { get; } = context;
 
    /// <inheritdoc/>
    public ApplicationState State { get; private set; }
@@ -38,17 +40,6 @@ public abstract class ApplicationBase : IApplicationBase
 
    /// <inheritdoc/>
    public event ApplicationEventHandler? Iteration;
-   #endregion
-
-   #region Constructors
-   /// <summary>Initialises the <see cref="ApplicationBase"/> class.</summary>
-   /// <param name="info">The information about the application.</param>
-   /// <param name="context">The context of the application.</param>
-   public ApplicationBase(IApplicationInfo info, IApplicationContext context)
-   {
-      Info = info;
-      Context = context;
-   }
    #endregion
 
    #region Methods
@@ -75,14 +66,19 @@ public abstract class ApplicationBase : IApplicationBase
       State = ApplicationState.Starting;
       RaiseStarting();
 
-      Context.PreInitialise(this);
       if (Context.Logging.IsAvailable)
+         Context.Logging.Initialise(this);
+
+      if (Context.Logging.IsAvailable)
+      {
          LogInitialisationInformation();
+         Context.Logging.Trace<ApplicationBase>($"Application is starting.");
+      }
 
       Context.Initialise(this);
-      if (Context.Logging.IsAvailable) Context.Logging.Trace<ApplicationBase>($"Between {nameof(Context.Initialise)} and {nameof(Context.PostInitialise)} steps.");
-      Context.PostInitialise(this);
-      if (Context.Logging.IsAvailable) Context.Logging.Trace<ApplicationBase>($"Application started (after {nameof(Context.PostInitialise)}).");
+
+      if (Context.Logging.IsAvailable)
+         Context.Logging.Trace<ApplicationBase>($"Application started.");
 
       State = ApplicationState.Running;
       RaiseStarted();
@@ -92,7 +88,6 @@ public abstract class ApplicationBase : IApplicationBase
       Debug.Assert(Context.Logging.IsAvailable);
 
       Context.Logging.Info<ApplicationBase>($"Running application Id = ({Info.Id}), Name = ({Info.Name}), Version = ({Info.Version.DisplayName}).");
-      Context.Logging.Trace<ApplicationBase>($"Between {nameof(Context.PreInitialise)} and {nameof(Context.Initialise)} steps.");
 
       foreach (IContextProvider provider in Context.ContextProviders)
       {
@@ -150,19 +145,12 @@ public abstract class ApplicationBase : IApplicationBase
       try
       {
          if (Context.Logging.IsAvailable)
-            Context.Logging.Trace<ApplicationBase>($"Application stopped (before {nameof(Context.PreCleanup)}).");
-
-         Context.PreCleanup(this);
-
-         if (Context.Logging.IsAvailable)
-            Context.Logging.Trace<ApplicationBase>($"Between {nameof(Context.PreCleanup)} and {nameof(Context.Cleanup)} steps.");
+            Context.Logging.Trace<ApplicationBase>($"Application stopping.");
 
          Context.Cleanup(this);
 
          if (Context.Logging.IsAvailable)
-            Context.Logging.Trace<ApplicationBase>($"Between {nameof(Context.Cleanup)} and {nameof(Context.PostCleanup)} steps.");
-
-         Context.PostCleanup(this);
+            Context.Logging.Trace<ApplicationBase>($"Application stopped.");
       }
       finally
       {

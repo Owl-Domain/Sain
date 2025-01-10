@@ -12,17 +12,17 @@ public sealed class DefaultLoggingContext(IContextProvider? provider) : BaseLogg
 
    #region Methods
    /// <inheritdoc/>
-   protected override void PreInitialise()
+   protected override void Initialise()
    {
-      base.PreInitialise();
+      base.Initialise();
 
       _watch = Stopwatch.StartNew();
    }
 
    /// <inheritdoc/>
-   protected override void PostCleanup()
+   protected override void Cleanup()
    {
-      base.PostCleanup();
+      base.Cleanup();
 
       _watch = null;
    }

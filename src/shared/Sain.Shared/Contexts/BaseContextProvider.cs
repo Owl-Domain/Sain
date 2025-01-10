@@ -5,17 +5,19 @@ namespace Sain.Shared.Contexts;
 /// </summary>
 public abstract class BaseContextProvider : BaseHasApplicationInit, IContextProvider
 {
+   #region Properties
+   /// <inheritdoc/>
+   public override IReadOnlyCollection<string> DependsOnContexts => [CoreContextKinds.Logging];
+   #endregion
+
    #region Methods
    /// <inheritdoc/>
    public abstract bool TryProvide<T>([MaybeNullWhen(false)] out T context) where T : notnull, IContext;
 
    /// <summary>Enumerate through the contexts that the current provider has provided to the application.</summary>
    /// <returns>An enumerated through the contexts provided to the application.</returns>
-   /// <exception cref="InvalidOperationException">Thrown if the context provider has not been initialised yet.</exception>
    protected IEnumerable<IContext> EnumerateProvidedContexts()
    {
-      ThrowIfNotInitialised();
-
       foreach (IContext context in Context.Contexts)
       {
          if (context.Provider == this)
@@ -26,11 +28,8 @@ public abstract class BaseContextProvider : BaseHasApplicationInit, IContextProv
    /// <summary>Enumerate through the contexts that the current provider has provided to the application.</summary>
    /// <typeparam name="T">The type of the contexts to enumerate through.</typeparam>
    /// <returns>An enumerated through the contexts provided to the application.</returns>
-   /// <exception cref="InvalidOperationException">Thrown if the context provider has not been initialised yet.</exception>
    protected IEnumerable<T> EnumerateProvidedContexts<T>() where T : IContext
    {
-      ThrowIfNotInitialised();
-
       foreach (IContext context in Context.Contexts)
       {
          if (context is T typed && typed.Provider == this)
@@ -40,13 +39,11 @@ public abstract class BaseContextProvider : BaseHasApplicationInit, IContextProv
 
    /// <summary>Gets a collection of the contexts that the current provider has provided to the application.</summary>
    /// <returns>A collection of the contexts provided to the application.</returns>
-   /// <exception cref="InvalidOperationException">Thrown if the context provider has not been initialised yet.</exception>
    protected IReadOnlyCollection<IContext> GetProvidedContexts() => [.. EnumerateProvidedContexts()];
 
    /// <summary>Gets a collection of the contexts that the current provider has provided to the application.</summary>
    /// <typeparam name="T">The type of the contexts to retrieve.</typeparam>
    /// <returns>A collection of the contexts provided to the application.</returns>
-   /// <exception cref="InvalidOperationException">Thrown if the context provider has not been initialised yet.</exception>
    protected IReadOnlyCollection<T> GetProvidedContexts<T>() where T : IContext
    {
       return [.. EnumerateProvidedContexts<T>()];

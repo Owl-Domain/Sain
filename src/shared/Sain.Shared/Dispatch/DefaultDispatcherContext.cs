@@ -81,9 +81,9 @@ public sealed class DefaultDispatcherContext(IContextProvider? provider) : BaseD
 
    #region Methods
    /// <inheritdoc/>
-   protected override void PreInitialise()
+   protected override void Initialise()
    {
-      base.PreInitialise();
+      base.Initialise();
 
       _shouldBackgroundThreadsRun = true;
 
@@ -122,7 +122,7 @@ public sealed class DefaultDispatcherContext(IContextProvider? provider) : BaseD
    }
 
    /// <inheritdoc/>
-   protected override void PostCleanup()
+   protected override void Cleanup()
    {
       _queues.Clear();
       _queueCount = 0;
@@ -138,7 +138,7 @@ public sealed class DefaultDispatcherContext(IContextProvider? provider) : BaseD
       _backgroundThreads.Clear();
       _backgroundQueueCount = 0;
 
-      base.PostCleanup();
+      base.Cleanup();
    }
 
    /// <inheritdoc/>
