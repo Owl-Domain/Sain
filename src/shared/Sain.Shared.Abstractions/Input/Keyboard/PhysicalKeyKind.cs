@@ -1,5 +1,7 @@
 namespace Sain.Shared.Input.Keyboard;
 
+// Todo(Nightowl): Lock enum values upon release;
+
 /// <summary>
 ///   Represents the different known physical locations of keyboard buttons.
 /// </summary>

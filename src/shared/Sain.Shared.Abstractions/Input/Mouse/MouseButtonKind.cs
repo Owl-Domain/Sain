@@ -1,5 +1,7 @@
 namespace Sain.Shared.Input.Mouse;
 
+// Todo(Nightowl): Lock enum values upon release;
+
 /// <summary>
 ///   Represents the different known mouse buttons.
 /// </summary>
