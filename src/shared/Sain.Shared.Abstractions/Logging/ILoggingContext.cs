@@ -18,6 +18,9 @@ public interface ILoggingContext : IContext
 
    /// <summary>The sinks that have been attached to the logging context.</summary>
    IReadOnlyList<ILogSink> Sinks { get; }
+
+   /// <summary>The collection of paths to the files that have been attached to the current log.</summary>
+   IReadOnlyList<string> Files { get; }
    #endregion
 
    #region Events
@@ -32,12 +35,22 @@ public interface ILoggingContext : IContext
    /// <param name="project">The project that the given <paramref name="prefix"/> belongs to.</param>
    /// <returns>The used logging context.</returns>
    /// <remarks>This path should be the entire path of the project that is before the <c>/src/</c> directory.</remarks>
+   /// <exception cref="InvalidOperationException">Might be thrown if the logging context is unavailable.</exception>
    ILoggingContext WithPathPrefix(string prefix, string project);
 
    /// <summary>Attaches the given log <paramref name="sink"/> to the logging context.</summary>
    /// <param name="sink">The log sink to attach.</param>
    /// <returns>The used logging context.</returns>
+   /// <exception cref="InvalidOperationException">Might be thrown if the logging context is unavailable.</exception>
    ILoggingContext WithSink(ILogSink sink);
+
+   /// <summary>Attaches the file at the given file <paramref name="path"/> to the current log.</summary>
+   /// <param name="path">The path of the file to attach to the log.</param>
+   /// <returns>The used logging context.</returns>
+   /// <exception cref="InvalidOperationException">
+   ///   Might be thrown if the logging context is unavailable, or if it has not been initialised yet.
+   /// </exception>
+   ILoggingContext WithFile(string path);
 
    /// <summary>Tries to get the <paramref name="relativePath"/> from the given <paramref name="fullPath"/>.</summary>
    /// <param name="fullPath">The full path to get the relative path for.</param>
@@ -88,6 +101,7 @@ public static class ILoggingContextExtensions
    /// <param name="sink">The log sink to attach.</param>
    /// <param name="customise">The (optional) callback that can be used to customise the given <paramref name="sink"/>.</param>
    /// <returns>The used logging context.</returns>
+   /// <exception cref="InvalidOperationException">Might be thrown if the logging context is unavailable.</exception>
    public static ILoggingContext WithSink(this ILoggingContext context, ILogSink sink, Action<ILogSink> customise)
    {
       customise.Invoke(sink);
@@ -99,6 +113,7 @@ public static class ILoggingContextExtensions
    /// <param name="context">The logging context to use.</param>
    /// <param name="customise">The (optional) callback that can be used to customise the created sink.</param>
    /// <returns>The used logging context.</returns>
+   /// <exception cref="InvalidOperationException">Might be thrown if the logging context is unavailable.</exception>
    public static ILoggingContext WithSink<T>(this ILoggingContext context, Action<T>? customise = null)
       where T : ILogSink, new()
    {

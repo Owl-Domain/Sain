@@ -14,8 +14,12 @@ public interface ILogSink
    /// <summary>Cleans up the sink.</summary>
    void Cleanup();
 
-   /// <summary>Adds the given log <paramref name="entry"/> to the sink.</summary>
-   /// <param name="entry">The log entry to add to the sink.</param>
+   /// <summary>Adds the given log <paramref name="entry"/> to the log sink.</summary>
+   /// <param name="entry">The log entry to add to the log sink.</param>
    void AddEntry(ILogEntry entry);
+
+   /// <summary>Adds the file at the given file <paramref name="path"/> to the log sink.</summary>
+   /// <param name="path">The path of the file to add to the log sink.</param>
+   void AddFile(string path);
    #endregion
 }

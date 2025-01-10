@@ -14,6 +14,9 @@ public sealed class UnavailableLoggingContext : BaseUnavailableContext, ILogging
 
    /// <inheritdoc/>
    public IReadOnlyList<ILogSink> Sinks => ThrowForUnavailable<IReadOnlyList<ILogSink>>();
+
+   /// <inheritdoc/>
+   public IReadOnlyList<string> Files => ThrowForUnavailable<IReadOnlyList<string>>();
    #endregion
 
    #region Events
@@ -40,6 +43,9 @@ public sealed class UnavailableLoggingContext : BaseUnavailableContext, ILogging
 
    /// <inheritdoc/>
    public ILoggingContext WithSink(ILogSink sink) => ThrowForUnavailable<ILoggingContext>();
+
+   /// <inheritdoc/>
+   public ILoggingContext WithFile(string path) => ThrowForUnavailable<ILoggingContext>();
 
    /// <inheritdoc/>
    public ILoggingContext Log(

@@ -16,6 +16,7 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
    #region Fields
    private readonly SortedList<int, ILogPathPrefix> _filePathPrefixes = new(new Comparer());
    private readonly List<ILogSink> _sinks = [];
+   private readonly List<string> _files = [];
    #endregion
 
    #region Properties
@@ -27,6 +28,9 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
 
    /// <inheritdoc/>
    public IReadOnlyList<ILogSink> Sinks => _sinks;
+
+   /// <inheritdoc/>
+   public IReadOnlyList<string> Files => _files;
    #endregion
 
    #region Events
@@ -39,6 +43,8 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
    protected override void PreInitialise()
    {
       base.PreInitialise();
+
+      Debug.Assert(_files.Count is 0);
 
       WithPathPrefix("/home/nightowl/repos/Sain/repo/", "Sain");
 
@@ -53,12 +59,12 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
    {
       base.PostCleanup();
 
-      _filePathPrefixes.Clear();
-
       foreach (ILogSink sink in _sinks)
          sink.Cleanup();
 
+      _filePathPrefixes.Clear();
       _sinks.Clear();
+      _files.Clear();
    }
 
    /// <inheritdoc/>
@@ -95,10 +101,24 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
       return false;
    }
 
+
    /// <inheritdoc/>
    public ILoggingContext WithSink(ILogSink sink)
    {
       _sinks.Add(sink);
+
+      return this;
+   }
+
+   /// <inheritdoc/>
+   public ILoggingContext WithFile(string path)
+   {
+      ThrowIfNotInitialised();
+
+      _files.Add(path);
+
+      foreach (ILogSink sink in _sinks)
+         sink.AddFile(path);
 
       return this;
    }
