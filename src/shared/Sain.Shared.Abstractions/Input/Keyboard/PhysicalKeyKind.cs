@@ -804,6 +804,17 @@ public enum PhysicalKeyKind : ushort
    /// <summary>The Alt Gr modifier key on the keyboard.</summary>
    /// <remarks><i>I think...</i></remarks>
    AltGr,
+
+   /// <summary>The Caps Lock key on the keyboard.</summary>
+   /// <remarks>
+   ///   Aka the annoying button I never use seriously and just like to spam when I'm thinking.
+   ///   Almost like clicking a physical pen...
+   /// </remarks>
+   CapsLock,
+
+   /// <summary>The Scroll Lock key on the keyboard.</summary>
+   /// <remarks>I still haven't figured out what this key is actually used for.</remarks>
+   ScrollLock,
    #endregion
 
    #region Mobile keys
@@ -840,20 +851,9 @@ public enum PhysicalKeyKind : ushort
    /// <remarks>This is the spacebar.</remarks>
    Space,
 
-   /// <summary>The Caps Lock key on the keyboard.</summary>
-   /// <remarks>
-   ///   Aka the annoying button I never use seriously and just like to spam when I'm thinking.
-   ///   Almost like clicking a physical pen...
-   /// </remarks>
-   CapsLock,
-
    /// <summary>The Print Screen key on the keyboard.</summary>
    /// <remarks>The key you press when you want to take a screenshot of your screen.</remarks>
    PrintScreen,
-
-   /// <summary>The Scroll Lock key on the keyboard.</summary>
-   /// <remarks>I still haven't figured out what this key is actually used for.</remarks>
-   ScrollLock,
 
    /// <summary>The pause / break key on the keyboard.</summary>
    /// <remarks>I also haven't figured out what this key is actually used for, maybe it pauses or breaks the universe.</remarks>

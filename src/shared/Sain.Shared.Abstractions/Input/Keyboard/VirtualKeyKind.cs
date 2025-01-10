@@ -137,11 +137,11 @@ public enum VirtualKeyKind : ushort
    /// <remarks>This is typically next to the numbers on the top row of the keyboard.</remarks>
    Equals,
 
-   /// <summary>The left bracket <c>(</c> key.</summary>
-   LeftBracket,
+   /// <summary>The left bracket <c>{</c> key.</summary>
+   LeftBrace,
 
-   /// <summary>The right bracket <c>)</c> key.</summary>
-   RightBracket,
+   /// <summary>The right bracket <c>}</c> key.</summary>
+   RightBrace,
 
    /// <summary>The backslash <c>\</c> key.</summary>
    Backslash,
@@ -377,10 +377,10 @@ public enum VirtualKeyKind : ushort
    /// <summary>The right bracket ')' key on the keypad.</summary>
    KeypadRightBracket,
 
-   /// <summary>The left (opening?) brace key on the keypad.</summary>
+   /// <summary>The left brace '}' key on the keypad.</summary>
    KeypadLeftBrace,
 
-   /// <summary>The right (closing?) brace key on the keypad.</summary>
+   /// <summary>The right '}' brace key on the keypad.</summary>
    KeypadRightBrace,
 
    /// <summary>The tab key on the keypad.</summary>
@@ -492,82 +492,82 @@ public enum VirtualKeyKind : ushort
    KeypadHexadecimal,
    #endregion
 
-   #region Office keys
-   /// <summary>The (office) help key.</summary>
+   #region Application keys
+   /// <summary>The application help key.</summary>
    /// <remarks>Damn, didn't know there was a button dedicated to it.</remarks>
-   OfficeHelp,
+   ApplicationHelp,
 
-   /// <summary>The (office) menu key.</summary>
+   /// <summary>The application menu key.</summary>
    /// <remarks>This sounds like <see cref="Context"/>,
    /// but apparently it's different?</remarks>
-   OfficeMenu,
+   ApplicationMenu,
 
-   /// <summary>The (office) select key.</summary>
-   OfficeSelect,
+   /// <summary>The application select key.</summary>
+   ApplicationSelect,
 
-   /// <summary>The (office) stop key.</summary>
-   OfficeStop,
+   /// <summary>The application stop key.</summary>
+   ApplicationStop,
 
-   /// <summary>The (office) again key.</summary>
-   OfficeAgain,
+   /// <summary>The application again key.</summary>
+   ApplicationAgain,
 
-   /// <summary>The (office) undo key.</summary>
-   OfficeUndo,
+   /// <summary>The application undo key.</summary>
+   ApplicationUndo,
 
-   /// <summary>The (office) cut key.</summary>
-   OfficeCut,
+   /// <summary>The application cut key.</summary>
+   ApplicationCut,
 
-   /// <summary>The (office) copy key.</summary>
-   OfficeCopy,
+   /// <summary>The application copy key.</summary>
+   ApplicationCopy,
 
-   /// <summary>The (office) paste key.</summary>
-   OfficePaste,
+   /// <summary>The application paste key.</summary>
+   ApplicationPaste,
 
-   /// <summary>The (office) find key.</summary>
-   OfficeFind,
+   /// <summary>The application find key.</summary>
+   ApplicationFind,
 
-   /// <summary>The (office) new key.</summary>
-   OfficeNew,
+   /// <summary>The application new key.</summary>
+   ApplicationNew,
 
-   /// <summary>The (office) open key.</summary>
-   OfficeOpen,
+   /// <summary>The application open key.</summary>
+   ApplicationOpen,
 
-   /// <summary>The (office) close key.</summary>
-   OfficeClose,
+   /// <summary>The application close key.</summary>
+   ApplicationClose,
 
-   /// <summary>The (office) exit key.</summary>
-   OfficeExit,
+   /// <summary>The application exit key.</summary>
+   ApplicationExit,
 
-   /// <summary>The (office) save key.</summary>
-   OfficeSave,
+   /// <summary>The application save key.</summary>
+   ApplicationSave,
 
-   /// <summary>The (office) print key.</summary>
-   OfficePrint,
+   /// <summary>The application print key.</summary>
+   ApplicationPrint,
 
-   /// <summary>The (office) properties key.</summary>
-   OfficeProperties,
+   /// <summary>The application properties key.</summary>
+   ApplicationProperties,
 
-   /// <summary>The (office) search key.</summary>
-   OfficeSearch,
+   /// <summary>The application search key.</summary>
+   ApplicationSearch,
 
-   /// <summary>The (office) home key.</summary>
-   OfficeHome,
+   /// <summary>The application home key.</summary>
+   ApplicationHome,
 
-   /// <summary>The (office) back key.</summary>
-   OfficeBack,
+   /// <summary>The application back key.</summary>
+   ApplicationBack,
 
-   /// <summary>The (office) forward key.</summary>
-   OfficeForward,
+   /// <summary>The application forward key.</summary>
+   ApplicationForward,
 
-   /// <summary>The (office) stop key.</summary>
+   /// <summary>The application stop key.</summary>
    /// <remarks>Why are there 2?</remarks>
-   OfficeStop2,
+   ApplicationStop2,
 
-   /// <summary>The (office) refresh key.</summary>
-   OfficeRefresh,
+   /// <summary>The application refresh key.</summary>
+   ApplicationRefresh,
 
-   /// <summary>The (office) bookmarks key.</summary>
-   OfficeBookmarks,
+   /// <summary>The application bookmarks key.</summary>
+   ApplicationBookmarks,
    #endregion
 
    #region Media keys
@@ -710,6 +710,17 @@ public enum VirtualKeyKind : ushort
    /// <summary>The Alt Gr modifier key.</summary>
    /// <remarks><i>I think...</i></remarks>
    AltGr,
+
+   /// <summary>The Caps Lock key.</summary>
+   /// <remarks>
+   ///   Aka the annoying button I never use seriously and just like to spam when I'm thinking.
+   ///   Almost like clicking a physical pen...
+   /// </remarks>
+   CapsLock,
+
+   /// <summary>The Scroll Lock key.</summary>
+   /// <remarks>I still haven't figured out what this key is actually used for.</remarks>
+   ScrollLock,
    #endregion
 
    #region Mobile keys
@@ -728,6 +739,7 @@ public enum VirtualKeyKind : ushort
    EndCall,
    #endregion
 
+   #region Special keys
    /// <summary>The return key.</summary>
    /// <remarks>This is the enter key.</remarks>
    Return,
@@ -745,20 +757,9 @@ public enum VirtualKeyKind : ushort
    /// <remarks>This is the spacebar.</remarks>
    Space,
 
-   /// <summary>The Caps Lock key.</summary>
-   /// <remarks>
-   ///   Aka the annoying button I never use seriously and just like to spam when I'm thinking.
-   ///   Almost like clicking a physical pen...
-   /// </remarks>
-   CapsLock,
-
    /// <summary>The Print Screen key.</summary>
    /// <remarks>The key you press when you want to take a screenshot of your screen.</remarks>
    PrintScreen,
-
-   /// <summary>The Scroll Lock key.</summary>
-   /// <remarks>I still haven't figured out what this key is actually used for.</remarks>
-   ScrollLock,
 
    /// <summary>The pause / break key.</summary>
    /// <remarks>I also haven't figured out what this key is actually used for, maybe it pauses or breaks the universe.</remarks>
@@ -794,6 +795,7 @@ public enum VirtualKeyKind : ushort
    /// <summary>The execute key.</summary>
    /// <remarks>What does it execute...?</remarks>
    Execute,
+   #endregion
 }
 
 /// <summary>
