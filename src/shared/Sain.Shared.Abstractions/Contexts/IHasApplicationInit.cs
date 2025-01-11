@@ -6,7 +6,10 @@ namespace Sain.Shared.Contexts;
 public interface IHasApplicationInit
 {
    #region Properties
-   /// <summary>Whether the component has been initialised in any way.</summary>
+   /// <summary>Whether the component is attached to an application.</summary>
+   bool IsAttached { get; }
+
+   /// <summary>Whether the component has been initialised.</summary>
    bool IsInitialised { get; }
 
    /// <summary>The collection of the contexts that the application component relies on for initialisation.</summary>
@@ -14,14 +17,21 @@ public interface IHasApplicationInit
    #endregion
 
    #region Methods
+   /// <summary>Attaches the component to the given <paramref name="application"/>.</summary>
+   /// <param name="application">The application to attach to.</param>
+   /// <exception cref="InvalidOperationException">Thrown if the component has already been initialise.</exception>
+   void Attach(IApplicationBase application);
+
    /// <summary>Initialises the component.</summary>
-   /// <param name="application">The application that the component will belong to.</param>
-   /// <exception cref="ArgumentException">Thrown if the component has already been initialised for a different application.</exception>
-   void Initialise(IApplicationBase application);
+   void Initialise();
 
    /// <summary>Cleans up the component.</summary>
-   /// <param name="application">The application that the component will belong to.</param>
-   /// <exception cref="ArgumentException">Thrown if the component has been initialised for a different application than the given one.</exception>
-   void Cleanup(IApplicationBase application);
+   void Cleanup();
+
+   /// <summary>Detaches the component from the application it was attached to.</summary>
+   /// <exception cref="InvalidOperationException">
+   ///   Thrown if the component hasn't been attached to an application yet, or if it hasn't been cleaned up.
+   /// </exception>
+   void Detach();
    #endregion
 }

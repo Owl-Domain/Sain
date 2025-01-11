@@ -41,7 +41,7 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
    }
 
    /// <inheritdoc/>
-   protected override void Initialise()
+   protected override void OnInitialise()
    {
       _providedContexts = GetProvidedContexts<ISDL3Context>();
 
@@ -100,7 +100,7 @@ public unsafe class SDL3ContextProvider : BaseContextProvider
    }
 
    /// <inheritdoc/>
-   protected override void Cleanup()
+   protected override void OnCleanup()
    {
       try
       {

@@ -28,7 +28,7 @@ public sealed class SDL3KeyboardInputContext(IContextProvider? provider) : BaseK
 
    #region Methods
    /// <inheritdoc/>
-   protected override void Initialise()
+   protected override void OnInitialise()
    {
       SetupKeys();
       RefreshDevices();
@@ -51,7 +51,7 @@ public sealed class SDL3KeyboardInputContext(IContextProvider? provider) : BaseK
    }
 
    /// <inheritdoc/>
-   protected override void Cleanup()
+   protected override void OnCleanup()
    {
       _devices.Clear();
       _deviceLookup.Clear();

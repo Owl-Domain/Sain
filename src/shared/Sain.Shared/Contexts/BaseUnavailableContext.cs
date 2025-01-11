@@ -20,9 +20,9 @@ public abstract class BaseUnavailableContext : BaseContext
 
    #region Methods
    /// <inheritdoc/>
-   protected sealed override void Initialise() { }
+   protected sealed override void OnInitialise() { }
 
    /// <inheritdoc/>
-   protected sealed override void Cleanup() { }
+   protected sealed override void OnCleanup() { }
    #endregion
 }

@@ -15,90 +15,111 @@ public abstract class BaseHasApplicationInit : ObservableBase, IHasApplicationIn
    #endregion
 
    #region Properties
-   /// <inheritdoc/>
-   public bool IsInitialised { get; private set; }
-
    /// <summary>The application that the component belongs to.</summary>
-   /// <exception cref="InvalidOperationException">Thrown if the property is accessed when the component has not been initialised.</exception>
+   /// <exception cref="InvalidOperationException">Thrown if the property is accessed when the component has not been attached to an application.</exception>
    [NotNull]
    protected IApplicationBase? Application
    {
-      get => _application ?? throw new InvalidOperationException($"The {GetName()} doesn't belong to an application yet, wait for it to be initialised.");
-      private set => _application = value;
+      get => _application ?? throw new InvalidOperationException($"The ({GetName()}) component hasn't been attached to an application yet.");
    }
 
    /// <summary>The context of the application that the component belongs to.</summary>
-   /// <exception cref="InvalidOperationException">Thrown if the property is accessed when the component has not been initialised.</exception>
+   /// <exception cref="InvalidOperationException">Thrown if the property is accessed when the component has not been attached to an application.</exception>
    [NotNull]
    protected IApplicationContext? Context
    {
-      get => _application?.Context ?? throw new InvalidOperationException($"The {GetName()} doesn't belong to an application yet, wait for it to be initialised.");
+      get => _application?.Context ?? throw new InvalidOperationException($"The ({GetName()}) component hasn't been attached to an application yet.");
    }
+
+   /// <inheritdoc/>
+   public bool IsAttached => _application is not null;
+
+   /// <inheritdoc/>
+   public bool IsInitialised { get; private set; }
 
    /// <inheritdoc/>
    public virtual IReadOnlyCollection<string> DependsOnContexts => [];
    #endregion
 
    #region Methods
+   /// <inheritdoc/>
+   public void Attach(IApplicationBase application)
+   {
+      lock (_initLock)
+      {
+         if (_application is not null)
+            throw new InvalidOperationException($"The ({GetName()}) component has already been attached to an application.");
+
+         _application = application;
+         OnAttach();
+      }
+   }
+
+   /// <summary>Called when the component has been attached to an application.</summary>
+   protected virtual void OnAttach() { }
 
    /// <inheritdoc/>
-   public void Initialise(IApplicationBase application)
+   public void Initialise()
    {
       lock (_initLock)
       {
          if (IsInitialised)
-         {
-            if (_application != application)
-               throw new ArgumentException($"The {GetName()} has already been initialised for a different application.", nameof(application));
+            throw new InvalidOperationException($"The ({GetName()}) component has already been initialised.");
 
-            return;
-         }
-
-         Application = application;
-
-         try
-         {
-            Initialise();
-            IsInitialised = true;
-         }
-         catch
-         {
-            Application = null;
-            throw;
-         }
+         OnInitialise();
+         IsInitialised = true;
       }
    }
-   /// <summary>Initialises the component.</summary>
-   protected virtual void Initialise() { }
+
+   /// <summary>Called when the component is initialised.</summary>
+   protected virtual void OnInitialise() { }
 
    /// <inheritdoc/>
-   public void Cleanup(IApplicationBase application)
+   public void Cleanup()
    {
       lock (_initLock)
       {
          if (IsInitialised is false)
-         {
-            if (_application != application)
-               throw new ArgumentException($"The {GetName()} has already been cleaned up for a different application.", nameof(application));
-
-            return;
-         }
-
-         IsInitialised = false;
+            throw new InvalidOperationException($"The ({GetName()}) component hasn't been initialised yet.");
 
          try
          {
-            Cleanup();
+            OnCleanup();
          }
          finally
          {
-            Application = null;
+            IsInitialised = false;
          }
       }
    }
 
-   /// <summary>Cleans up the component.</summary>
-   protected virtual void Cleanup() { }
+   /// <summary>Called when the component is cleaned up.</summary>
+   protected virtual void OnCleanup() { }
+
+   /// <inheritdoc/>
+   public void Detach()
+   {
+      lock (_initLock)
+      {
+         if (_application is null)
+            throw new InvalidOperationException($"The ({GetName()}) component hasn't been attached to an application yet.");
+
+         if (IsInitialised)
+            throw new InvalidOperationException($"The ({GetName()}) component must before cleaned up before it can be detached from the application.");
+
+         try
+         {
+            OnDetach();
+         }
+         finally
+         {
+            _application = null;
+         }
+      }
+   }
+
+   /// <summary>Called when the component has been detached from the application.</summary>
+   protected virtual void OnDetach() { }
    #endregion
 
    #region Helpers

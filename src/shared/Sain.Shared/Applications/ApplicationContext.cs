@@ -137,25 +137,42 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
    }
 
    /// <inheritdoc/>
-   protected override void Initialise()
+   protected override void OnAttach()
    {
+      // Note(Nightowl):
+      // Attachment order doesn't matter, but we already have a list
+      // of both contexts and providers so might as well use it;
+
       foreach (IHasApplicationInit component in InitialisationOrder)
-      {
-         if (component.IsInitialised is false)
-            component.Initialise(Application);
-      }
+         component.Attach(Application);
    }
 
    /// <inheritdoc/>
-   protected override void Cleanup()
+   protected override void OnInitialise()
+   {
+      foreach (IHasApplicationInit component in InitialisationOrder)
+         component.Initialise();
+   }
+
+   /// <inheritdoc/>
+   protected override void OnCleanup()
    {
       for (int i = InitialisationOrder.Count - 1; i >= 0; i--)
       {
          IHasApplicationInit component = InitialisationOrder[i];
-
-         if (component.IsInitialised)
-            component.Cleanup(Application);
+         component.Cleanup();
       }
+   }
+
+   /// <inheritdoc/>
+   protected override void OnDetach()
+   {
+      // Note(Nightowl):
+      // Detachment order doesn't matter, but we already have a list
+      // of both contexts and providers so might as well use it;
+
+      foreach (IHasApplicationInit component in InitialisationOrder)
+         component.Detach();
    }
    #endregion
 

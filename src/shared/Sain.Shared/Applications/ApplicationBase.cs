@@ -57,15 +57,43 @@ public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext
 
       _shouldBeRunning = true;
       _uptimeWatch.Restart();
+
       try
       {
+         Context.Attach(this);
+
          Initialise();
          MainLoop();
-         Cleanup();
+      }
+      finally
+      {
+         GracefulCleanup();
+      }
+   }
+   private void GracefulCleanup()
+   {
+      try
+      {
+         if (Context.IsInitialised)
+            Cleanup();
+      }
+      finally
+      {
+         GracefulDetach();
+      }
+   }
+   private void GracefulDetach()
+   {
+      try
+      {
+         if (Context.IsAttached)
+            Context.Detach();
       }
       finally
       {
          _uptimeWatch.Stop();
+         _shouldBeRunning = false;
+         State = ApplicationState.Stopped;
       }
    }
 
@@ -86,7 +114,7 @@ public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext
          Context.Logging.Trace<ApplicationBase>($"Application is starting.");
       }
 
-      Context.Initialise(this);
+      Context.Initialise();
 
       if (Context.Logging.IsAvailable)
          Context.Logging.Trace<ApplicationBase>($"Application started.");
@@ -137,7 +165,7 @@ public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext
          if (Context.Logging.IsAvailable)
             Context.Logging.Trace<ApplicationBase>($"Cleaning up application.");
 
-         Context.Cleanup(this);
+         Context.Cleanup();
       }
       finally
       {

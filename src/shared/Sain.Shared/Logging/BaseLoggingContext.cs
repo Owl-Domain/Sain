@@ -45,9 +45,9 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
 
    #region Methods
    /// <inheritdoc/>
-   protected override void Initialise()
+   protected override void OnInitialise()
    {
-      base.Initialise();
+      base.OnInitialise();
 
       Debug.Assert(_files.Count is 0);
 
@@ -69,9 +69,9 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
    }
 
    /// <inheritdoc/>
-   protected override void Cleanup()
+   protected override void OnCleanup()
    {
-      base.Cleanup();
+      base.OnCleanup();
       Debug.Assert(_preInitEntries.Count is 0);
 
       foreach (ILogSink sink in _sinks)

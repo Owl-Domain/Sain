@@ -23,14 +23,14 @@ public unsafe sealed class SDL3DesktopWindowingContext(IContextProvider? provide
 
    #region Methods
    /// <inheritdoc/>
-   protected override void Initialise()
+   protected override void OnInitialise()
    {
       Debug.Assert(_windows.Count is 0);
       Debug.Assert(_idLookup.Count is 0);
    }
 
    /// <inheritdoc/>
-   protected override void Cleanup()
+   protected override void OnCleanup()
    {
       _idLookup.Clear();
       _windows.Clear();

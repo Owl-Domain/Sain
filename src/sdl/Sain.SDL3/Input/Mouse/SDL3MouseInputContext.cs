@@ -77,7 +77,7 @@ public sealed class SDL3MouseInputContext(IContextProvider? provider) : BaseMous
 
    #region Methods
    /// <inheritdoc/>
-   protected override void Initialise()
+   protected override void OnInitialise()
    {
       Debug.Assert(_buttons.Count is 0);
 
@@ -91,7 +91,7 @@ public sealed class SDL3MouseInputContext(IContextProvider? provider) : BaseMous
    }
 
    /// <inheritdoc/>
-   protected override void Cleanup()
+   protected override void OnCleanup()
    {
       _devices.Clear();
       _deviceLookup.Clear();

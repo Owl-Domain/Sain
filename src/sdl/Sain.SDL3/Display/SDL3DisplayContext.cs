@@ -21,14 +21,14 @@ public unsafe sealed class SDL3DisplayContext(IContextProvider? provider) : Base
 
    #region Methods
    /// <inheritdoc/>
-   protected override void Initialise()
+   protected override void OnInitialise()
    {
       foreach (SDL3_DisplayId id in EnumerateDisplayIds())
          AddDevice(id);
    }
 
    /// <inheritdoc/>
-   protected override void Cleanup()
+   protected override void OnCleanup()
    {
       _devices.Clear();
       _deviceLookup.Clear();
