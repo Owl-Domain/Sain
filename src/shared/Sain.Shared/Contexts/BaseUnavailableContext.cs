@@ -10,7 +10,7 @@ public abstract class BaseUnavailableContext : BaseContext
    public sealed override bool IsAvailable => false;
 
    /// <inheritdoc/>
-   public sealed override IReadOnlyCollection<string> DependsOnContexts => [];
+   public sealed override IReadOnlyCollection<string> InitialiseAfterContexts => [];
    #endregion
 
    #region Constructors

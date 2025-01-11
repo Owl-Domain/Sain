@@ -12,8 +12,11 @@ public interface IHasApplicationInit
    /// <summary>Whether the component has been initialised.</summary>
    bool IsInitialised { get; }
 
-   /// <summary>The collection of the contexts that the application component relies on for initialisation.</summary>
-   IReadOnlyCollection<string> DependsOnContexts { get; }
+   /// <summary>The collection of the context kinds that should only be initialised after the application component.</summary>
+   IReadOnlyCollection<string> InitialiseBeforeContexts { get; }
+
+   /// <summary>The collection of the context kinds that should be initialised before the application component.</summary>
+   IReadOnlyCollection<string> InitialiseAfterContexts { get; }
    #endregion
 
    #region Methods

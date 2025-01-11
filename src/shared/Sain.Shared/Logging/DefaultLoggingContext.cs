@@ -6,6 +6,11 @@ namespace Sain.Shared.Logging;
 /// <param name="provider">The context provider that the context comes from.</param>
 public sealed class DefaultLoggingContext(IContextProvider? provider) : BaseLoggingContext(provider)
 {
+   #region Properties
+   /// <inheritdoc/>
+   public override IReadOnlyCollection<string> InitialiseAfterContexts { get; } = [CoreContextKinds.SystemTime];
+   #endregion
+
    #region Methods
    /// <inheritdoc/>
    protected override DateTimeOffset GetCurrentTime()

@@ -253,14 +253,21 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
             component.Dependencies.Add(provider);
       }
 
-      // Note(Nightowl): Add the dependencies based on the context kinds;
+      // Add the dependencies based on the context kinds;
       foreach (Component component in components)
       {
          Debug.Assert(component.ApplicationInit is not null);
-         foreach (string kind in component.ApplicationInit.DependsOnContexts)
+
+         foreach (string kind in component.ApplicationInit.InitialiseAfterContexts)
          {
             if (TryGetContext(kind, out Component? context))
                component.Dependencies.Add(context);
+         }
+
+         foreach (string kind in component.ApplicationInit.InitialiseBeforeContexts)
+         {
+            if (TryGetContext(kind, out Component? context))
+               context.Dependencies.Add(component);
          }
       }
 

@@ -38,7 +38,10 @@ public abstract class BaseHasApplicationInit : ObservableBase, IHasApplicationIn
    public bool IsInitialised { get; private set; }
 
    /// <inheritdoc/>
-   public virtual IReadOnlyCollection<string> DependsOnContexts => [];
+   public virtual IReadOnlyCollection<string> InitialiseAfterContexts => [];
+
+   /// <inheritdoc/>
+   public virtual IReadOnlyCollection<string> InitialiseBeforeContexts => [];
    #endregion
 
    #region Methods

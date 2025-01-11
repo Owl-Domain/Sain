@@ -26,9 +26,6 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
    public sealed override string Kind => CoreContextKinds.Logging;
 
    /// <inheritdoc/>
-   public override IReadOnlyCollection<string> DependsOnContexts { get; } = [CoreContextKinds.SystemTime];
-
-   /// <inheritdoc/>
    public IReadOnlyList<ILogPathPrefix> PathPrefixes => [.. _filePathPrefixes.Values];
 
    /// <inheritdoc/>
