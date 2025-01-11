@@ -40,6 +40,9 @@ public interface IApplicationBase
 
    /// <summary>The duration of the last iteration of the application.</summary>
    TimeSpan LastIterationDuration { get; }
+
+   /// <summary>The time that the application has been running for.</summary>
+   TimeSpan Uptime { get; }
    #endregion
 
    #region Events

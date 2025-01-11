@@ -169,19 +169,23 @@ public abstract class BaseLoggingContext(IContextProvider? provider) : BaseConte
    /// <param name="file">The source file that the message was logged in.</param>
    /// <param name="prefix">The (optional) log path prefix that was used to turn the full path of the source file into a relative one.</param>
    /// <param name="line">The line number (inside the source <paramref name="file"/>) that the message was logged on.</param>
-   protected abstract ILogEntry CreateEntry(LogSeverity severity, string context, string message, string member, string file, ILogPathPrefix? prefix, int line);
+   protected virtual ILogEntry CreateEntry(LogSeverity severity, string context, string message, string member, string file, ILogPathPrefix? prefix, int line)
+   {
+      TimeSpan timestamp = GetCurrentTimestamp();
+      DateTimeOffset date = GetCurrentTime();
+
+      return new LogEntry(date, timestamp, severity, context, message, member, file, prefix, line);
+   }
 
    // Todo(Nightowl): This will be replaced once a system time context is added;
 
    /// <summary>Gets the current time.</summary>
    /// <returns>The current time.</returns>
-   protected virtual DateTimeOffset GetCurrentTime()
-   {
-      if (IsInitialised && Context.System.Time.IsAvailable)
-         return Context.System.Time.Now;
+   protected abstract DateTimeOffset GetCurrentTime();
 
-      return DateTimeOffset.Now;
-   }
+   /// <summary>Gets the current timestamp.</summary>
+   /// <returns>The current timestamp.</returns>
+   protected abstract TimeSpan GetCurrentTimestamp();
    #endregion
 
    #region Helpers

@@ -28,15 +28,20 @@ public sealed class DefaultLoggingContext(IContextProvider? provider) : BaseLogg
    }
 
    /// <inheritdoc/>
-   protected override ILogEntry CreateEntry(LogSeverity severity, string context, string message, string member, string file, ILogPathPrefix? prefix, int line)
+   protected override DateTimeOffset GetCurrentTime()
    {
-      // Note(Nightowl): Initialise watch earlier in case ;
+      if (IsInitialised && Context.System.Time.IsAvailable)
+         return Context.System.Time.Now;
+
+      return DateTimeOffset.Now;
+   }
+
+   /// <inheritdoc/>
+   protected override TimeSpan GetCurrentTimestamp()
+   {
       _watch ??= Stopwatch.StartNew();
 
-      TimeSpan timestamp = _watch.Elapsed;
-      DateTimeOffset date = DateTimeOffset.Now;
-
-      return new LogEntry(date, timestamp, severity, context, message, member, file, prefix, line);
+      return _watch.Elapsed;
    }
    #endregion
 }

@@ -11,6 +11,7 @@ public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext
 {
    #region Fields
    private volatile bool _shouldBeRunning;
+   private readonly Stopwatch _uptimeWatch = new();
    #endregion
 
    #region Properties
@@ -25,6 +26,9 @@ public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext
 
    /// <inheritdoc/>
    public TimeSpan LastIterationDuration { get; private set; }
+
+   /// <inheritdoc/>
+   public TimeSpan Uptime => _uptimeWatch.Elapsed;
    #endregion
 
    #region Events
@@ -52,10 +56,17 @@ public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext
          throw new InvalidOperationException($"The application is either currently running or has not fully stopped yet, meaning it cannot be started again.");
 
       _shouldBeRunning = true;
-
-      Initialise();
-      MainLoop();
-      Cleanup();
+      _uptimeWatch.Restart();
+      try
+      {
+         Initialise();
+         MainLoop();
+         Cleanup();
+      }
+      finally
+      {
+         _uptimeWatch.Stop();
+      }
    }
 
    /// <inheritdoc/>
