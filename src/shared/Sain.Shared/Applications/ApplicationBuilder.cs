@@ -22,7 +22,7 @@ public sealed class ApplicationBuilder : ApplicationBuilder<ApplicationBuilder, 
    /// <inheritdoc/>
    protected override IApplication BuildCore(IApplicationInfo info)
    {
-      ApplicationContext context = new(Providers, Contexts);
+      ApplicationContext context = new(ApplicationProviders, Contexts);
       Application application = new(info, context);
 
       return application;

@@ -5,6 +5,11 @@ namespace Sain.Shared.Contexts;
 /// </summary>
 public abstract class BaseContextProvider : BaseHasApplicationInit, IContextProvider
 {
+   #region Properties
+   /// <inheritdoc/>
+   public virtual bool IgnoreIfUnused => true;
+   #endregion
+
    #region Methods
    /// <inheritdoc/>
    public abstract bool TryProvide<T>([MaybeNullWhen(false)] out T context) where T : notnull, IContext;

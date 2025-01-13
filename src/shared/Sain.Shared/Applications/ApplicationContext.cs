@@ -200,7 +200,8 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
             }
          }
 
-         throw new InvalidOperationException($"The context ({context}) specified a context provider ({context.Provider}) that wasn't made available to the application.");
+         component = default;
+         return false;
       }
       bool TryGetComponent(Type type, [NotNullWhen(true)] out Component? component)
       {

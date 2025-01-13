@@ -77,7 +77,7 @@ public sealed class DesktopApplicationBuilder : DesktopApplicationBuilder<Deskto
    {
       DesktopApplicationShutdownMode shutdownMode = ShutdownMode ?? DesktopApplicationShutdownMode.OnLastWindowClose;
 
-      DesktopApplicationContext context = new(shutdownMode, StartupWindowType, Providers, Contexts);
+      DesktopApplicationContext context = new(shutdownMode, StartupWindowType, ApplicationProviders, Contexts);
       DesktopApplication application = new(info, context);
 
       return application;

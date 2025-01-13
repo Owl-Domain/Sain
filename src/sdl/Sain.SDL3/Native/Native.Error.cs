@@ -16,7 +16,7 @@ static unsafe partial class Native
    #endregion
 
    #region Functions
-   [LibraryImport(LibName)]
+   [LibraryImport(LibName, EntryPoint = "SDL_GetError")]
    private static partial byte* _GetError();
 
    public static string GetError()
@@ -26,7 +26,7 @@ static unsafe partial class Native
       return Utf8StringMarshaller.ConvertToManaged(native) ?? string.Empty;
    }
 
-   [LibraryImport(LibName)]
+   [LibraryImport(LibName, EntryPoint = "SDL_ClearError")]
    [return: MarshalAs(Bool)]
    public static partial bool ClearError();
 

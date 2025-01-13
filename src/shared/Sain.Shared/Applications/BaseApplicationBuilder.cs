@@ -25,6 +25,9 @@ public abstract class BaseApplicationBuilder<TSelf, TContext, TApplication> : IA
 
    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
    private readonly HashSet<IContextProvider> _availableProviders = [];
+
+   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+   private readonly HashSet<IContextProvider> _usedProviders = [];
    private readonly Dictionary<string, IContext> _providedContexts = [];
    #endregion
 
@@ -32,8 +35,14 @@ public abstract class BaseApplicationBuilder<TSelf, TContext, TApplication> : IA
    /// <summary>The typed instance of the builder.</summary>
    protected TSelf Instance => (TSelf)this;
 
-   /// <summary>The collection of the available providers.</summary>
+   /// <summary>The collection of all the available providers.</summary>
    protected IReadOnlyCollection<IContextProvider> Providers => _availableProviders;
+
+   /// <summary>The collection of the used context providers.</summary>
+   protected IReadOnlyCollection<IContextProvider> UsedProviders => _usedProviders;
+
+   /// <summary>The collection of the context providers that should be provided to the application.</summary>
+   protected IReadOnlyCollection<IContextProvider> ApplicationProviders => GetApplicationProviders();
 
    /// <summary>The collection of the provided contexts.</summary>
    protected IReadOnlyCollection<IContext> Contexts => _providedContexts.Values;
@@ -129,6 +138,8 @@ public abstract class BaseApplicationBuilder<TSelf, TContext, TApplication> : IA
       if (_providedContexts.TryAdd(context.Kind, context) is false)
          throw new ArgumentException($"A context of the same kind ({context.Kind}) has already been included.", nameof(context));
 
+      OnContextAdded(context);
+
       return Instance;
    }
 
@@ -143,6 +154,8 @@ public abstract class BaseApplicationBuilder<TSelf, TContext, TApplication> : IA
          if (_providedContexts.TryAdd(context.Kind, context))
          {
             customise?.Invoke(context);
+            OnContextAdded(context);
+
             return Instance;
          }
 
@@ -150,6 +163,7 @@ public abstract class BaseApplicationBuilder<TSelf, TContext, TApplication> : IA
          if (existing is T typed)
          {
             customise?.Invoke(context);
+
             return Instance;
          }
 
@@ -169,6 +183,7 @@ public abstract class BaseApplicationBuilder<TSelf, TContext, TApplication> : IA
             _providedContexts.TryAdd(context.Kind, context);
             customise?.Invoke(context);
 
+            OnContextAdded(context);
             return Instance;
          }
       }
@@ -270,6 +285,12 @@ public abstract class BaseApplicationBuilder<TSelf, TContext, TApplication> : IA
    #endregion
 
    #region Helpers
+   private void OnContextAdded(IContext context)
+   {
+      if (context.Provider is not null)
+         _usedProviders.Add(context.Provider);
+   }
+
    /// <summary>Adds a context of the given type <typeparamref name="T"/> as a required context.</summary>
    /// <typeparam name="T">The type of the <see cref="IContext"/> to add.</typeparam>
    /// <param name="kind">The kind of the context.</param>
@@ -311,6 +332,21 @@ public abstract class BaseApplicationBuilder<TSelf, TContext, TApplication> : IA
 
          WithContext(context);
       }
+   }
+
+   /// <summary>Gets a collection of the context providers that should be used in the application.</summary>
+   /// <returns>The collection of the context providers that should be used in the application.</returns>
+   protected IReadOnlyCollection<IContextProvider> GetApplicationProviders()
+   {
+      List<IContextProvider> providers = [];
+
+      foreach (IContextProvider provider in _availableProviders)
+      {
+         if (provider.IgnoreIfUnused is false || _usedProviders.Contains(provider))
+            providers.Add(provider);
+      }
+
+      return providers;
    }
    #endregion
 }
