@@ -3,7 +3,7 @@ namespace Sain.Shared.Contexts;
 /// <summary>
 ///   Represents an application's context.
 /// </summary>
-public interface IContext : IHasApplicationInit
+public interface IContext : IApplicationComponent
 {
    #region Properties
    /// <summary>The provider that the context comes from.</summary>

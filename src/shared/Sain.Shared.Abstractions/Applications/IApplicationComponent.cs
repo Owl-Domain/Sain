@@ -1,9 +1,9 @@
-namespace Sain.Shared.Contexts;
+namespace Sain.Shared.Applications;
 
 /// <summary>
 ///   Represents a component that has application specific initialisation and cleanup.
 /// </summary>
-public interface IHasApplicationInit
+public interface IApplicationComponent
 {
    #region Properties
    /// <summary>Whether the component is attached to an application.</summary>
@@ -12,11 +12,11 @@ public interface IHasApplicationInit
    /// <summary>Whether the component has been initialised.</summary>
    bool IsInitialised { get; }
 
-   /// <summary>The collection of the context kinds that should only be initialised after the application component.</summary>
-   IReadOnlyCollection<string> InitialiseBeforeContexts { get; }
+   /// <summary>The collection of the component types that should only be initialised after this component.</summary>
+   IReadOnlyCollection<Type> InitialiseBefore { get; }
 
-   /// <summary>The collection of the context kinds that should be initialised before the application component.</summary>
-   IReadOnlyCollection<string> InitialiseAfterContexts { get; }
+   /// <summary>The collection of the component types that should be initialised before this component.</summary>
+   IReadOnlyCollection<Type> InitialiseAfter { get; }
    #endregion
 
    #region Methods

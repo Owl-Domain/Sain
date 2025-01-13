@@ -221,7 +221,7 @@ public abstract class ApplicationBase(IApplicationInfo info, IApplicationContext
       int i = 1;
 
       Context.Logging.Info<ApplicationBase>($"Components to initialise: {Context.InitialisationOrder.Count:n0}");
-      foreach (IHasApplicationInit init in Context.InitialisationOrder)
+      foreach (IApplicationComponent init in Context.InitialisationOrder)
       {
          Type type = init.GetType();
          string name = type.FullName ?? type.Name;

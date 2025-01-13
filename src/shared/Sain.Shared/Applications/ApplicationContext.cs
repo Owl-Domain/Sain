@@ -7,10 +7,10 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
 {
    #region Nested types
    [DebuggerDisplay($"{{{nameof(DebuggerDisplay)}(), nq}}")]
-   private sealed class Component(IHasApplicationInit? ApplicationInit)
+   private sealed class Component(IApplicationComponent? ApplicationInit)
    {
       #region Properties
-      public IHasApplicationInit? ApplicationInit { get; } = ApplicationInit;
+      public IApplicationComponent? ApplicationInit { get; } = ApplicationInit;
       public List<Component> Dependencies { get; } = [];
       #endregion
 
@@ -28,7 +28,7 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
    public IReadOnlyCollection<IContext> Contexts { get; }
 
    /// <inheritdoc/>
-   public IReadOnlyList<IHasApplicationInit> InitialisationOrder { get; }
+   public IReadOnlyList<IApplicationComponent> InitialisationOrder { get; }
 
    /// <inheritdoc/>
    public IDispatcherContext Dispatcher { get; }
@@ -143,14 +143,14 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
       // Attachment order doesn't matter, but we already have a list
       // of both contexts and providers so might as well use it;
 
-      foreach (IHasApplicationInit component in InitialisationOrder)
+      foreach (IApplicationComponent component in InitialisationOrder)
          component.Attach(Application);
    }
 
    /// <inheritdoc/>
    protected override void OnInitialise()
    {
-      foreach (IHasApplicationInit component in InitialisationOrder)
+      foreach (IApplicationComponent component in InitialisationOrder)
          component.Initialise();
    }
 
@@ -159,7 +159,7 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
    {
       for (int i = InitialisationOrder.Count - 1; i >= 0; i--)
       {
-         IHasApplicationInit component = InitialisationOrder[i];
+         IApplicationComponent component = InitialisationOrder[i];
          component.Cleanup();
       }
    }
@@ -171,13 +171,13 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
       // Detachment order doesn't matter, but we already have a list
       // of both contexts and providers so might as well use it;
 
-      foreach (IHasApplicationInit component in InitialisationOrder)
+      foreach (IApplicationComponent component in InitialisationOrder)
          component.Detach();
    }
    #endregion
 
    #region Helpers
-   private List<IHasApplicationInit> CalculateInitialisationOrder()
+   private List<IApplicationComponent> CalculateInitialisationOrder()
    {
       List<Component> components = [];
       HashSet<Component> resolved = [];
@@ -202,11 +202,14 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
 
          throw new InvalidOperationException($"The context ({context}) specified a context provider ({context.Provider}) that wasn't made available to the application.");
       }
-      bool TryGetContext(string kind, [NotNullWhen(true)] out Component? component)
+      bool TryGetComponent(Type type, [NotNullWhen(true)] out Component? component)
       {
          foreach (Component current in components)
          {
-            if (current.ApplicationInit is IContext context && context.Kind == kind)
+            Debug.Assert(current.ApplicationInit is not null);
+
+            Type currentType = current.ApplicationInit.GetType();
+            if (type.IsAssignableFrom(currentType))
             {
                component = current;
                return true;
@@ -258,15 +261,15 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
       {
          Debug.Assert(component.ApplicationInit is not null);
 
-         foreach (string kind in component.ApplicationInit.InitialiseAfterContexts)
+         foreach (Type type in component.ApplicationInit.InitialiseAfter)
          {
-            if (TryGetContext(kind, out Component? context))
+            if (TryGetComponent(type, out Component? context))
                component.Dependencies.Add(context);
          }
 
-         foreach (string kind in component.ApplicationInit.InitialiseBeforeContexts)
+         foreach (Type type in component.ApplicationInit.InitialiseBefore)
          {
-            if (TryGetContext(kind, out Component? context))
+            if (TryGetComponent(type, out Component? context))
                context.Dependencies.Add(component);
          }
       }
@@ -278,7 +281,7 @@ public class ApplicationContext : BaseHasApplicationInit, IApplicationContext
 
       Resolve(final);
 
-      List<IHasApplicationInit> order = [];
+      List<IApplicationComponent> order = [];
       foreach (Component component in resolved)
       {
          if (component.ApplicationInit is not null)

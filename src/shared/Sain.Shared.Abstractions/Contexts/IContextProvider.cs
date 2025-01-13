@@ -3,7 +3,7 @@ namespace Sain.Shared.Contexts;
 /// <summary>
 ///   Represents a provider for new application contexts.
 /// </summary>
-public interface IContextProvider : IHasApplicationInit
+public interface IContextProvider : IApplicationComponent
 {
    #region Methods
    /// <summary>Tries to get a new application context of the given type <typeparamref name="T"/>.</summary>

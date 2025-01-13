@@ -3,7 +3,7 @@ namespace Sain.Shared.Contexts;
 /// <summary>
 ///   Represents the base implementation for a component that has application specific initialisation and cleanup.
 /// </summary>
-public abstract class BaseHasApplicationInit : ObservableBase, IHasApplicationInit
+public abstract class BaseHasApplicationInit : ObservableBase, IApplicationComponent
 {
    #region Fields
    // Note(Nightowl): Doesn't have a property, but it's not gonna be useful to see it in the debugger anyway;
@@ -38,10 +38,10 @@ public abstract class BaseHasApplicationInit : ObservableBase, IHasApplicationIn
    public bool IsInitialised { get; private set; }
 
    /// <inheritdoc/>
-   public virtual IReadOnlyCollection<string> InitialiseAfterContexts => [];
+   public virtual IReadOnlyCollection<Type> InitialiseAfter => [];
 
    /// <inheritdoc/>
-   public virtual IReadOnlyCollection<string> InitialiseBeforeContexts => [];
+   public virtual IReadOnlyCollection<Type> InitialiseBefore => [];
    #endregion
 
    #region Methods

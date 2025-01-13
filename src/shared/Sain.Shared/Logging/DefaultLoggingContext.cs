@@ -8,7 +8,7 @@ public sealed class DefaultLoggingContext(IContextProvider? provider) : BaseLogg
 {
    #region Properties
    /// <inheritdoc/>
-   public override IReadOnlyCollection<string> InitialiseAfterContexts { get; } = [CoreContextKinds.SystemTime];
+   public override IReadOnlyCollection<Type> InitialiseAfter { get; } = [typeof(ISystemTimeContext)];
    #endregion
 
    #region Methods

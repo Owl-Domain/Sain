@@ -3,7 +3,7 @@ namespace Sain.Shared.Applications;
 /// <summary>
 ///   Represents the context of an application.
 /// </summary>
-public interface IApplicationContext : IHasApplicationInit
+public interface IApplicationContext : IApplicationComponent
 {
    #region Properties
    /// <summary>The collection of the available context providers.</summary>
@@ -12,8 +12,8 @@ public interface IApplicationContext : IHasApplicationInit
    /// <summary>The collection of the available contexts.</summary>
    IReadOnlyCollection<IContext> Contexts { get; }
 
-   /// <summary>The order in which the available context providers and contexts will be initialised in.</summary>
-   IReadOnlyList<IHasApplicationInit> InitialisationOrder { get; }
+   /// <summary>The order in which the available application components will be initialised in.</summary>
+   IReadOnlyList<IApplicationComponent> InitialisationOrder { get; }
 
    /// <summary>The application's context for the dispatcher.</summary>
    IDispatcherContext Dispatcher { get; }
