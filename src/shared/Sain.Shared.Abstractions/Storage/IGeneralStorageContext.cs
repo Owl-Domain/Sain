@@ -111,6 +111,26 @@ public interface IGeneralStorageContext : IContext
    void CreateRandomFilename(Span<char> destination);
    #endregion
 
+   #region Try/CreateFile methods
+   /// <summary>Creates a new file at the given <paramref name="filePath"/>.</summary>
+   /// <param name="filePath">The path of the file to create.</param>
+   /// <param name="throwIfFileExists">Whether the <see cref="InvalidOperationException"/> should be thrown if the file at the given <paramref name="filePath"/> already exists.</param>
+   /// <exception cref="ArgumentException">Thrown if the given <paramref name="filePath"/> is not considered valid on the current platform.</exception>
+   /// <exception cref="UnauthorizedAccessException">
+   ///   Thrown if the current application doesn't have the permissions
+   ///   to create the file at the given <paramref name="filePath"/>.
+   /// </exception>
+   void CreateFile(ReadOnlySpan<char> filePath, bool throwIfFileExists = false);
+
+   /// <summary>Tries to create a new file at the given <paramref name="filePath"/>.</summary>
+   /// <param name="filePath">The path of the file to create.</param>
+   /// <param name="failIfFileExists">Whether to return <see langword="false"/> if the file at the given <paramref name="filePath"/> already exists.</param>
+   /// <param name="failureReason">The reason why creating the file at the given <paramref name="filePath"/> failed.</param>
+   /// <returns><see langword="true"/> if the file at the given <paramref name="filePath"/> was successfully created, <see langword="false"/> otherwise.</returns>
+   /// <exception cref="ArgumentException">Thrown if the given <paramref name="filePath"/> is not considered valid on the current platform.</exception>
+   bool TryCreateFile(ReadOnlySpan<char> filePath, bool failIfFileExists, out IOFailureReason failureReason);
+   #endregion
+
    #region Try/OpenForReading methods
    /// <summary>Opens the file at the given <paramref name="filePath"/> for reading.</summary>
    /// <param name="filePath">The path of the file to open for reading.</param>
@@ -238,6 +258,34 @@ public interface IGeneralStorageContext : IContext
    ///   <paramref name="destinationFilePath"/> were not considered valid on the current platform.
    /// </exception>
    bool TryMoveFile(ReadOnlySpan<char> sourceFilePath, ReadOnlySpan<char> destinationFilePath, bool replace, out IOFailureReason failureReason);
+
+   /// <summary>Moves the file from the given <paramref name="sourceFilePath"/> to the given <paramref name="destinationDirectoryPath"/>.</summary>
+   /// <param name="sourceFilePath">The path to the file to move.</param>
+   /// <param name="destinationDirectoryPath">The path of the directory that the file should be moved to.</param>
+   /// <param name="replace">Whether the new file should be replaced if it already exists.</param>
+   /// <exception cref="ArgumentException">
+   ///   Thrown if either the given <paramref name="sourceFilePath"/> or the given
+   ///   <paramref name="destinationDirectoryPath"/> were not considered valid on the current platform.
+   /// </exception>
+   /// <exception cref="FileNotFoundException">Thrown if the file at the given <paramref name="sourceFilePath"/> doesn't exist.</exception>
+   /// <exception cref="InvalidOperationException">Thrown if the <paramref name="destinationDirectoryPath"/> already exists, and replacing it was not allowed.</exception>
+   /// <exception cref="UnauthorizedAccessException">
+   ///   Thrown if the current application either doesn't have the permissions to move the file at the given <paramref name="sourceFilePath"/>,
+   ///   or if it doesn't have the permissions to move the file to the given <paramref name="destinationDirectoryPath"/>, or if
+   ///   the destination directory doesn't exist and the current application doesn't have the permissions to create it.
+   /// </exception>
+   void MoveFileToDirectory(ReadOnlySpan<char> sourceFilePath, ReadOnlySpan<char> destinationDirectoryPath, bool replace = false);
+
+   /// <summary>Tries to move the file from the given <paramref name="sourceFilePath"/> to the given <paramref name="destinationDirectoryPath"/>.</summary>
+   /// <param name="sourceFilePath">The path to the file to move.</param>
+   /// <param name="destinationDirectoryPath">The path of the directory that the file should be moved to.</param>
+   /// <param name="replace">Whether the new file should be replaced if it already exists.</param>
+   /// <param name="failureReason">The reason why moving the file at the given <paramref name="sourceFilePath"/> to the given <paramref name="destinationDirectoryPath"/> failed.</param>
+   /// <exception cref="ArgumentException">
+   ///   Thrown if either the given <paramref name="sourceFilePath"/> or the given
+   ///   <paramref name="destinationDirectoryPath"/> were not considered valid on the current platform.
+   /// </exception>
+   bool TryMoveFileToDirectory(ReadOnlySpan<char> sourceFilePath, ReadOnlySpan<char> destinationDirectoryPath, bool replace, out IOFailureReason failureReason);
    #endregion
 
    #region Try/CopyFile methods
@@ -268,6 +316,34 @@ public interface IGeneralStorageContext : IContext
    ///   <paramref name="destinationFilePath"/> were not considered valid on the current platform.
    /// </exception>
    bool TryCopyFile(ReadOnlySpan<char> sourceFilePath, ReadOnlySpan<char> destinationFilePath, bool replace, out IOFailureReason failureReason);
+
+   /// <summary>Copies the file from the given <paramref name="sourceFilePath"/> to the given <paramref name="destinationDirectoryPath"/>.</summary>
+   /// <param name="sourceFilePath">The path to the file to copy.</param>
+   /// <param name="destinationDirectoryPath">The path of the directory that the file should be copied to.</param>
+   /// <param name="replace">Whether the new file should be replaced if it already exists.</param>
+   /// <exception cref="ArgumentException">
+   ///   Thrown if either the given <paramref name="sourceFilePath"/> or the given
+   ///   <paramref name="destinationDirectoryPath"/> were not considered valid on the current platform.
+   /// </exception>
+   /// <exception cref="FileNotFoundException">Thrown if the file at the given <paramref name="sourceFilePath"/> doesn't exist.</exception>
+   /// <exception cref="InvalidOperationException">Thrown if the <paramref name="destinationDirectoryPath"/> already exists, and replacing it was not allowed.</exception>
+   /// <exception cref="UnauthorizedAccessException">
+   ///   Thrown if the current application either doesn't have the permissions to copy the file at the given <paramref name="sourceFilePath"/>,
+   ///   or if it doesn't have the permissions to copy the file to the given <paramref name="destinationDirectoryPath"/>, or if
+   ///   the destination directory doesn't exist and the current application doesn't have the permissions to create it.
+   /// </exception>
+   void CopyFileToDirectory(ReadOnlySpan<char> sourceFilePath, ReadOnlySpan<char> destinationDirectoryPath, bool replace = false);
+
+   /// <summary>Tries to copy the file from the given <paramref name="sourceFilePath"/> to the given <paramref name="destinationDirectoryPath"/>.</summary>
+   /// <param name="sourceFilePath">The path to the file to copy.</param>
+   /// <param name="destinationDirectoryPath">The path of the directory that the file should be copied to.</param>
+   /// <param name="replace">Whether the new file should be replaced if it already exists.</param>
+   /// <param name="failureReason">The reason why moving the file at the given <paramref name="sourceFilePath"/> to the given <paramref name="destinationDirectoryPath"/> failed.</param>
+   /// <exception cref="ArgumentException">
+   ///   Thrown if either the given <paramref name="sourceFilePath"/> or the given
+   ///   <paramref name="destinationDirectoryPath"/> were not considered valid on the current platform.
+   /// </exception>
+   bool TryCopyFileToDirectory(ReadOnlySpan<char> sourceFilePath, ReadOnlySpan<char> destinationDirectoryPath, bool replace, out IOFailureReason failureReason);
    #endregion
 
    #region Try/DeleteFile methods
@@ -299,6 +375,20 @@ public interface IGeneralStorageContext : IContext
 /// </summary>
 public static class IGeneralStorageContextExtensions
 {
+   #region TryCreate methods
+   /// <summary>Tries to create a new file at the given <paramref name="filePath"/>.</summary>
+   /// <param name="context">The general storage context to use.</param>
+   /// <param name="filePath">The path of the file to create.</param>
+   /// <param name="failureReason">The reason why creating the file at the given <paramref name="filePath"/> failed.</param>
+   /// <returns><see langword="true"/> if the file at the given <paramref name="filePath"/> was successfully created, <see langword="false"/> otherwise.</returns>
+   /// <remarks>This method will return <see langword="true"/> if the file at the given <paramref name="filePath"/> already existed, to change this behaviour use a different overload.</remarks>
+   /// <exception cref="ArgumentException">Thrown if the given <paramref name="filePath"/> is not considered valid on the current platform.</exception>
+   public static bool TryCreateFile(this IGeneralStorageContext context, ReadOnlySpan<char> filePath, out IOFailureReason failureReason)
+   {
+      return context.TryCreateFile(filePath, false, out failureReason);
+   }
+   #endregion
+
    #region Try/Reading methods
    /// <summary>Tires to opens the file at the given <paramref name="filePath"/> for reading.</summary>
    /// <param name="context">The general storage context to use.</param>
@@ -597,6 +687,35 @@ public static class IGeneralStorageContextExtensions
    {
       return context.TryMoveFile(sourceFilePath, destinationFilePath, replace, out _);
    }
+
+   /// <summary>Tries to move the file from the given <paramref name="sourceFilePath"/> to the given <paramref name="destinationDirectoryPath"/>.</summary>
+   /// <param name="context">The general storage context to use.</param>
+   /// <param name="sourceFilePath">The path to the file to move.</param>
+   /// <param name="destinationDirectoryPath">The path of the directory that the file should be moved to.</param>
+   /// <param name="failureReason">The reason why moving the file at the given <paramref name="sourceFilePath"/> to the given <paramref name="destinationDirectoryPath"/> failed.</param>
+   /// <remarks>This method will not override the file in the <paramref name="destinationDirectoryPath"/> if it already exists, to change that behaviour use a different overload.</remarks>
+   /// <exception cref="ArgumentException">
+   ///   Thrown if either the given <paramref name="sourceFilePath"/> or the given
+   ///   <paramref name="destinationDirectoryPath"/> were not considered valid on the current platform.
+   /// </exception>
+   public static bool TryMoveFileToDirectory(this IGeneralStorageContext context, ReadOnlySpan<char> sourceFilePath, ReadOnlySpan<char> destinationDirectoryPath, out IOFailureReason failureReason)
+   {
+      return context.TryMoveFileToDirectory(sourceFilePath, destinationDirectoryPath, false, out failureReason);
+   }
+
+   /// <summary>Tries to move the file from the given <paramref name="sourceFilePath"/> to the given <paramref name="destinationDirectoryPath"/>.</summary>
+   /// <param name="context">The general storage context to use.</param>
+   /// <param name="sourceFilePath">The path to the file to move.</param>
+   /// <param name="destinationDirectoryPath">The path of the directory that the file should be moved to.</param>
+   /// <param name="replace">Whether the new file should be replaced if it already exists.</param>
+   /// <exception cref="ArgumentException">
+   ///   Thrown if either the given <paramref name="sourceFilePath"/> or the given
+   ///   <paramref name="destinationDirectoryPath"/> were not considered valid on the current platform.
+   /// </exception>
+   public static bool TryMoveFileToDirectory(this IGeneralStorageContext context, ReadOnlySpan<char> sourceFilePath, ReadOnlySpan<char> destinationDirectoryPath, bool replace = false)
+   {
+      return context.TryMoveFile(sourceFilePath, destinationDirectoryPath, replace, out _);
+   }
    #endregion
 
    #region TryCopyFile methods
@@ -627,6 +746,35 @@ public static class IGeneralStorageContextExtensions
    public static bool TryCopyFile(this IGeneralStorageContext context, ReadOnlySpan<char> sourceFilePath, ReadOnlySpan<char> destinationFilePath, bool replace = false)
    {
       return context.TryCopyFile(sourceFilePath, destinationFilePath, replace, out _);
+   }
+
+   /// <summary>Tries to copy the file from the given <paramref name="sourceFilePath"/> to the given <paramref name="destinationDirectoryPath"/>.</summary>
+   /// <param name="context">The general storage context to use.</param>
+   /// <param name="sourceFilePath">The path to the file to copy.</param>
+   /// <param name="destinationDirectoryPath">The path of the directory that the file should be copied to.</param>
+   /// <param name="failureReason">The reason why moving the file at the given <paramref name="sourceFilePath"/> to the given <paramref name="destinationDirectoryPath"/> failed.</param>
+   /// <remarks>This method will not override the file in the <paramref name="destinationDirectoryPath"/> if it already exists, to change that behaviour use a different overload.</remarks>
+   /// <exception cref="ArgumentException">
+   ///   Thrown if either the given <paramref name="sourceFilePath"/> or the given
+   ///   <paramref name="destinationDirectoryPath"/> were not considered valid on the current platform.
+   /// </exception>
+   public static bool TryCopyFileToDirectory(this IGeneralStorageContext context, ReadOnlySpan<char> sourceFilePath, ReadOnlySpan<char> destinationDirectoryPath, out IOFailureReason failureReason)
+   {
+      return context.TryCopyFileToDirectory(sourceFilePath, destinationDirectoryPath, false, out failureReason);
+   }
+
+   /// <summary>Tries to copy the file from the given <paramref name="sourceFilePath"/> to the given <paramref name="destinationDirectoryPath"/>.</summary>
+   /// <param name="context">The general storage context to use.</param>
+   /// <param name="sourceFilePath">The path to the file to copy.</param>
+   /// <param name="destinationDirectoryPath">The path of the directory that the file should be copied to.</param>
+   /// <param name="replace">Whether the new file should be replaced if it already exists.</param>
+   /// <exception cref="ArgumentException">
+   ///   Thrown if either the given <paramref name="sourceFilePath"/> or the given
+   ///   <paramref name="destinationDirectoryPath"/> were not considered valid on the current platform.
+   /// </exception>
+   public static bool TryCopyFileToDirectory(this IGeneralStorageContext context, ReadOnlySpan<char> sourceFilePath, ReadOnlySpan<char> destinationDirectoryPath, bool replace = false)
+   {
+      return context.TryCopyFileToDirectory(sourceFilePath, destinationDirectoryPath, replace, out _);
    }
    #endregion
 
