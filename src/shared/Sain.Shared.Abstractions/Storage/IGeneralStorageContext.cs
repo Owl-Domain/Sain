@@ -77,6 +77,22 @@ public enum FileWriteOptions : byte
 }
 
 /// <summary>
+///   Represents the different options that can be used when creating a new directory.
+/// </summary>
+[Flags]
+public enum DirectoryCreationOptions : byte
+{
+   /// <summary>No special options.</summary>
+   None,
+
+   /// <summary>Specifies that any missing parent directories should also be created.</summary>
+   CreateParentDirectories,
+
+   /// <summary>Specifies that the operation should fail if the directory already exists.</summary>
+   FailIfAlreadyExists,
+}
+
+/// <summary>
 ///   Represents the application's context for general purpose storage operations.
 /// </summary>
 public interface IGeneralStorageContext : IContext
@@ -367,6 +383,34 @@ public interface IGeneralStorageContext : IContext
    /// <returns><see langword="true"/> if the file was successfully deleted or missing, <see langword="false"/> otherwise.</returns>
    /// <exception cref="ArgumentException">Thrown if the given <paramref name="filePath"/> is not considered valid on the current platform.</exception>
    bool TryDeleteFile(ReadOnlySpan<char> filePath, bool failIfMissing, out IOFailureReason failureReason);
+   #endregion
+
+   #region Try/CreateDirectory methods
+   /// <summary>Creates the directory at the given <paramref name="directoryPath"/>.</summary>
+   /// <param name="directoryPath">The path of the directory to create.</param>
+   /// <param name="options">The options to use when creating the directory at the given <paramref name="directoryPath"/>.</param>
+   /// <exception cref="ArgumentException">Thrown if the given <paramref name="directoryPath"/> is not considered valid on the current platform.</exception>
+   /// <exception cref="DirectoryNotFoundException">
+   ///   Thrown if the parent directories do not exist the <see cref="DirectoryCreationOptions.CreateParentDirectories"/>
+   ///   is not specified in the given <paramref name="options"/>.
+   /// </exception>
+   /// <exception cref="InvalidOperationException">
+   ///   Thrown if the directory already exists and <see cref="DirectoryCreationOptions.FailIfAlreadyExists"/>
+   ///   is specified in the given <paramref name="options"/>.
+   /// </exception>
+   /// <exception cref="UnauthorizedAccessException">
+   ///   Thrown if the current application doesn't have the permissions
+   ///   to create the directory at the given <paramref name="directoryPath"/>.
+   /// </exception>
+   void CreateDirectory(ReadOnlySpan<char> directoryPath, DirectoryCreationOptions options = DirectoryCreationOptions.CreateParentDirectories);
+
+   /// <summary>Tries to create the directory at the given <paramref name="directoryPath"/>.</summary>
+   /// <param name="directoryPath">The path of the directory to create.</param>
+   /// <param name="options">The options to use when creating the directory at the given <paramref name="directoryPath"/>.</param>
+   /// <param name="failureReason">The reason why creating the directory at the given <paramref name="directoryPath"/> failed.</param>
+   /// <returns><see langword="true"/> if creating the directory at the given <paramref name="directoryPath"/> was successful, <see langword="false"/> otherwise.</returns>
+   /// <exception cref="ArgumentException">Thrown if the given <paramref name="directoryPath"/> is not considered valid on the current platform.</exception>
+   bool TryCreateDirectory(ReadOnlySpan<char> directoryPath, DirectoryCreationOptions options, out IOFailureReason failureReason);
    #endregion
 }
 
@@ -800,6 +844,31 @@ public static class IGeneralStorageContextExtensions
    public static bool TryDeleteFile(this IGeneralStorageContext context, ReadOnlySpan<char> filePath, out IOFailureReason failureReason)
    {
       return context.TryDeleteFile(filePath, false, out failureReason);
+   }
+   #endregion
+
+   #region TryCreateDirectory methods
+   /// <summary>Tries to create the directory at the given <paramref name="directoryPath"/>.</summary>
+   /// <param name="context">The general storage context to use.</param>
+   /// <param name="directoryPath">The path of the directory to create.</param>
+   /// <param name="options">The options to use when creating the directory at the given <paramref name="directoryPath"/>.</param>
+   /// <returns><see langword="true"/> if creating the directory at the given <paramref name="directoryPath"/> was successful, <see langword="false"/> otherwise.</returns>
+   /// <exception cref="ArgumentException">Thrown if the given <paramref name="directoryPath"/> is not considered valid on the current platform.</exception>
+   public static bool TryCreateDirectory(this IGeneralStorageContext context, ReadOnlySpan<char> directoryPath, DirectoryCreationOptions options = DirectoryCreationOptions.CreateParentDirectories)
+   {
+      return context.TryCreateDirectory(directoryPath, options, out _);
+   }
+
+   /// <summary>Tries to create the directory at the given <paramref name="directoryPath"/>.</summary>
+   /// <param name="context">The general storage context to use.</param>
+   /// <param name="directoryPath">The path of the directory to create.</param>
+   /// <param name="failureReason">The reason why creating the directory at the given <paramref name="directoryPath"/> failed.</param>
+   /// <returns><see langword="true"/> if creating the directory at the given <paramref name="directoryPath"/> was successful, <see langword="false"/> otherwise.</returns>
+   /// <remarks>This method will automatically create any missing parent directories, to change this behaviour use a different overload.</remarks>
+   /// <exception cref="ArgumentException">Thrown if the given <paramref name="directoryPath"/> is not considered valid on the current platform.</exception>
+   public static bool TryCreateDirectory(this IGeneralStorageContext context, ReadOnlySpan<char> directoryPath, out IOFailureReason failureReason)
+   {
+      return context.TryCreateDirectory(directoryPath, DirectoryCreationOptions.CreateParentDirectories, out failureReason);
    }
    #endregion
 }
