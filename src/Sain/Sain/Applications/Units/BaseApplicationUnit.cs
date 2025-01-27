@@ -136,6 +136,8 @@ public class BaseApplicationUnit : IApplicationUnit
          try
          {
             IsInitialised = true;
+            Context.Logging?.Debug<BaseApplicationUnit>($"The unit ({this}) is being initialised.");
+
             OnInitialise();
          }
          catch
@@ -161,6 +163,7 @@ public class BaseApplicationUnit : IApplicationUnit
 
          try
          {
+            Context.Logging?.Debug<BaseApplicationUnit>($"The unit ({this}) is being cleaned up (uninitialised).");
             OnCleanup();
          }
          finally

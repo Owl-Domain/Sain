@@ -17,6 +17,7 @@ public abstract class BaseLoggingContextUnit(IContextProviderUnit? provider) : B
    private readonly SortedList<int, ILogPathPrefix> _filePathPrefixes = new(new Comparer());
    private readonly List<string> _files = [];
    private readonly List<ILogEntry> _preInitEntries = [];
+   private bool _isPreInit = false;
    #endregion
 
    #region Properties
@@ -40,13 +41,20 @@ public abstract class BaseLoggingContextUnit(IContextProviderUnit? provider) : B
 
    #region Methods
    /// <inheritdoc/>
+   protected override void OnAttach()
+   {
+      base.OnAttach();
+      _isPreInit = true;
+
+      WithPathPrefix("/home/nightowl/repos/Sain/repo/", "Sain");
+   }
+
+   /// <inheritdoc/>
    protected override void OnInitialise()
    {
       base.OnInitialise();
 
       Debug.Assert(_files.Count is 0);
-
-      WithPathPrefix("/home/nightowl/repos/Sain/repo/", "Sain");
 
       // Note(Nightowl): Specifically use a for loop instead of a foreach loop here in case sinks / event callbacks add extra log entries;
       for (int i = 0; i < _preInitEntries.Count; i++)
@@ -55,6 +63,7 @@ public abstract class BaseLoggingContextUnit(IContextProviderUnit? provider) : B
          OnNewEntry(entry);
       }
 
+      _isPreInit = false;
       _preInitEntries.Clear();
    }
 
@@ -126,10 +135,10 @@ public abstract class BaseLoggingContextUnit(IContextProviderUnit? provider) : B
 
       ILogEntry entry = CreateEntry(severity, context, message, member, file, prefix, line);
 
-      if (IsInitialised)
-         OnNewEntry(entry);
-      else
+      if (_isPreInit)
          _preInitEntries.Add(entry);
+      else
+         OnNewEntry(entry);
 
       return this;
    }

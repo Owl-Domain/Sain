@@ -260,6 +260,34 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
 
       throw new InvalidOperationException($"Couldn't obtain a context unit for the given kind ({kind}) from the added context provider units.");
    }
+
+   /// <inheritdoc/>
+   public TSelf TryCustomiseUnits(Type kind, Action<IApplicationUnit> customiseCallback)
+   {
+      if (typeof(IApplicationUnit).IsAssignableFrom(kind) is false)
+         throw new ArgumentException($"The given kind ({kind}) is not a {nameof(IApplicationUnit)} kind.", nameof(kind));
+
+      foreach (IApplicationUnit unit in _units)
+      {
+         if (unit.Kind == kind)
+            customiseCallback.Invoke(unit);
+      }
+
+      return Instance;
+   }
+
+   /// <inheritdoc/>
+   public TSelf TryCustomiseUnits<T>(Action<T> customiseCallback) where T : notnull, IApplicationUnit
+   {
+      Type kind = typeof(T);
+      foreach (IApplicationUnit unit in _units)
+      {
+         if (unit.Kind == kind)
+            customiseCallback.Invoke((T)unit);
+      }
+
+      return Instance;
+   }
    #endregion
 
    #region Build methods
@@ -269,7 +297,7 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
       if (_name is null)
          throw new InvalidOperationException($"The application name has not been set.");
 
-      AddDefaultUnits();
+      TryAddPreferredUnits();
       HardValidate();
 
       IReadOnlyCollection<IApplicationUnit> units = GetFinalApplicationUnits();
@@ -294,7 +322,7 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
 
    /// <summary>Adds the application units that are considered to be useful for the application.</summary>
    /// <remarks>If you override this method, make sure to call the base implementation.</remarks>
-   protected virtual void AddDefaultUnits()
+   public virtual void TryAddPreferredUnits()
    {
       TryWithContextOfKind<ITimeContextUnit>();
       TryWithContextOfKind<ILoggingContextUnit>();
@@ -389,7 +417,7 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
 
          foreach (Unit edge in unit.Dependencies)
          {
-            if (resolved.Add(edge))
+            if (resolved.Contains(edge))
                continue;
 
             if (unresolved.Contains(edge))

@@ -121,7 +121,7 @@ public interface IApplicationBuilder<TSelf> : IApplicationBuilder
    /// <param name="kind">The kind of the context unit to try and add.</param>
    /// <param name="customiseCallback">The (optional) callback which can be used to customise the added unit.</param>
    /// <returns>The used builder instance.</returns>
-   /// <exception cref="ArgumentException">Thrown if the given <paramref name="kind"/> isn't a <see cref="IContextUnit"/> kind.</exception>
+   /// <exception cref="ArgumentException">Thrown if the given <paramref name="kind"/> isn't an <see cref="IContextUnit"/> kind.</exception>
    /// <exception cref="InvalidOperationException">Thrown if no context of the given <paramref name="kind"/> could be added.</exception>
    TSelf WithContextOfKind(Type kind, Action<IContextUnit>? customiseCallback = null);
 
@@ -135,7 +135,7 @@ public interface IApplicationBuilder<TSelf> : IApplicationBuilder
    /// <param name="kind">The kind of the context unit to try and add.</param>
    /// <param name="customiseCallback">The (optional) callback which can be used to customise the added unit.</param>
    /// <returns>The used builder instance.</returns>
-   /// <exception cref="ArgumentException">Thrown if the given <paramref name="kind"/> isn't a <see cref="IContextUnit"/> kind.</exception>
+   /// <exception cref="ArgumentException">Thrown if the given <paramref name="kind"/> isn't an <see cref="IContextUnit"/> kind.</exception>
    /// <remarks>This method will not added the context unit if one of the same kind has already been added to the application.</remarks>
    TSelf TryWithContextOfKind(Type kind, Action<IContextUnit>? customiseCallback = null);
 
@@ -145,6 +145,21 @@ public interface IApplicationBuilder<TSelf> : IApplicationBuilder
    /// <returns>The used builder instance.</returns>
    /// <remarks>This method will not added the context unit if one of the same kind has already been added to the application.</remarks>
    TSelf TryWithContextOfKind<T>(Action<T>? customiseCallback = null) where T : notnull, IContextUnit;
+
+   /// <summary>Tries to customise the application units of the given <paramref name="kind"/>.</summary>
+   /// <param name="kind">The kind of the units to try and customise.</param>
+   /// <param name="customiseCallback">The callback which will be used to customise the applcation units.</param>
+   /// <returns>The used builder instance.</returns>
+   /// <remarks>This will only customise units that have already been added to the application.</remarks>
+   /// <exception cref="ArgumentException">Thrown if the given <paramref name="kind"/> isn't an <see cref="IApplicationUnit"/> kind.</exception>
+   TSelf TryCustomiseUnits(Type kind, Action<IApplicationUnit> customiseCallback);
+
+   /// <summary>Tries to customise the application units of the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the units to try and customise.</typeparam>
+   /// <param name="customiseCallback">The callback which will be used to customise the applcation units.</param>
+   /// <returns>The used builder instance.</returns>
+   /// <remarks>This will only customise units that have already been added to the application.</remarks>
+   TSelf TryCustomiseUnits<T>(Action<T> customiseCallback) where T : notnull, IApplicationUnit;
    #endregion
 }
 

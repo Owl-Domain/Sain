@@ -14,6 +14,10 @@ public abstract class Application<TContext>(
    : IApplication<TContext>
    where TContext : notnull, IApplicationContext
 {
+   #region Constants
+   private const string LogContext = nameof(Application);
+   #endregion
+
    #region Fields
    private readonly object _runLock = new();
    private readonly Stopwatch _runTimeWatch = new();
@@ -109,14 +113,11 @@ public abstract class Application<TContext>(
             IsStopRequested = true;
       }
    }
-   #endregion
-
-   #region Helpers
    private void RunOnCurrentThread(ApplicationRunMode mode)
    {
       try
       {
-         Initialise();
+         Initialise(mode);
 
          if (mode is ApplicationRunMode.UntilStopped)
          {
@@ -169,17 +170,35 @@ public abstract class Application<TContext>(
       ActualLastIterationTime = iterationTime;
       LastIterationTime = _generalWatch.Elapsed;
    }
-   private void Initialise()
+   private void Initialise(ApplicationRunMode mode)
    {
+      foreach (IApplicationUnit unit in Context.AllUnits)
+         unit.Attach(this);
+
+      if (Context.Logging is not null)
+      {
+         LogApplicationInfo(mode);
+         LogApplicationThreadInfo();
+         LogApplicationUnitInfo();
+         LogApplicationInitialisationOrder();
+
+         Context.Logging.Trace(LogContext, $"Application is about to start.");
+      }
+
       Starting?.Invoke(this);
       Context.Initialise(this);
+
       Started?.Invoke(this);
       StartupTime = _generalWatch.Elapsed;
+
+      Context.Logging?.Trace(LogContext, $"Application has finished starting, took {GetNiceTimeFormat(StartupTime)}.");
    }
    private void Cleanup()
    {
       lock (_runLock)
       {
+         Context.Logging?.Trace(LogContext, $"Application is stopping after running for {GetNiceTimeFormat(RunTime)}.");
+
          Stopping?.Invoke(this);
          IsStopRequested = false;
          IsRunning = false;
@@ -188,6 +207,9 @@ public abstract class Application<TContext>(
          {
             if (Context.IsInitialised)
                Context.Cleanup();
+
+            foreach (IApplicationUnit unit in Context.AllUnits)
+               unit.Detach();
          }
          finally
          {
@@ -197,6 +219,92 @@ public abstract class Application<TContext>(
             Stopped?.Invoke(this);
          }
       }
+   }
+   #endregion
+
+   #region Helpers
+   private void LogApplicationInfo(ApplicationRunMode mode)
+   {
+      Debug.Assert(Context.Logging is not null);
+
+      Context.Logging.Info(LogContext, $"Running application ({Info.Name}) in {nameof(ApplicationRunMode)}.{mode}.");
+
+      foreach (IApplicationId id in Info.Ids)
+         Context.Logging.Info(LogContext, $"Application id ({id.GetType().Name}): {id.DisplayName}");
+
+      foreach (IApplicationVersion version in Info.Versions)
+         Context.Logging.Info(LogContext, $"Application version ({version.GetType().Name}): {version.DisplayName}");
+   }
+   private void LogApplicationUnitInfo()
+   {
+      Debug.Assert(Context.Logging is not null);
+
+      Context.Logging.Info(LogContext, $"Application has {Context.AllUnits.Count:n0} total available unit(s).");
+      Context.Logging.Info(LogContext, $"{Context.ContextProviders.Count:n0} context provider unit(s).");
+      foreach (IContextProviderUnit provider in Context.ContextProviders)
+      {
+         Type type = provider.GetType();
+         Context.Logging.Info(LogContext, $"Context provider unit ({type.FullName ?? type.Name}) of the kind ({provider.Kind}).");
+      }
+
+      Context.Logging.Info(LogContext, $"{Context.Contexts.Count:n0} context unit(s).");
+      foreach (IContextUnit context in Context.Contexts)
+      {
+         Type type = context.GetType();
+         Context.Logging.Info(LogContext, $"Context unit ({type.FullName ?? type.Name}) of the kind ({context.Kind}).");
+      }
+
+      Context.Logging.Info(LogContext, $"{Context.GeneralUnits.Count:n0} general unit(s).");
+      foreach (IApplicationUnit unit in Context.GeneralUnits)
+      {
+         Type type = unit.GetType();
+         Context.Logging.Info(LogContext, $"General application unit ({type.FullName ?? type.Name}) of the kind ({unit.Kind}).");
+      }
+   }
+   private void LogApplicationInitialisationOrder()
+   {
+      Debug.Assert(Context.Logging is not null);
+
+      int i = 1;
+      Context.Logging.Debug(LogContext, $"Application has {Context.InitialisationOrder.Count:n0} unit(s) to initialise.");
+      foreach (IApplicationUnit unit in Context.InitialisationOrder)
+      {
+         Type type = unit.GetType();
+         Context.Logging.Debug(LogContext, $"#{i++:n0}: {type.FullName ?? type.Name}.");
+      }
+   }
+   private void LogApplicationThreadInfo()
+   {
+      Debug.Assert(Context.Logging is not null);
+
+      Thread thread = Thread.CurrentThread;
+      Context.Logging.Debug(LogContext, $"Application is starting on thread #{thread.ManagedThreadId:n0}.");
+      Context.Logging.Debug(LogContext, $"Application thread name: ({thread.Name}).");
+
+      if (thread.IsBackground)
+         Context.Logging.Debug(LogContext, $"Application thread is a background thread.");
+      else
+         Context.Logging.Debug(LogContext, $"Application thread is not a background thread.");
+   }
+   private static string GetNiceTimeFormat(TimeSpan time)
+   {
+      List<string> parts = [];
+
+      int hours = (time.Days * 24) + time.Hours;
+
+      if (hours > 0)
+         parts.Add($"{hours:n0}h");
+
+      if (time.Minutes > 0)
+         parts.Add($"{time.Minutes}m");
+
+      if (time.Days > 0)
+         parts.Add($"{time.Seconds}s");
+
+      if (parts.Count is 0 || time.Milliseconds > 0)
+         parts.Add($"{time.Milliseconds:n0}ms");
+
+      return string.Join(' ', parts);
    }
    #endregion
 }
