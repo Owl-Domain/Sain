@@ -5,12 +5,7 @@ namespace Sain.Applications;
 /// <summary>
 ///   Represents the context of a Sain application.
 /// </summary>
-/// <param name="allUnits">The collection of all the units that have been added to the application.</param>
-/// <param name="initialisationOrder">The order in which the application units will be initialised in.</param>
-public class ApplicationContext(
-   IReadOnlyCollection<IApplicationUnit> allUnits,
-   IReadOnlyList<IApplicationUnit> initialisationOrder)
-   : IApplicationContext
+public class ApplicationContext : IApplicationContext
 {
    #region Fields
    private readonly object _initLock = new();
@@ -34,19 +29,46 @@ public class ApplicationContext(
    public bool IsInitialised { get; private set; }
 
    /// <inheritdoc/>
-   public IReadOnlyCollection<IApplicationUnit> AllUnits { get; } = allUnits;
+   public IReadOnlyCollection<IApplicationUnit> AllUnits { get; }
 
    /// <inheritdoc/>
-   public IReadOnlyCollection<IApplicationUnit> GeneralUnits { get; } = [.. allUnits.Where(unit => unit is not IContextUnit and not IContextProviderUnit)];
+   public IReadOnlyCollection<IApplicationUnit> GeneralUnits { get; }
 
    /// <inheritdoc/>
-   public IReadOnlyCollection<IContextUnit> Contexts { get; } = [.. allUnits.OfType<IContextUnit>()];
+   public IReadOnlyCollection<IContextUnit> Contexts { get; }
 
    /// <inheritdoc/>
-   public IReadOnlyCollection<IContextProviderUnit> ContextProviders { get; } = [.. allUnits.OfType<IContextProviderUnit>()];
+   public IReadOnlyCollection<IContextProviderUnit> ContextProviders { get; }
 
    /// <inheritdoc/>
-   public IReadOnlyList<IApplicationUnit> InitialisationOrder { get; } = initialisationOrder;
+   public IReadOnlyList<IApplicationUnit> InitialisationOrder { get; }
+   #endregion
+
+   #region Standard context properties
+   /// <inheritdoc/>
+   public ITimeContextUnit? Time { get; }
+
+   /// <inheritdoc/>
+   public ILoggingContextUnit? Logging { get; }
+   #endregion
+
+   #region Constructors
+   /// <summary>Creates a new instance of the <see cref="ApplicationContext"/>.</summary>
+   /// <param name="allUnits">The collection of all the units that have been added to the application.</param>
+   /// <param name="initialisationOrder">The order in which the application units will be initialised in.</param>
+   public ApplicationContext(
+      IReadOnlyCollection<IApplicationUnit> allUnits,
+      IReadOnlyList<IApplicationUnit> initialisationOrder)
+   {
+      AllUnits = allUnits;
+      GeneralUnits = [.. allUnits.Where(unit => unit is not IContextUnit and not IContextProviderUnit)];
+      Contexts = [.. allUnits.OfType<IContextUnit>()];
+      ContextProviders = [.. allUnits.OfType<IContextProviderUnit>()];
+      InitialisationOrder = initialisationOrder;
+
+      if (this.TryGetContext(out ITimeContextUnit? time)) Time = time;
+      if (this.TryGetContext(out ILoggingContextUnit? logging)) Logging = logging;
+   }
    #endregion
 
    #region Methods

@@ -32,6 +32,14 @@ public interface IApplicationContext
    IReadOnlyList<IApplicationUnit> InitialisationOrder { get; }
    #endregion
 
+   #region Standard context properties
+   /// <summary>The application's context unit for time information.</summary>
+   ITimeContextUnit? Time { get; }
+
+   /// <summary>The application's context unit for logging information.</summary>
+   ILoggingContextUnit? Logging { get; }
+   #endregion
+
    #region Methods
    /// <summary>Initialises the application context.</summary>
    /// <param name="application">The Sain application that the current application context is for.</param>

@@ -50,6 +50,19 @@ public class BaseApplicationUnit : IApplicationUnit
          throw new InvalidOperationException($"The unit ({this}) has not been attached to an application yet.");
       }
    }
+
+   /// <summary>Gets the context of the application that the unit has been attached to.</summary>
+   /// <exception cref="InvalidOperationException">Thrown if the unit hasn't been attached to an application yet.</exception>
+   protected IApplicationContext Context
+   {
+      get
+      {
+         if (_application is not null)
+            return _application.Context;
+
+         throw new InvalidOperationException($"The unit ({this}) has not been attached to an application yet.");
+      }
+   }
    #endregion
 
    #region Methods
@@ -159,5 +172,18 @@ public class BaseApplicationUnit : IApplicationUnit
 
    /// <summary>Called when the unit has been cleaned up (uninitialised).</summary>
    protected virtual void OnCleanup() { }
+   #endregion
+
+   #region Helpers
+   /// <summary>Throws an exception if the component has not been initialised yet.</summary>
+   /// <exception cref="InvalidOperationException">Thrown if the component has not been initialised yet.</exception>
+   protected void ThrowIfNotInitialised()
+   {
+      lock (_initLock)
+      {
+         if (IsInitialised is false)
+            throw new InvalidOperationException($"The unit ({this}) has not been initialised yet.");
+      }
+   }
    #endregion
 }
