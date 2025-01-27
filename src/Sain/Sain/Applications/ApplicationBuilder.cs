@@ -155,6 +155,52 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
    }
 
    /// <inheritdoc/>
+   public TSelf WithContextOfKind(Type kind, Action<IContextUnit>? customiseCallback = null)
+   {
+      if (typeof(IContextUnit).IsAssignableFrom(kind) is false)
+         throw new ArgumentException($"The given kind ({kind}) is not a {nameof(IContextUnit)} kind.", nameof(kind));
+
+      foreach (IApplicationUnit unit in _units)
+      {
+         if (unit is not IContextProviderUnit provider)
+            continue;
+
+         if (provider.TryProvide(kind, out IContextUnit? context))
+         {
+            WithContext(context, customiseCallback);
+            return Instance;
+         }
+      }
+
+      throw new InvalidOperationException($"Couldn't obtain a context unit for the given kind ({kind}) from the added context provider units.");
+   }
+
+   /// <inheritdoc/>
+   public TSelf WithContextOfKind<T>(Action<T>? customiseCallback = null) where T : notnull, IContextUnit
+   {
+      Type kind = typeof(T);
+
+      if (typeof(IContextUnit).IsAssignableFrom(kind) is false)
+         throw new ArgumentException($"The given kind ({kind}) is not a {nameof(IContextUnit)} kind.", nameof(T));
+
+      foreach (IApplicationUnit unit in _units)
+      {
+         if (unit is not IContextProviderUnit provider)
+            continue;
+
+         if (provider.TryProvide(kind, out IContextUnit? context))
+         {
+            WithContext(context);
+            customiseCallback?.Invoke((T)context);
+
+            return Instance;
+         }
+      }
+
+      throw new InvalidOperationException($"Couldn't obtain a context unit for the given kind ({kind}) from the added context provider units.");
+   }
+
+   /// <inheritdoc/>
    public TApplication Build()
    {
       HardValidate();
