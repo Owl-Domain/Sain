@@ -20,6 +20,17 @@ public interface IApplicationBuilder<TSelf> : IApplicationBuilder
    where TSelf : notnull, IApplicationBuilder<TSelf>
 {
    #region Methods
+   /// <summary>Defers the validation so that it only happens when the application is being built.</summary>
+   /// <returns>The used builder instance.</returns>
+   /// <remarks>If this is not called, then validation will happen whenever a new application unit is added.</remarks>
+   TSelf DeferValidation();
+
+   /// <summary>Validates the current state of the application builder.</summary>
+   /// <returns>The used builder instance.</returns>
+   /// <remarks>Calling this manually is only useful if you called <see cref="DeferValidation"/> beforehand.</remarks>
+   /// <exception cref="InvalidOperationException">Thrown if the application builder is in an invalid state.</exception>
+   TSelf Validate();
+
    /// <summary>Sets the application name to the given <paramref name="name"/>.</summary>
    /// <param name="name">The name of the application.</param>
    /// <returns>The used builder instance.</returns>
@@ -47,6 +58,56 @@ public interface IApplicationBuilder<TSelf> : IApplicationBuilder
    ///   </list>
    /// </remarks>
    TSelf WithApplicationVersion(IApplicationVersion version);
+
+   /// <summary>Adds the given application <paramref name="unit"/> to the application.</summary>
+   /// <param name="unit">The application unit to add to the application.</param>
+   /// <param name="customiseCallback">The (optional) callback which can be used to customise the added <paramref name="unit"/>.</param>
+   /// <returns>The used builder instance.</returns>
+   /// <remarks>
+   ///   <list type="bullet">
+   ///      <item>If the given <paramref name="unit"/> is an <see cref="IContextUnit"/> then <see cref="WithContext"/> will be called instead.</item>
+   ///      <item>If the given <paramref name="unit"/> is an <see cref="IContextProviderUnit"/> then <see cref="WithContextProvider"/> will be called instead.</item>
+   ///   </list>
+   /// </remarks>
+   /// <exception cref="ArgumentException">Thrown if the given <paramref name="unit"/> is both an <see cref="IContextUnit"/> and an <see cref="IContextProviderUnit"/>.</exception>
+   TSelf WithUnit(IApplicationUnit unit, Action<IApplicationUnit>? customiseCallback = null);
+
+   /// <summary>Creates a new instance of the application unit of the type <typeparamref name="T"/> and adds it to the application.</summary>
+   /// <typeparam name="T">The type of the application unit create and add to the application.</typeparam>
+   /// <param name="customiseCallback">The (optional) callback which can be used to customise the created unit.</param>
+   /// <returns>The used builder instance.</returns>
+   /// <remarks>
+   ///   <list type="bullet">
+   ///      <item>If the created unit is an <see cref="IContextUnit"/> then <see cref="WithContext"/> will be called instead.</item>
+   ///      <item>If the created unit is an <see cref="IContextProviderUnit"/> then <see cref="WithContextProvider"/> will be called instead.</item>
+   ///   </list>
+   /// </remarks>
+   /// <exception cref="ArgumentException">Thrown if the created unit is both an <see cref="IContextUnit"/> and an <see cref="IContextProviderUnit"/>.</exception>
+   TSelf WithUnit<T>(Action<T>? customiseCallback = null) where T : notnull, IApplicationUnit, new();
+
+   /// <summary>Adds the given context <paramref name="unit"/> to the application.</summary>
+   /// <param name="unit">The context unit to add to the application.</param>
+   /// <param name="customiseCallback">The (optional) callback which can be used to customise the added <paramref name="unit"/>.</param>
+   /// <returns>The used builder instance.</returns>
+   TSelf WithContext(IContextUnit unit, Action<IContextUnit>? customiseCallback = null);
+
+   /// <summary>Creates a new instance of the context unit of the type <typeparamref name="T"/> and adds it to the application.</summary>
+   /// <typeparam name="T">The type of the context unit create and add to the application.</typeparam>
+   /// <param name="customiseCallback">The (optional) callback which can be used to customise the created unit.</param>
+   /// <returns>The used builder instance.</returns>
+   TSelf WithContext<T>(Action<T>? customiseCallback = null) where T : notnull, IContextUnit, new();
+
+   /// <summary>Adds the given context provider <paramref name="unit"/> to the application.</summary>
+   /// <param name="unit">The context provider unit to add to the application.</param>
+   /// <param name="customiseCallback">The (optional) callback which can be used to customise the added <paramref name="unit"/>.</param>
+   /// <returns>The used builder instance.</returns>
+   TSelf WithContextProvider(IContextProviderUnit unit, Action<IContextProviderUnit>? customiseCallback = null);
+
+   /// <summary>Creates a new instance of the context provider unit of the type <typeparamref name="T"/> and adds it to the application.</summary>
+   /// <typeparam name="T">The type of the context provider unit create and add to the application.</typeparam>
+   /// <param name="customiseCallback">The (optional) callback which can be used to customise the created unit.</param>
+   /// <returns>The used builder instance.</returns>
+   TSelf WithContextProvider<T>(Action<T>? customiseCallback = null) where T : notnull, IContextProviderUnit, new();
    #endregion
 }
 
