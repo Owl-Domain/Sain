@@ -66,6 +66,7 @@ public interface IApplication
    TimeSpan ActualLastIterationTime { get; }
 
    /// <summary>The time it took for the application to start.</summary>
+   /// <remarks>This will only be available after the <see cref="Started"/> event has been raised.</remarks>
    TimeSpan StartupTime { get; }
    #endregion
 
@@ -113,7 +114,6 @@ public interface IApplication<TContext> : IApplication
    IApplicationContext IApplication.Context => Context;
    #endregion
 }
-
 
 /// <summary>
 ///   Contains various extension methods related to the <see cref="IApplication"/>.
