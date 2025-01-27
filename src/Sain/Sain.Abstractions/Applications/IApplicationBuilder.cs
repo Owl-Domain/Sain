@@ -20,17 +20,6 @@ public interface IApplicationBuilder<TSelf> : IApplicationBuilder
    where TSelf : notnull, IApplicationBuilder<TSelf>
 {
    #region Methods
-   /// <summary>Defers the validation so that it only happens when the application is being built.</summary>
-   /// <returns>The used builder instance.</returns>
-   /// <remarks>If this is not called, then validation will happen whenever a new application unit is added.</remarks>
-   TSelf DeferValidation();
-
-   /// <summary>Validates the current state of the application builder.</summary>
-   /// <returns>The used builder instance.</returns>
-   /// <remarks>Calling this manually is only useful if you called <see cref="DeferValidation"/> beforehand.</remarks>
-   /// <exception cref="InvalidOperationException">Thrown if the application builder is in an invalid state.</exception>
-   TSelf Validate();
-
    /// <summary>Sets the time for how long each application iteration should last for at a minimum.</summary>
    /// <param name="time">The minimum time each application iteration should last for.</param>
    /// <returns>The used builder instance.</returns>

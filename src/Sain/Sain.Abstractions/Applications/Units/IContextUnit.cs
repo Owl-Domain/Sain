@@ -9,5 +9,8 @@ public interface IContextUnit : IApplicationUnit
    #region Properties
    /// <summary>The context provider that this unit came from.</summary>
    IContextProviderUnit? Provider { get; }
+
+   /// <summary>Whether the context provider that this unit came from should automatically be initialised before this unit.</summary>
+   bool InitialiseAfterProvider { get; }
    #endregion
 }

@@ -33,6 +33,9 @@ public interface IApplicationUnit
    /// <summary>The application units that this unit requires to function.</summary>
    IReadOnlyCollection<Type> RequiresUnits { get; }
 
+   /// <summary>Whether the application unit should automatically be initialised after the required units.</summary>
+   bool InitialiseAfterRequiredUnits { get; }
+
    /// <summary>The application units that this unit cannot function along with.</summary>
    IReadOnlyCollection<Type> ConflictsWithUnits { get; }
 

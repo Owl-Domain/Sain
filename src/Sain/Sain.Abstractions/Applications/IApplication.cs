@@ -13,6 +13,9 @@ public enum ApplicationRunMode : byte
 
    /// <summary>Runs the application on a new thread.</summary>
    RunOnNewThread,
+
+   /// <summary>Runs the application on a new background thread.</summary>
+   RunOnBackgroundThread,
 }
 
 /// <summary>
@@ -30,11 +33,11 @@ public interface IApplication
    /// <summary>The information about the application.</summary>
    IApplicationInfo Info { get; }
 
-   /// <summary>The context of the application.</summary>
-   IApplicationContext Context { get; }
-
    /// <summary>The configuration options for the application.</summary>
    IApplicationConfiguration Configuration { get; }
+
+   /// <summary>The context of the application.</summary>
+   IApplicationContext Context { get; }
 
    /// <summary>Whether the application is currently running.</summary>
    bool IsRunning { get; }

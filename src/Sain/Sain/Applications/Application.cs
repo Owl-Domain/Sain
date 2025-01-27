@@ -5,12 +5,12 @@ namespace Sain.Applications;
 /// </summary>
 /// <typeparam name="TContext">The type of the application <paramref name="context"/>.</typeparam>
 /// <param name="info">The information about the application.</param>
-/// <param name="context">The context of the application.</param>
 /// <param name="configuration">The configuration options for the application.</param>
+/// <param name="context">The context of the application.</param>
 public abstract class Application<TContext>(
    IApplicationInfo info,
-   TContext context,
-   IApplicationConfiguration configuration)
+   IApplicationConfiguration configuration,
+   TContext context)
    : IApplication<TContext>
    where TContext : notnull, IApplicationContext
 {
@@ -25,10 +25,10 @@ public abstract class Application<TContext>(
    public IApplicationInfo Info { get; } = info;
 
    /// <inheritdoc/>
-   public TContext Context { get; } = context;
+   public IApplicationConfiguration Configuration { get; } = configuration;
 
    /// <inheritdoc/>
-   public IApplicationConfiguration Configuration { get; } = configuration;
+   public TContext Context { get; } = context;
 
    /// <inheritdoc/>
    public bool IsRunning { get; private set; }
@@ -82,6 +82,7 @@ public abstract class Application<TContext>(
          LastIterationTime = default;
          ActualLastIterationTime = default;
 
+         _generalWatch.Restart();
          _runTimeWatch.Restart();
          IsStopRequested = false;
          IsRunning = true;
@@ -93,6 +94,8 @@ public abstract class Application<TContext>(
          RunSingleIterationOnCurrentThread();
       else if (mode is ApplicationRunMode.RunOnNewThread)
          RunOnNewThread();
+      else if (mode is ApplicationRunMode.RunOnBackgroundThread)
+         RunOnBackgroundThread();
       else
          Debug.Fail("This shouldn't happen because of the guard.");
    }
@@ -115,6 +118,7 @@ public abstract class Application<TContext>(
          ApplicationRunMode.RunOnCurrentThread => true,
          ApplicationRunMode.RunSingleIterationOnCurrentThread => true,
          ApplicationRunMode.RunOnNewThread => true,
+         ApplicationRunMode.RunOnBackgroundThread => true,
 
          _ => false,
       };
@@ -160,6 +164,24 @@ public abstract class Application<TContext>(
          Cleanup();
       }
    }
+   private void RunOnBackgroundThread()
+   {
+      try
+      {
+         Thread thread = new(RunOnCurrentThread)
+         {
+            Name = $"Sain Application Background Thread ({Info.Name})",
+            IsBackground = true,
+         };
+
+         thread.Start();
+      }
+      finally
+      {
+         Cleanup();
+      }
+   }
+
    private void RunIteration()
    {
       _generalWatch.Restart();
@@ -180,7 +202,6 @@ public abstract class Application<TContext>(
       Starting?.Invoke(this);
       Context.Initialise(this);
       Started?.Invoke(this);
-
       StartupTime = _generalWatch.Elapsed;
    }
    private void Cleanup()
@@ -212,12 +233,17 @@ public abstract class Application<TContext>(
 ///   Represents a Sain application.
 /// </summary>
 /// <param name="info">The information about the application.</param>
-/// <param name="context">The context of the application.</param>
 /// <param name="configuration">The configuration options for the application.</param>
+/// <param name="context">The context of the application.</param>
 public sealed class Application(
    IApplicationInfo info,
-   IApplicationContext context,
-   IApplicationConfiguration configuration)
-   : Application<IApplicationContext>(info, context, configuration)
+   IApplicationConfiguration configuration,
+   IApplicationContext context)
+   : Application<IApplicationContext>(info, configuration, context)
 {
+   #region Functions
+   /// <summary>Starts building a new Sain application.</summary>
+   /// <returns>The application builder used to build and customise the new application.</returns>
+   public static ApplicationBuilder New() => new();
+   #endregion
 }
