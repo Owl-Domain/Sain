@@ -47,6 +47,9 @@ public interface IApplication
 
    /// <summary>The time it took for the last iteration to finish.</summary>
    TimeSpan IterationTime { get; }
+
+   /// <summary>The time it took for the application to start.</summary>
+   TimeSpan StartupTime { get; }
    #endregion
 
    #region Events

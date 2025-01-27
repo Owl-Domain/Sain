@@ -13,11 +13,21 @@ public interface IApplicationUnit
    bool CanCoexist { get; }
 
    /// <summary>The application units that should be initialised before this unit.</summary>
-   /// <remarks>These units are not treated as hard requirements, and are only used for determining the initialisation order.</remarks>
+   /// <remarks>
+   ///   <list type="bullet">
+   ///      <item>These units are not treated as hard requirements, and are only used for determining the initialisation order.</item>
+   ///      <item>These units will be cleaned up (uninitialised) after the current unit.</item>
+   ///   </list>
+   /// </remarks>
    IReadOnlyCollection<Type> InitialiseAfterUnits { get; }
 
-   /// <summary>The application units should be initialised after this unit.</summary>
-   /// <remarks>These units are not treated as hard requirements, and are only used for determining the initialisation order.</remarks>
+   /// <summary>The application units that should be initialised after this unit.</summary>
+   /// <remarks>
+   ///   <list type="bullet">
+   ///      <item>These units are not treated as hard requirements, and are only used for determining the initialisation order.</item>
+   ///      <item>These units will be cleaned up (uninitialised) before the current unit.</item>
+   ///   </list>
+   /// </remarks>
    IReadOnlyCollection<Type> InitialiseBeforeUnits { get; }
 
    /// <summary>The application units that this unit requires to function.</summary>
