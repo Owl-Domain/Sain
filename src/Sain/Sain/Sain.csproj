@@ -14,4 +14,9 @@
     <Deterministic>true</Deterministic>
   </PropertyGroup>
 
+  <!-- Project references -->
+  <ItemGroup Label="projects">
+    <ProjectReference Include="../Sain.Abstractions/Sain.Abstractions.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -33,20 +33,25 @@ public interface IApplication
    /// <summary>The context of the application.</summary>
    IApplicationContext Context { get; }
 
+   /// <summary>The configuration options for the application.</summary>
+   IApplicationConfiguration Configuration { get; }
+
    /// <summary>Whether the application is currently running.</summary>
    bool IsRunning { get; }
 
    /// <summary>Whether the application has been requested to be stopped.</summary>
    bool IsStopRequested { get; }
 
-   /// <summary>The minimum time that a single application iteration should last.</summary>
-   TimeSpan MinimumIterationTime { get; }
-
    /// <summary>The time that the application has been running for.</summary>
    TimeSpan RunTime { get; }
 
    /// <summary>The time it took for the last iteration to finish.</summary>
-   TimeSpan IterationTime { get; }
+   /// <remarks>This will include the time spent waiting for <see cref="IApplicationConfiguration.MinimumIterationTime"/>.</remarks>
+   TimeSpan LastIterationTime { get; }
+
+   /// <summary>The time it took for the last iteration to finish.</summary>
+   /// <remarks>This will be the actual time the main iteration logic took, without waiting for <see cref="IApplicationConfiguration.MinimumIterationTime"/>.</remarks>
+   TimeSpan ActualLastIterationTime { get; }
 
    /// <summary>The time it took for the application to start.</summary>
    TimeSpan StartupTime { get; }
@@ -72,11 +77,12 @@ public interface IApplication
    #region Methods
    /// <summary>Runs the application with the given run <paramref name="mode"/>.</summary>
    /// <param name="mode">The mode to run the application with.</param>
+   /// <exception cref="ArgumentOutOfRangeException">Thrown if the given <paramref name="mode"/> value is unknown.</exception>
    /// <exception cref="InvalidOperationException">Thrown if the application is already running.</exception>
    void Run(ApplicationRunMode mode = ApplicationRunMode.RunOnCurrentThread);
 
    /// <summary>Requests for the application to stop.</summary>
-   /// <exception cref="InvalidOperationException">Thrown if the application is not running.</exception>
+   /// <remarks>If the application is not currently running then this will do nothing.</remarks>
    void Stop();
    #endregion
 }

@@ -6,6 +6,13 @@ namespace Sain.Applications;
 public interface IApplicationContext
 {
    #region Properties
+   /// <summary>The application that the application context has been attached to.</summary>
+   /// <exception cref="InvalidOperationException">Thrown if the application context hasn't been attached to an application yet.</exception>
+   IApplication Application { get; }
+
+   /// <summary>Whether the application context has been initialised.</summary>
+   bool IsInitialised { get; }
+
    /// <summary>The collection of all the units that have been added to the application.</summary>
    /// <remarks>This means general units, context units and context provider units.</remarks>
    IReadOnlyCollection<IApplicationUnit> AllUnits { get; }
