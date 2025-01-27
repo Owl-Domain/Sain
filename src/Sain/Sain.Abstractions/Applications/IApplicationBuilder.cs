@@ -31,6 +31,14 @@ public interface IApplicationBuilder<TSelf> : IApplicationBuilder
    /// <exception cref="InvalidOperationException">Thrown if the application builder is in an invalid state.</exception>
    TSelf Validate();
 
+   /// <summary>Sets the time for how long each application iteration should last for at a minimum.</summary>
+   /// <param name="time">The minimum time each application iteration should last for.</param>
+   /// <returns>The used builder instance.</returns>
+   /// <remarks>Use <see cref="TimeSpan.Zero"/> to not have a minimum iteration time.</remarks>
+   /// <exception cref="ArgumentOutOfRangeException">Thrown if the given <paramref name="time"/> value is negative.</exception>
+   /// <exception cref="InvalidOperationException">Thrown if the minimum iteration time has already been set.</exception>
+   TSelf WithMinimumIterationTime(TimeSpan time);
+
    /// <summary>Sets the application name to the given <paramref name="name"/>.</summary>
    /// <param name="name">The name of the application.</param>
    /// <returns>The used builder instance.</returns>
