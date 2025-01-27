@@ -52,16 +52,16 @@ public interface IApplicationUnit
    /// <exception cref="InvalidOperationException">Thrown if the unit is already attached to an application.</exception>
    void Attach(IApplication application);
 
+   /// <summary>Detaches the unit from the application.</summary>
+   /// <exception cref="InvalidOperationException">Thrown if the unit is not attached to an application, or it is still initialised.</exception>
+   void Detach();
+
    /// <summary>Initialises the unit.</summary>
-   /// <exception cref="InvalidOperationException">Thrown if the unit is already initialised.</exception>
+   /// <exception cref="InvalidOperationException">Thrown if the unit is already initialised, or if it hasn't been attached to an application yet.</exception>
    void Initialise();
 
    /// <summary>Cleans up (uninitialises) the unit.</summary>
-   /// <exception cref="InvalidOperationException">Thrown if the unit is not initialised.</exception>
+   /// <exception cref="InvalidOperationException">Thrown if the unit has not been initialised yet.</exception>
    void Cleanup();
-
-   /// <summary>Detaches the unit from the application.</summary>
-   /// <exception cref="InvalidOperationException">Thrown if the unit is not attached to an application.</exception>
-   void Detach();
    #endregion
 }
