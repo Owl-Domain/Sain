@@ -51,7 +51,7 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
    protected virtual TimeSpan DefaultMinimumIterationTime => TimeSpan.Zero;
    #endregion
 
-   #region Methods
+   #region Configuration methods
    /// <inheritdoc/>
    public TSelf WithMinimumIterationTime(TimeSpan time)
    {
@@ -136,6 +136,21 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
    }
 
    /// <inheritdoc/>
+   public bool HasContextOfKind(Type kind)
+   {
+      foreach (IApplicationUnit unit in _units)
+      {
+         if (unit.Kind == kind)
+            return true;
+      }
+
+      return false;
+   }
+
+   /// <inheritdoc/>
+   public bool HasContextOfKind<T>() where T : notnull, IContextUnit => HasContextOfKind(typeof(T));
+
+   /// <inheritdoc/>
    public TSelf WithContextProvider(IContextProviderUnit unit, Action<IContextProviderUnit>? customiseCallback = null)
    {
       customiseCallback?.Invoke(unit);
@@ -180,9 +195,6 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
    {
       Type kind = typeof(T);
 
-      if (typeof(IContextUnit).IsAssignableFrom(kind) is false)
-         throw new ArgumentException($"The given kind ({kind}) is not a {nameof(IContextUnit)} kind.", nameof(T));
-
       foreach (IApplicationUnit unit in _units)
       {
          if (unit is not IContextProviderUnit provider)
@@ -201,12 +213,64 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
    }
 
    /// <inheritdoc/>
+   public TSelf TryWithContextOfKind(Type kind, Action<IContextUnit>? customiseCallback = null)
+   {
+      if (typeof(IContextUnit).IsAssignableFrom(kind) is false)
+         throw new ArgumentException($"The given kind ({kind}) is not a {nameof(IContextUnit)} kind.", nameof(kind));
+
+      if (HasContextOfKind(kind))
+         return Instance;
+
+      foreach (IApplicationUnit unit in _units)
+      {
+         if (unit is not IContextProviderUnit provider)
+            continue;
+
+         if (provider.TryProvide(kind, out IContextUnit? context))
+         {
+            WithContext(context, customiseCallback);
+            return Instance;
+         }
+      }
+
+      return Instance;
+   }
+
+   /// <inheritdoc/>
+   public TSelf TryWithContextOfKind<T>(Action<T>? customiseCallback = null) where T : notnull, IContextUnit
+   {
+      Type kind = typeof(T);
+
+      if (HasContextOfKind(kind))
+         return Instance;
+
+      foreach (IApplicationUnit unit in _units)
+      {
+         if (unit is not IContextProviderUnit provider)
+            continue;
+
+         if (provider.TryProvide(kind, out IContextUnit? context))
+         {
+            WithContext(context);
+            customiseCallback?.Invoke((T)context);
+
+            return Instance;
+         }
+      }
+
+      throw new InvalidOperationException($"Couldn't obtain a context unit for the given kind ({kind}) from the added context provider units.");
+   }
+   #endregion
+
+   #region Build methods
+   /// <inheritdoc/>
    public TApplication Build()
    {
-      HardValidate();
-
       if (_name is null)
          throw new InvalidOperationException($"The application name has not been set.");
+
+      AddDefaultUnits();
+      HardValidate();
 
       IReadOnlyCollection<IApplicationUnit> units = GetFinalApplicationUnits();
       IReadOnlyList<IApplicationUnit> initialisationOrder = GetInitialisationOrder(units);
@@ -228,6 +292,14 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
       return application;
    }
 
+   /// <summary>Adds the application units that are considered to be useful for the application.</summary>
+   /// <remarks>If you override this method, make sure to call the base implementation.</remarks>
+   protected virtual void AddDefaultUnits()
+   {
+      TryWithContextOfKind<ITimeContextUnit>();
+      TryWithContextOfKind<ILoggingContextUnit>();
+   }
+
    /// <summary>Builds the application context.</summary>
    /// <param name="units">The final units that are being added to the application.</param>
    /// <param name="initialisationOrder">The order in which the given <paramref name="units"/> should be initialised in.</param>
@@ -240,9 +312,7 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
    /// <param name="context">The context of the application.</param>
    /// <returns></returns>
    protected abstract TApplication BuildApplication(IApplicationInfo info, IApplicationConfiguration configuration, TContext context);
-   #endregion
 
-   #region Helpers
    /// <summary>Gets the final application units that should be added to the application.</summary>
    /// <returns>The application units that should be added to the application.</returns>
    protected virtual IReadOnlyCollection<IApplicationUnit> GetFinalApplicationUnits()
@@ -379,7 +449,9 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
 
       return order;
    }
+   #endregion
 
+   #region Validate methods
    /// <summary>Performs soft validation on the state of the application builder.</summary>
    /// <remarks>
    ///   <list type="bullet">

@@ -9,6 +9,17 @@ public interface IApplicationBuilder
    /// <summary>Builds the configured Sain application.</summary>
    /// <returns>The built application.</returns>
    IApplication Build();
+
+   /// <summary>Checks whether a context unit of the given <paramref name="kind"/> has been added to the application.</summary>
+   /// <param name="kind">The kind of the context unit to check for.</param>
+   /// <returns><see langword="true"/> if a context unit of the given <paramref name="kind"/> has been added to the application, <see langword="false"/> otherwise.</returns>
+   /// <exception cref="ArgumentException">Thrown if the given <paramref name="kind"/> isn't a <see cref="IContextUnit"/> kind.</exception>
+   bool HasContextOfKind(Type kind);
+
+   /// <summary>Checks whether a context unit of the given kind <typeparamref name="T"/> has been added to the application.</summary>
+   /// <typeparam name="T">The kind of the context unit to check for.</typeparam>
+   /// <returns><see langword="true"/> if a context unit of the given kind <typeparamref name="T"/> has been added to the application, <see langword="false"/> otherwise.</returns>
+   bool HasContextOfKind<T>() where T : notnull, IContextUnit;
    #endregion
 }
 
@@ -106,7 +117,7 @@ public interface IApplicationBuilder<TSelf> : IApplicationBuilder
    /// <returns>The used builder instance.</returns>
    TSelf WithContextProvider<T>(Action<T>? customiseCallback = null) where T : notnull, IContextProviderUnit, new();
 
-   /// <summary>Tries to request a context unit of the given <paramref name="kind"/> from the added context provider units.</summary>
+   /// <summary>Requests a context unit of the given <paramref name="kind"/> from the added context provider units.</summary>
    /// <param name="kind">The kind of the context unit to try and add.</param>
    /// <param name="customiseCallback">The (optional) callback which can be used to customise the added unit.</param>
    /// <returns>The used builder instance.</returns>
@@ -114,12 +125,26 @@ public interface IApplicationBuilder<TSelf> : IApplicationBuilder
    /// <exception cref="InvalidOperationException">Thrown if no context of the given <paramref name="kind"/> could be added.</exception>
    TSelf WithContextOfKind(Type kind, Action<IContextUnit>? customiseCallback = null);
 
+   /// <summary>Requests a context unit of the given kind <typeparamref name="T"/> from the added context provider units.</summary>
+   /// <typeparam name="T">The type of the context unit kind to try and add.</typeparam>
+   /// <param name="customiseCallback">The (optional) callback which can be used to customise the added unit.</param>
+   /// <returns>The used builder instance.</returns>
+   TSelf WithContextOfKind<T>(Action<T>? customiseCallback = null) where T : notnull, IContextUnit;
+
+   /// <summary>Tries to request a context unit of the given <paramref name="kind"/> from the added context provider units.</summary>
+   /// <param name="kind">The kind of the context unit to try and add.</param>
+   /// <param name="customiseCallback">The (optional) callback which can be used to customise the added unit.</param>
+   /// <returns>The used builder instance.</returns>
+   /// <exception cref="ArgumentException">Thrown if the given <paramref name="kind"/> isn't a <see cref="IContextUnit"/> kind.</exception>
+   /// <remarks>This method will not added the context unit if one of the same kind has already been added to the application.</remarks>
+   TSelf TryWithContextOfKind(Type kind, Action<IContextUnit>? customiseCallback = null);
+
    /// <summary>Tries to request a context unit of the given kind <typeparamref name="T"/> from the added context provider units.</summary>
    /// <typeparam name="T">The type of the context unit kind to try and add.</typeparam>
    /// <param name="customiseCallback">The (optional) callback which can be used to customise the added unit.</param>
    /// <returns>The used builder instance.</returns>
-   /// <exception cref="ArgumentException">Thrown if the given kind <typeparamref name="T"/> isn't a <see cref="IContextUnit"/> kind.</exception>
-   TSelf WithContextOfKind<T>(Action<T>? customiseCallback = null) where T : notnull, IContextUnit;
+   /// <remarks>This method will not added the context unit if one of the same kind has already been added to the application.</remarks>
+   TSelf TryWithContextOfKind<T>(Action<T>? customiseCallback = null) where T : notnull, IContextUnit;
    #endregion
 }
 

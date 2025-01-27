@@ -85,6 +85,9 @@ public class ApplicationContext : IApplicationContext
 
          try
          {
+            foreach (IApplicationUnit unit in AllUnits)
+               unit.Attach(application);
+
             foreach (IApplicationUnit unit in InitialisationOrder)
                unit.Initialise();
          }
@@ -113,6 +116,9 @@ public class ApplicationContext : IApplicationContext
                IApplicationUnit unit = InitialisationOrder[i];
                unit.Cleanup();
             }
+
+            foreach (IApplicationUnit unit in AllUnits)
+               unit.Detach();
          }
          finally
          {
