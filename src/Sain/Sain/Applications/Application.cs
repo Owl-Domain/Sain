@@ -68,10 +68,13 @@ public abstract class Application<TContext>(
 
    #region Methods
    /// <inheritdoc/>
-   public void Run(ApplicationRunMode mode = ApplicationRunMode.RunOnCurrentThread)
+   public void Run(ApplicationRunThread thread, ApplicationRunMode mode)
    {
-      if (IsRunModeKnown(mode) is false)
-         throw new ArgumentOutOfRangeException(nameof(mode), mode, $"The run mode ({mode}) is not known.");
+      if (Enum.IsDefined(typeof(ApplicationRunThread), thread) is false)
+         throw new ArgumentOutOfRangeException(nameof(thread), thread, $"The given application run thread is invalid.");
+
+      if (Enum.IsDefined(typeof(ApplicationRunMode), mode) is false)
+         throw new ArgumentOutOfRangeException(nameof(mode), mode, $"The given application run mode is invalid.");
 
       lock (_runLock)
       {
@@ -88,16 +91,14 @@ public abstract class Application<TContext>(
          IsRunning = true;
       }
 
-      if (mode is ApplicationRunMode.RunOnCurrentThread)
-         RunOnCurrentThread();
-      else if (mode is ApplicationRunMode.RunSingleIterationOnCurrentThread)
-         RunSingleIterationOnCurrentThread();
-      else if (mode is ApplicationRunMode.RunOnNewThread)
-         RunOnNewThread();
-      else if (mode is ApplicationRunMode.RunOnBackgroundThread)
-         RunOnBackgroundThread();
+      if (thread is ApplicationRunThread.RunOnCurrentThread)
+         RunOnCurrentThread(mode);
+      else if (thread is ApplicationRunThread.RunOnNewThread)
+         RunOnNewThread(false, mode);
+      else if (thread is ApplicationRunThread.RunOnBackgroundThread)
+         RunOnNewThread(true, mode);
       else
-         Debug.Fail("This shouldn't happen because of the guard.");
+         throw new NotImplementedException($"The given application run thread ({thread}) has not been implemented yet.");
    }
    /// <inheritdoc/>
    public void Stop()
@@ -111,24 +112,18 @@ public abstract class Application<TContext>(
    #endregion
 
    #region Helpers
-   private static bool IsRunModeKnown(ApplicationRunMode mode)
-   {
-      return mode switch
-      {
-         ApplicationRunMode.RunOnCurrentThread => true,
-         ApplicationRunMode.RunSingleIterationOnCurrentThread => true,
-         ApplicationRunMode.RunOnNewThread => true,
-         ApplicationRunMode.RunOnBackgroundThread => true,
-
-         _ => false,
-      };
-   }
-   private void RunOnCurrentThread()
+   private void RunOnCurrentThread(ApplicationRunMode mode)
    {
       try
       {
          Initialise();
-         while (IsStopRequested is false)
+
+         if (mode is ApplicationRunMode.UntilStopped)
+         {
+            while (IsStopRequested is false)
+               RunIteration();
+         }
+         else if (IsStopRequested is false)
             RunIteration();
       }
       finally
@@ -136,52 +131,29 @@ public abstract class Application<TContext>(
          Cleanup();
       }
    }
-   private void RunSingleIterationOnCurrentThread()
+   private void RunOnOtherThreadStart(object? state)
    {
-      try
-      {
-         Initialise();
-         RunIteration();
-      }
-      finally
-      {
-         Cleanup();
-      }
+      Debug.Assert(state is not null);
+      RunOnCurrentThread((ApplicationRunMode)state);
    }
-   private void RunOnNewThread()
+   private void RunOnNewThread(bool isBackground, ApplicationRunMode mode)
    {
       try
       {
-         Thread thread = new(RunOnCurrentThread)
+         Thread thread = new(RunOnOtherThreadStart)
          {
-            Name = $"Sain Application Thread ({Info.Name})"
+            Name = isBackground ? $"Sain Application Background Thread ({Info.Name})" : $"Sain Application Thread ({Info.Name})",
+            IsBackground = isBackground,
          };
 
-         thread.Start();
+         thread.Start(mode);
       }
-      finally
+      catch
       {
          Cleanup();
+         throw;
       }
    }
-   private void RunOnBackgroundThread()
-   {
-      try
-      {
-         Thread thread = new(RunOnCurrentThread)
-         {
-            Name = $"Sain Application Background Thread ({Info.Name})",
-            IsBackground = true,
-         };
-
-         thread.Start();
-      }
-      finally
-      {
-         Cleanup();
-      }
-   }
-
    private void RunIteration()
    {
       _generalWatch.Restart();

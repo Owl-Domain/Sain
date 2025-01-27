@@ -1,21 +1,30 @@
 namespace Sain.Applications;
 
 /// <summary>
-///   Represents the different ways a Sain application can be ran.
+///   Represents the different threads a Sain application can be ran on.
+/// </summary>
+public enum ApplicationRunThread : byte
+{
+   /// <summary>The application will run on the current thread.</summary>
+   RunOnCurrentThread,
+
+   /// <summary>The application will run on a new thread.</summary>
+   RunOnNewThread,
+
+   /// <summary>The application will run on a new background thread.</summary>
+   RunOnBackgroundThread,
+}
+
+/// <summary>
+///   Represents the different ways a Sain application can run in.
 /// </summary>
 public enum ApplicationRunMode : byte
 {
-   /// <summary>Runs the application on the current thread.</summary>
-   RunOnCurrentThread,
+   /// <summary>The application will keep running until it is manually stopped.</summary>
+   UntilStopped,
 
-   /// <summary>Runs the application on the current thread, but only for a single iteration.</summary>
-   RunSingleIterationOnCurrentThread,
-
-   /// <summary>Runs the application on a new thread.</summary>
-   RunOnNewThread,
-
-   /// <summary>Runs the application on a new background thread.</summary>
-   RunOnBackgroundThread,
+   /// <summary>The application will only run for a single iteration.</summary>
+   SingleIteration,
 }
 
 /// <summary>
@@ -79,10 +88,11 @@ public interface IApplication
 
    #region Methods
    /// <summary>Runs the application with the given run <paramref name="mode"/>.</summary>
-   /// <param name="mode">The mode to run the application with.</param>
-   /// <exception cref="ArgumentOutOfRangeException">Thrown if the given <paramref name="mode"/> value is unknown.</exception>
+   /// <param name="thread">The thread to run the application on.</param>
+   /// <param name="mode">The mode to run the application in.</param>
+   /// <exception cref="ArgumentOutOfRangeException">Thrown if the given <paramref name="thread"/> or <paramref name="mode"/> value is unknown.</exception>
    /// <exception cref="InvalidOperationException">Thrown if the application is already running.</exception>
-   void Run(ApplicationRunMode mode = ApplicationRunMode.RunOnCurrentThread);
+   void Run(ApplicationRunThread thread, ApplicationRunMode mode);
 
    /// <summary>Requests for the application to stop.</summary>
    /// <remarks>If the application is not currently running then this will do nothing.</remarks>
@@ -101,5 +111,34 @@ public interface IApplication<TContext> : IApplication
    /// <summary>The context of the application.</summary>
    new TContext Context { get; }
    IApplicationContext IApplication.Context => Context;
+   #endregion
+}
+
+
+/// <summary>
+///   Contains various extension methods related to the <see cref="IApplication"/>.
+/// </summary>
+public static class IApplicationExtensions
+{
+   #region Methods
+   /// <summary>Runs the given <paramref name="application"/> on the given <paramref name="thread"/>, with the given <paramref name="mode"/>.</summary>
+   /// <param name="application">The application to run.</param>
+   /// <param name="mode">The mode to run the application in.</param>
+   /// <param name="thread">The thread to run the application on.</param>
+   public static void Run(this IApplication application, ApplicationRunMode mode, ApplicationRunThread thread) => application.Run(thread, mode);
+
+   /// <summary>Runs the given <paramref name="application"/> on the given <paramref name="thread"/>, until it is manually stopped.</summary>
+   /// <param name="application">The application to run.</param>
+   /// <param name="thread">The thread to run the application on.</param>
+   public static void Run(this IApplication application, ApplicationRunThread thread) => application.Run(thread, ApplicationRunMode.UntilStopped);
+
+   /// <summary>Runs the given <paramref name="application"/> on the current thread, with the given <paramref name="mode"/>.</summary>
+   /// <param name="application">The application to run.</param>
+   /// <param name="mode">The mode to run the application in.</param>
+   public static void Run(this IApplication application, ApplicationRunMode mode) => application.Run(ApplicationRunThread.RunOnCurrentThread, mode);
+
+   /// <summary>Runs the given <paramref name="application"/> on the current thread, until it is manually stopped.</summary>
+   /// <param name="application">The application to run.</param>
+   public static void Run(this IApplication application) => application.Run(ApplicationRunThread.RunOnCurrentThread, ApplicationRunMode.UntilStopped);
    #endregion
 }
