@@ -227,7 +227,7 @@ public abstract class Application<TContext>(
    {
       Debug.Assert(Context.Logging is not null);
 
-      Context.Logging.Info(LogContext, $"Running application ({Info.Name}) in {nameof(ApplicationRunMode)}.{mode}.");
+      Context.Logging.Info(LogContext, $"Running application ({Info.Name}) in the '{mode}' mode.");
 
       foreach (IApplicationId id in Info.Ids)
          Context.Logging.Info(LogContext, $"Application id ({id.GetType().Name}): {id.DisplayName}");
@@ -239,22 +239,38 @@ public abstract class Application<TContext>(
    {
       Debug.Assert(Context.Logging is not null);
 
-      Context.Logging.Info(LogContext, $"Application has {Context.AllUnits.Count:n0} total available unit(s).");
-      Context.Logging.Info(LogContext, $"{Context.ContextProviders.Count:n0} context provider unit(s).");
+      if (Context.AllUnits.Count is 1)
+         Context.Logging.Info(LogContext, "Application has 1 available unit in total.");
+      else
+         Context.Logging.Info(LogContext, $"Application has {Context.AllUnits.Count:n0} available units in total.");
+
+      if (Context.ContextProviders.Count is 1)
+         Context.Logging.Info(LogContext, "1 context provider unit.");
+      else
+         Context.Logging.Info(LogContext, $"{Context.ContextProviders.Count:n0} context provider units.");
+
+      if (Context.Contexts.Count is 1)
+         Context.Logging.Info(LogContext, "1 context unit.");
+      else
+         Context.Logging.Info(LogContext, $"{Context.Contexts.Count:n0} context units.");
+
+      if (Context.GeneralUnits.Count is 1)
+         Context.Logging.Info(LogContext, "1 general unit.");
+      else
+         Context.Logging.Info(LogContext, $"{Context.GeneralUnits.Count:n0} general units.");
+
       foreach (IContextProviderUnit provider in Context.ContextProviders)
       {
          Type type = provider.GetType();
          Context.Logging.Info(LogContext, $"Context provider unit ({type.FullName ?? type.Name}) of the kind ({provider.Kind}).");
       }
 
-      Context.Logging.Info(LogContext, $"{Context.Contexts.Count:n0} context unit(s).");
       foreach (IContextUnit context in Context.Contexts)
       {
          Type type = context.GetType();
          Context.Logging.Info(LogContext, $"Context unit ({type.FullName ?? type.Name}) of the kind ({context.Kind}).");
       }
 
-      Context.Logging.Info(LogContext, $"{Context.GeneralUnits.Count:n0} general unit(s).");
       foreach (IApplicationUnit unit in Context.GeneralUnits)
       {
          Type type = unit.GetType();
@@ -265,12 +281,17 @@ public abstract class Application<TContext>(
    {
       Debug.Assert(Context.Logging is not null);
 
+
+      if (Context.InitialisationOrder.Count is 1)
+         Context.Logging.Debug(LogContext, "Application has 1 unit to initialise.");
+      else
+         Context.Logging.Debug(LogContext, $"Application has {Context.InitialisationOrder.Count:n0} units to initialise, in the following order.");
+
       int i = 1;
-      Context.Logging.Debug(LogContext, $"Application has {Context.InitialisationOrder.Count:n0} unit(s) to initialise.");
       foreach (IApplicationUnit unit in Context.InitialisationOrder)
       {
          Type type = unit.GetType();
-         Context.Logging.Debug(LogContext, $"#{i++:n0}: {type.FullName ?? type.Name}.");
+         Context.Logging.Debug(LogContext, $"#{i++:n0} - {type.FullName ?? type.Name}.");
       }
    }
    private void LogApplicationThreadInfo()
@@ -279,7 +300,9 @@ public abstract class Application<TContext>(
 
       Thread thread = Thread.CurrentThread;
       Context.Logging.Debug(LogContext, $"Application is starting on thread #{thread.ManagedThreadId:n0}.");
-      Context.Logging.Debug(LogContext, $"Application thread name: ({thread.Name}).");
+
+      if (thread.Name is not null)
+         Context.Logging.Debug(LogContext, $"Application thread name: ({thread.Name}).");
 
       if (thread.IsBackground)
          Context.Logging.Debug(LogContext, $"Application thread is a background thread.");

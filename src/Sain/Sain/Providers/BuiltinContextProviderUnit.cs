@@ -12,7 +12,7 @@ public sealed class BuiltinContextProviderUnit : BaseContextProviderUnit
       unit = null;
 
       if (kind == typeof(ITimeContextUnit)) unit = new DefaultTimeContextUnit(this);
-      else if (kind == typeof(ILoggingContextUnit)) unit = new DefaultLoggingContext(this);
+      else if (kind == typeof(ILoggingContextUnit)) unit = new DefaultLoggingContextUnit(this);
 
       return unit is not null;
    }

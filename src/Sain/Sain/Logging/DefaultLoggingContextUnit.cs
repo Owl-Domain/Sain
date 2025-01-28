@@ -4,7 +4,7 @@ namespace Sain.Logging;
 ///   Represents the default implementation for a logging context.
 /// </summary>
 /// <param name="provider">The context provider that the context comes from.</param>
-public sealed class DefaultLoggingContext(IContextProviderUnit? provider) : BaseLoggingContextUnit(provider)
+public sealed class DefaultLoggingContextUnit(IContextProviderUnit? provider) : BaseLoggingContextUnit(provider)
 {
    #region Properties
    /// <inheritdoc/>
