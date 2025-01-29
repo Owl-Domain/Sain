@@ -177,8 +177,10 @@ public abstract class Application<TContext>(
 
       if (Context.Logging is not null)
       {
-         LogApplicationInfo(mode);
+         Context.Logging.Info(LogContext, $"Running application ({Info.Name}) in the '{mode}' mode.");
          LogApplicationThreadInfo();
+         LogApplicationIds();
+         LogApplicationVersions();
          LogApplicationUnitInfo();
          LogApplicationInitialisationOrder();
 
@@ -223,15 +225,6 @@ public abstract class Application<TContext>(
    #endregion
 
    #region Helpers
-   private void LogApplicationInfo(ApplicationRunMode mode)
-   {
-      Debug.Assert(Context.Logging is not null);
-
-      Context.Logging.Info(LogContext, $"Running application ({Info.Name}) in the '{mode}' mode.");
-
-      LogApplicationIds();
-      LogApplicationVersions();
-   }
    private void LogApplicationIds()
    {
       Debug.Assert(Context.Logging is not null);
