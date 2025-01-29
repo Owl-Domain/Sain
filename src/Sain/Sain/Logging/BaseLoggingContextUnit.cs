@@ -3,8 +3,7 @@ namespace Sain.Logging;
 /// <summary>
 ///   Represents the base implementation for a logging context unit.
 /// </summary>
-/// <param name="provider">The context provider that the context unit comes from.</param>
-public abstract class BaseLoggingContextUnit(IContextProviderUnit? provider) : BaseContextUnit(provider), ILoggingContextUnit
+public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextUnit
 {
    #region Nested types
    private sealed class Comparer : IComparer<int>
@@ -39,14 +38,24 @@ public abstract class BaseLoggingContextUnit(IContextProviderUnit? provider) : B
    public event LoggingContextFileEventHandler? LogFileAttached;
    #endregion
 
+   #region Constructors
+   /// <summary>Creates a new instance of the <see cref="BaseLoggingContextUnit"/>.</summary>
+   /// <param name="provider">The context provider that the context unit comes from.</param>
+   public BaseLoggingContextUnit(IContextProviderUnit? provider) : base(provider)
+   {
+      WithPathPrefix("/home/nightowl/repos/Sain/repo/", "Sain");
+   }
+   #endregion
+
    #region Methods
    /// <inheritdoc/>
    protected override void OnAttach()
    {
       base.OnAttach();
-      _isPreInit = true;
 
-      WithPathPrefix("/home/nightowl/repos/Sain/repo/", "Sain");
+      _preInitEntries.Clear();
+      _files.Clear();
+      _isPreInit = true;
    }
 
    /// <inheritdoc/>
@@ -56,7 +65,7 @@ public abstract class BaseLoggingContextUnit(IContextProviderUnit? provider) : B
 
       Debug.Assert(_files.Count is 0);
 
-      // Note(Nightowl): Specifically use a for loop instead of a foreach loop here in case sinks / event callbacks add extra log entries;
+      // Note(Nightowl): Specifically use a for loop instead of a foreach loop here in case event callbacks add extra log entries;
       for (int i = 0; i < _preInitEntries.Count; i++)
       {
          ILogEntry entry = _preInitEntries[i];
@@ -71,10 +80,8 @@ public abstract class BaseLoggingContextUnit(IContextProviderUnit? provider) : B
    protected override void OnCleanup()
    {
       base.OnCleanup();
-      Debug.Assert(_preInitEntries.Count is 0);
 
-      _filePathPrefixes.Clear();
-      _files.Clear();
+      this.Debug<BaseLoggingContextUnit>($"The logging context unit has been cleaned up, no more logging can occur after this point.");
    }
 
    /// <inheritdoc/>
@@ -126,6 +133,9 @@ public abstract class BaseLoggingContextUnit(IContextProviderUnit? provider) : B
    public ILoggingContextUnit Log(LogSeverity severity, string context, string message, [CallerMemberName] string member = "", [CallerFilePath] string file = "", [CallerLineNumber] int line = 0)
    {
       if (LogEntryAdded is null)
+         return this;
+
+      if ((IsInitialised is false) && (_isPreInit is false))
          return this;
 
       file = GetNormalisedFilePath(file);
