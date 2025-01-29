@@ -191,7 +191,7 @@ public abstract class Application<TContext>(
       Started?.Invoke(this);
       StartupTime = _generalWatch.Elapsed;
 
-      Context.Logging?.Trace(LogContext, $"Application has finished starting, took {GetNiceTimeFormat(StartupTime)}.");
+      Context.Logging?.Trace(LogContext, $"Application has finished starting up, took {GetNiceTimeFormat(StartupTime)}.");
    }
    private void Cleanup()
    {
@@ -229,11 +229,44 @@ public abstract class Application<TContext>(
 
       Context.Logging.Info(LogContext, $"Running application ({Info.Name}) in the '{mode}' mode.");
 
-      foreach (IApplicationId id in Info.Ids)
-         Context.Logging.Info(LogContext, $"Application id ({id.GetType().Name}): {id.DisplayName}");
+      LogApplicationIds();
+      LogApplicationVersions();
+   }
+   private void LogApplicationIds()
+   {
+      Debug.Assert(Context.Logging is not null);
 
-      foreach (IApplicationVersion version in Info.Versions)
+      if (Info.Ids.Count is 0)
+         return;
+
+      if (Info.Ids.Count is 1)
+      {
+         IApplicationId id = Info.Ids.Default;
+         Context.Logging.Info(LogContext, $"Application id ({id.GetType().Name}): {id.DisplayName}");
+         return;
+      }
+
+      Context.Logging.Info(LogContext, $"Application has {Info.Ids.Count:n0} id formats.");
+      foreach (IApplicationId id in Info.Ids)
+         Context.Logging.Info(LogContext, $"{id.GetType().Name} - {id.DisplayName}");
+   }
+   private void LogApplicationVersions()
+   {
+      Debug.Assert(Context.Logging is not null);
+
+      if (Info.Versions.Count is 0)
+         return;
+
+      if (Info.Versions.Count is 1)
+      {
+         IApplicationVersion version = Info.Versions.Default;
          Context.Logging.Info(LogContext, $"Application version ({version.GetType().Name}): {version.DisplayName}");
+         return;
+      }
+
+      Context.Logging.Info(LogContext, $"Application has {Info.Versions.Count:n0} version formats.");
+      foreach (IApplicationVersion version in Info.Versions)
+         Context.Logging.Info(LogContext, $"{version.GetType().Name} - {version.DisplayName}");
    }
    private void LogApplicationUnitInfo()
    {
