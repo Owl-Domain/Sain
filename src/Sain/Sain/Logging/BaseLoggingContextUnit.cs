@@ -5,15 +5,8 @@ namespace OwlDomain.Sain.Logging;
 /// </summary>
 public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextUnit
 {
-   #region Nested types
-   private sealed class Comparer : IComparer<int>
-   {
-      public int Compare(int x, int y) => y.CompareTo(x);
-   }
-   #endregion
-
    #region Fields
-   private readonly SortedList<int, ILogPathPrefix> _filePathPrefixes = new(new Comparer());
+   private readonly SortedList<ILogPathConverter, ILogPathConverter> _filePathConverters = [];
    private readonly List<string> _files = [];
    private readonly List<ILogEntry> _preInitEntries = [];
    private bool _isPreInit = false;
@@ -24,7 +17,7 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
    public sealed override Type Kind => typeof(ILoggingContextUnit);
 
    /// <inheritdoc/>
-   public IReadOnlyList<ILogPathPrefix> PathPrefixes => [.. _filePathPrefixes.Values];
+   public IReadOnlyList<ILogPathConverter> PathConverters => [.. _filePathConverters.Values];
 
    /// <inheritdoc/>
    public IReadOnlyList<string> Files => _files;
@@ -43,7 +36,7 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
    /// <param name="provider">The context provider that the context unit comes from.</param>
    public BaseLoggingContextUnit(IContextProviderUnit? provider) : base(provider)
    {
-      WithPathPrefix("/home/nightowl/repos/Sain/repo/", "Sain");
+      WithPathPrefixConverter("/home/nightowl/repos/Sain/repo/", "Sain");
    }
    #endregion
 
@@ -85,35 +78,39 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
    }
 
    /// <inheritdoc/>
-   public ILoggingContextUnit WithPathPrefix(string prefix, string project)
+   public ILoggingContextUnit WithPathConverter(ILogPathConverter converter)
+   {
+      _filePathConverters.Add(converter, converter);
+      return this;
+   }
+
+   /// <inheritdoc/>
+   public ILoggingContextUnit WithPathPrefixConverter(string prefix, string project)
    {
       prefix = prefix.Replace('\\', '/');
       if (prefix.EndsWith('/') is false)
          prefix += '/';
 
-      LogPathPrefix pathPrefix = new(prefix, project);
-
-      _filePathPrefixes.Add(prefix.Length, pathPrefix);
+      LogPathPrefixConverter converter = new(prefix, project);
+      WithPathConverter(converter);
 
       return this;
    }
 
    /// <inheritdoc/>
-   public bool TryGetRelative(string fullPath, [NotNullWhen(true)] out string? relativePath, [NotNullWhen(true)] out ILogPathPrefix? prefix)
+   public bool TryGetRelative(string fullPath, [NotNullWhen(true)] out string? relativePath, [NotNullWhen(true)] out ILogPathConverter? converter)
    {
-      foreach (ILogPathPrefix current in _filePathPrefixes.Values)
+      foreach (ILogPathConverter current in _filePathConverters.Values)
       {
-         if (fullPath.StartsWith(current.Prefix))
+         if (current.TryGetRelative(fullPath, out relativePath))
          {
-            relativePath = fullPath[current.Prefix.Length..];
-            prefix = current;
-
+            converter = current;
             return true;
          }
       }
 
       relativePath = default;
-      prefix = default;
+      converter = default;
 
       return false;
    }
@@ -140,10 +137,10 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
 
       file = GetNormalisedFilePath(file);
 
-      if (TryGetRelative(file, out string? relativePath, out ILogPathPrefix? prefix))
+      if (TryGetRelative(file, out string? relativePath, out ILogPathConverter? converter))
          file = relativePath;
 
-      ILogEntry entry = CreateEntry(severity, context, message, member, file, prefix, line);
+      ILogEntry entry = CreateEntry(severity, context, message, member, file, converter, line);
 
       if (_isPreInit)
          _preInitEntries.Add(entry);
@@ -159,14 +156,14 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
    /// <param name="message">The message to log.</param>
    /// <param name="member">The member (inside the context) that logged the message.</param>
    /// <param name="file">The source file that the message was logged in.</param>
-   /// <param name="prefix">The (optional) log path prefix that was used to turn the full path of the source file into a relative one.</param>
+   /// <param name="converter">The (optional) log path converter that was used to turn the full path of the source <paramref name="file"/> into a project relative one.</param>
    /// <param name="line">The line number (inside the source <paramref name="file"/>) that the message was logged on.</param>
-   protected virtual ILogEntry CreateEntry(LogSeverity severity, string context, string message, string member, string file, ILogPathPrefix? prefix, int line)
+   protected virtual ILogEntry CreateEntry(LogSeverity severity, string context, string message, string member, string file, ILogPathConverter? converter, int line)
    {
       TimeSpan timestamp = GetCurrentTimestamp();
       DateTimeOffset date = GetCurrentTime();
 
-      return new LogEntry(date, timestamp, severity, context, message, member, file, prefix, line);
+      return new LogEntry(date, timestamp, severity, context, message, member, file, converter, line);
    }
 
    // Todo(Nightowl): This will be replaced once a system time context is added;

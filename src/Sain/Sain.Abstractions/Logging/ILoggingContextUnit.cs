@@ -20,8 +20,8 @@ public delegate void LoggingContextFileEventHandler(ILoggingContextUnit context,
 public interface ILoggingContextUnit : IContextUnit
 {
    #region Properties
-   /// <summary>The collection of the log path prefixes that are used to turn the source file paths into relative ones.</summary>
-   IReadOnlyList<ILogPathPrefix> PathPrefixes { get; }
+   /// <summary>The collection of the log path converters that are used to turn the source file paths into project relative ones.</summary>
+   IReadOnlyList<ILogPathConverter> PathConverters { get; }
 
    /// <summary>The collection of paths to the files that have been attached to the current log.</summary>
    IReadOnlyList<string> Files { get; }
@@ -36,12 +36,17 @@ public interface ILoggingContextUnit : IContextUnit
    #endregion
 
    #region Methods
+   /// <summary>Adds a new log path <paramref name="converter"/>.</summary>
+   /// <param name="converter">The converter to use when turning source file paths into project relative ones.</param>
+   /// <returns>The used logging context.</returns>
+   ILoggingContextUnit WithPathConverter(ILogPathConverter converter);
+
    /// <summary>Adds a new log path <paramref name="prefix"/>.</summary>
    /// <param name="prefix">The file path prefix to use when turning the source file paths into relative ones.</param>
    /// <param name="project">The project that the given <paramref name="prefix"/> belongs to.</param>
    /// <returns>The used logging context.</returns>
    /// <remarks>This path should be the entire path of the project that is before the <c>/src/</c> directory.</remarks>
-   ILoggingContextUnit WithPathPrefix(string prefix, string project);
+   ILoggingContextUnit WithPathPrefixConverter(string prefix, string project);
 
    /// <summary>Attaches the file at the given file <paramref name="path"/> to the current log.</summary>
    /// <param name="path">The path of the file to attach to the log.</param>
@@ -54,9 +59,9 @@ public interface ILoggingContextUnit : IContextUnit
    /// <summary>Tries to get the <paramref name="relativePath"/> from the given <paramref name="fullPath"/>.</summary>
    /// <param name="fullPath">The full path to get the relative path for.</param>
    /// <param name="relativePath">The calculated relative path.</param>
-   /// <param name="prefix">The log path prefix that was used to turn the <paramref name="fullPath"/> into the <paramref name="relativePath"/>.</param>
+   /// <param name="converter">The log path converter that was used to turn the <paramref name="fullPath"/> into the <paramref name="relativePath"/>.</param>
    /// <returns><see langword="true"/> if the <paramref name="relativePath"/> could be calculated, <see langword="false"/> otherwise.</returns>
-   bool TryGetRelative(string fullPath, [NotNullWhen(true)] out string? relativePath, [NotNullWhen(true)] out ILogPathPrefix? prefix);
+   bool TryGetRelative(string fullPath, [NotNullWhen(true)] out string? relativePath, [NotNullWhen(true)] out ILogPathConverter? converter);
 
    /// <summary>Logs a new message in the log.</summary>
    /// <param name="severity">The severity of the log message.</param>
