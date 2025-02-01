@@ -7,8 +7,8 @@
     <Nullable>enable</Nullable>
     <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</IsAotCompatible>
 
-    <AssemblyName>Sain</AssemblyName>
-    <RootNamespace>Sain</RootNamespace>
+    <AssemblyName>OwlDomain.Sain</AssemblyName>
+    <RootNamespace>OwlDomain.Sain</RootNamespace>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Deterministic>true</Deterministic>
@@ -18,5 +18,38 @@
   <ItemGroup Label="projects">
     <ProjectReference Include="../Sain.Abstractions/Sain.Abstractions.csproj" />
   </ItemGroup>
+
+  <!-- Nuget package -->
+  <PropertyGroup Label="nuget">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <Title>OwlDomain.Sain</Title>
+    <Version>0.1.0</Version>
+
+    <Description>The main implementation package for the Sain project.</Description>
+    <PackageTags>owldomain, sain, application, framework</PackageTags>
+
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+
+    <PackageProjectUrl>https://github.com/Owl-Domain/Sain</PackageProjectUrl>
+    <PackageIconUrl>https://github.com/Owl-Domain/Sain/blob/master/icon.png?raw=true</PackageIconUrl>
+  </PropertyGroup>
+
+  <!-- Resources -->
+  <ItemGroup Label="resources">
+    <None Include="readme.md" Pack="true" PackagePath="\" />
+    <None Include="../../../license.md" Pack="true" PackagePath="\" />
+    <None Include="../../../icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <!-- Repository -->
+  <PropertyGroup Label="repository">
+    <RepositoryType>git</RepositoryType>
+    <RepositoryBranch>master</RepositoryBranch>
+    <RepositoryUrl>https://github.com/Owl-Domain/Sain</RepositoryUrl>
+  </PropertyGroup>
 
 </Project>
