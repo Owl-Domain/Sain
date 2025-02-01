@@ -1,4 +1,4 @@
-namespace Sain.Applications.Units;
+namespace OwlDomain.Sain.Applications.Units;
 
 /// <summary>
 ///   Represents an application unit that is responsible for providing other context units to the application.

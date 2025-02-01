@@ -1,4 +1,4 @@
-namespace Sain.Providers;
+namespace OwlDomain.Sain.Providers;
 
 /// <summary>
 ///   Represents the context provider unit that can provide the built-in Sain context units.

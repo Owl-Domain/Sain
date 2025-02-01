@@ -1,4 +1,4 @@
-namespace Sain.Providers;
+namespace OwlDomain.Sain.Providers;
 
 /// <summary>
 ///   Contains various extension methods that are related to the <see cref="IApplicationBuilder"/> and to the built-in context provider units.

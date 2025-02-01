@@ -1,4 +1,4 @@
-namespace Sain.Logging;
+namespace OwlDomain.Sain.Logging;
 
 /// <summary>
 ///   Represents the default implementation for a logging context.

@@ -1,4 +1,4 @@
-namespace Sain.Applications;
+namespace OwlDomain.Sain.Applications;
 
 /// <summary>
 ///   Represents information about a Sain application.

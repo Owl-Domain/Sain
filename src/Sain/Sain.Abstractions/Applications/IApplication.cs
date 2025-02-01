@@ -1,4 +1,4 @@
-namespace Sain.Applications;
+namespace OwlDomain.Sain.Applications;
 
 /// <summary>
 ///   Represents the different threads a Sain application can be ran on.

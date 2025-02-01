@@ -1,4 +1,4 @@
-namespace Sain.Time;
+namespace OwlDomain.Sain.Time;
 
 /// <summary>
 ///   Represents the default implementation for a time unit context.

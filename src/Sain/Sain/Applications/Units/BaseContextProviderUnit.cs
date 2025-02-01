@@ -1,4 +1,4 @@
-namespace Sain.Applications.Units;
+namespace OwlDomain.Sain.Applications.Units;
 
 /// <summary>
 ///   Represents the base implementation for a context provider unit.

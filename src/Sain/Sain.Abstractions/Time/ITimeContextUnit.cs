@@ -1,4 +1,4 @@
-namespace Sain.Time;
+namespace OwlDomain.Sain.Time;
 
 /// <summary>
 ///   Represents the application's context unit for time information.

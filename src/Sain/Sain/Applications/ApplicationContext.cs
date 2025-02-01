@@ -1,6 +1,6 @@
 using System.Linq;
 
-namespace Sain.Applications;
+namespace OwlDomain.Sain.Applications;
 
 /// <summary>
 ///   Represents the context of a Sain application.

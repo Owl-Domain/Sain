@@ -1,4 +1,4 @@
-namespace Sain.Logging;
+namespace OwlDomain.Sain.Logging;
 
 /// <summary>
 ///   Represents the base implementation for a logging context unit.

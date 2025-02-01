@@ -1,4 +1,4 @@
-namespace Sain.Logging;
+namespace OwlDomain.Sain.Logging;
 
 /// <summary>
 ///   Represents an event handler delegate for log entry related events.

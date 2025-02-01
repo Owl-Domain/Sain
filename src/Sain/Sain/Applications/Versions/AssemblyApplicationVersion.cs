@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Sain.Applications.Versions;
+namespace OwlDomain.Sain.Applications.Versions;
 
 /// <summary>
 ///   Represents an application version that comes from an assembly.

@@ -1,4 +1,4 @@
-namespace Sain.Logging;
+namespace OwlDomain.Sain.Logging;
 
 /// <summary>
 ///   Represents information about a log path prefix.

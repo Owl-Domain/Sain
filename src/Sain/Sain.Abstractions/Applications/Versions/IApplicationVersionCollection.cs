@@ -1,4 +1,4 @@
-namespace Sain.Applications.Versions;
+namespace OwlDomain.Sain.Applications.Versions;
 
 /// <summary>
 ///   Represents a collection of the versions for a Sain application.

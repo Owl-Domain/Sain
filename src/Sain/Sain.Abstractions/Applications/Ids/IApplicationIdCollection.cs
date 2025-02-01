@@ -1,4 +1,4 @@
-namespace Sain.Applications.Ids;
+namespace OwlDomain.Sain.Applications.Ids;
 
 /// <summary>
 ///   Represents a collection of the ids for a Sain application.
