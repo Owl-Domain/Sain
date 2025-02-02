@@ -51,6 +51,9 @@ public abstract class Application<TContext>(
 
    /// <inheritdoc/>
    public TimeSpan StartupTime { get; private set; }
+
+   /// <inheritdoc/>
+   public DateTimeOffset StartedOn { get; private set; }
    #endregion
 
    #region Events
@@ -88,6 +91,7 @@ public abstract class Application<TContext>(
          StartupTime = default;
          LastIterationTime = default;
          ActualLastIterationTime = default;
+         StartedOn = DateTime.UtcNow;
 
          _generalWatch.Restart();
          _runTimeWatch.Restart();
@@ -104,6 +108,7 @@ public abstract class Application<TContext>(
       else
          throw new NotImplementedException($"The given application run thread ({thread}) has not been implemented yet.");
    }
+
    /// <inheritdoc/>
    public void Stop()
    {

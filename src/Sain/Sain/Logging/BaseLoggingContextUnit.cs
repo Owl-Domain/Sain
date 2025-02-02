@@ -56,13 +56,17 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
    {
       base.OnInitialise();
 
-      Debug.Assert(_files.Count is 0);
-
       // Note(Nightowl): Specifically use a for loop instead of a foreach loop here in case event callbacks add extra log entries;
       for (int i = 0; i < _preInitEntries.Count; i++)
       {
          ILogEntry entry = _preInitEntries[i];
          OnNewEntry(entry);
+      }
+
+      for (int i = 0; i < _files.Count; i++)
+      {
+         string file = _files[i];
+         LogFileAttached?.Invoke(this, file);
       }
 
       _isPreInit = false;
@@ -118,11 +122,12 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
    /// <inheritdoc/>
    public ILoggingContextUnit WithFile(string path)
    {
-      ThrowIfNotInitialised();
-
       _files.Add(path);
-      LogFileAttached?.Invoke(this, path);
 
+      if (_isPreInit || (IsInitialised is false))
+         return this;
+
+      LogFileAttached?.Invoke(this, path);
       return this;
    }
 

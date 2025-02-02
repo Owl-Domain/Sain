@@ -68,6 +68,9 @@ public interface IApplication
    /// <summary>The time it took for the application to start.</summary>
    /// <remarks>This will only be available after the <see cref="Started"/> event has been raised.</remarks>
    TimeSpan StartupTime { get; }
+
+   /// <summary>The date and time that the application has started running on.</summary>
+   DateTimeOffset StartedOn { get; }
    #endregion
 
    #region Events
