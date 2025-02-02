@@ -38,6 +38,9 @@ public interface IApplicationContext
 
    /// <summary>The application's context unit for logging information.</summary>
    ILoggingContextUnit? Logging { get; }
+
+   /// <summary>The application's context unit for storage information and operations.</summary>
+   IStorageContextUnitGroup? Storage { get; }
    #endregion
 
    #region Methods
