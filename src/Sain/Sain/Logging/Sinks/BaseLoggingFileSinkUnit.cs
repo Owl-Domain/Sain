@@ -56,7 +56,7 @@ public abstract class BaseLoggingFileSinkUnit : BaseLoggingSinkUnit, ILoggingFil
       Debug.Assert(_stream is not null);
 
       OnLogEntryAddedCore(context, entry);
-      _stream.Flush(true);
+      Flush();
    }
 
    /// <summary>Called when a new log entry is added.</summary>
@@ -131,5 +131,9 @@ public abstract class BaseLoggingFileSinkUnit : BaseLoggingSinkUnit, ILoggingFil
    ///   <paramref name="path"/>, error handling should be performed by the caller.
    /// </remarks>
    protected virtual FileStream TryCreateFile(string path) => File.Open(path, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.Read);
+
+   /// <summary>Flushes any written data to the file.</summary>
+   /// <remarks>This will be automatically called after a new log entry has been added.</remarks>
+   protected virtual void Flush() => _stream?.Flush(true);
    #endregion
 }
