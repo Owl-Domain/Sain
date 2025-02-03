@@ -50,7 +50,7 @@ public class ApplicationContext : IApplicationContext
    public ILoggingContextUnit? Logging { get; }
 
    /// <inheritdoc/>
-   public IStorageContextUnitGroup? Storage { get; }
+   public IStorageContextUnitGroup Storage { get; }
    #endregion
 
    #region Constructors

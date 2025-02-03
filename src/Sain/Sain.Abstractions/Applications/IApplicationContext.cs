@@ -40,7 +40,7 @@ public interface IApplicationContext
    ILoggingContextUnit? Logging { get; }
 
    /// <summary>The application's context unit for storage information and operations.</summary>
-   IStorageContextUnitGroup? Storage { get; }
+   IStorageContextUnitGroup Storage { get; }
    #endregion
 
    #region Methods

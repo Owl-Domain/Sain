@@ -25,18 +25,22 @@ public abstract class BaseLoggingFileSinkUnit : BaseLoggingSinkUnit, ILoggingFil
    /// <inheritdoc/>
    protected override void Open()
    {
+      Debug.Assert(Context.Logging is not null, $"The {nameof(BaseLoggingSinkUnit)} ensures this method will only be called if logging is available.");
+
       GetLogPath(out string directory, out string preferredFileName);
 
       string extension = Path.GetExtension(preferredFileName);
       preferredFileName = Path.GetFileNameWithoutExtension(preferredFileName);
 
-      int attempt = 2;
+      int attempt = 1;
 
       FileStream? stream;
       while (TryCreateFile(directory, preferredFileName, extension, attempt, out stream) is false)
          attempt++;
 
       FilePath = stream.Name;
+      Context.Logging.WithFile(FilePath);
+
       _stream = stream;
    }
 
@@ -86,7 +90,10 @@ public abstract class BaseLoggingFileSinkUnit : BaseLoggingSinkUnit, ILoggingFil
    /// <returns>The full path where the log file should be created.</returns>
    protected virtual string CreateLogPath(string directory, string preferredFileName, string extension, int creationAttempt)
    {
-      string name = $"{preferredFileName} ({extension:n0}){extension}";
+      if (creationAttempt is 0)
+         return Path.Combine(directory, preferredFileName + extension);
+
+      string name = $"{preferredFileName} ({creationAttempt:n0}){extension}";
       return Path.Combine(directory, name);
    }
 
@@ -102,7 +109,12 @@ public abstract class BaseLoggingFileSinkUnit : BaseLoggingSinkUnit, ILoggingFil
       if (Directory.Exists(directory) is false)
          Directory.CreateDirectory(directory);
 
-      string path = CreateLogPath(directory, preferredFileName, extension, creationAttempt);
+      string path;
+      if (creationAttempt < 2)
+         path = Path.Combine(directory, preferredFileName + extension);
+      else
+         path = CreateLogPath(directory, preferredFileName, extension, creationAttempt);
+
       if (File.Exists(path))
       {
          stream = default;
