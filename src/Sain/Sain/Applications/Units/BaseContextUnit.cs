@@ -3,7 +3,7 @@ namespace OwlDomain.Sain.Applications.Units;
 /// <summary>
 ///   Represents the base implementation for a context unit.
 /// </summary>
-/// <param name="provider">he context provider that this unit came from.</param>
+/// <param name="provider">The context provider that this unit came from.</param>
 public abstract class BaseContextUnit(IContextProviderUnit? provider) : BaseApplicationUnit, IContextUnit
 {
    #region Properties

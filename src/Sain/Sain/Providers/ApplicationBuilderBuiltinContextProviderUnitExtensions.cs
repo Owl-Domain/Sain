@@ -1,3 +1,5 @@
+using OwlDomain.Sain.Storage.Unix;
+
 namespace OwlDomain.Sain.Providers;
 
 /// <summary>
@@ -13,7 +15,12 @@ public static class ApplicationBuilderBuiltinContextProviderUnitExtensions
    public static TSelf WithBuiltinProviders<TSelf>(this TSelf builder)
       where TSelf : IApplicationBuilder<TSelf>
    {
-      return builder.WithContextProvider<BuiltinContextProviderUnit>();
+      builder.WithContextProvider<BuiltinContextProviderUnit>();
+
+      if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+         builder.WithContextProvider<UnixStorageContextProviderUnit>();
+
+      return builder;
    }
    #endregion
 }

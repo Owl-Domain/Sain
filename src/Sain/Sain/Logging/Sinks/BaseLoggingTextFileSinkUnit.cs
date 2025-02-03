@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace OwlDomain.Sain.Logging.Sinks;
 
 /// <summary>

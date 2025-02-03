@@ -324,8 +324,14 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
    /// <remarks>If you override this method, make sure to call the base implementation.</remarks>
    public virtual void TryAddPreferredUnits()
    {
+      // General
       TryWithContextOfKind<ITimeContextUnit>();
       TryWithContextOfKind<ILoggingContextUnit>();
+
+      // Storage
+      TryWithContextOfKind<IDataStorageContextUnit>();
+      TryWithContextOfKind<IConfigStorageContextUnit>();
+      TryWithContextOfKind<ILogStorageContextUnit>();
    }
 
    /// <summary>Builds the application context.</summary>

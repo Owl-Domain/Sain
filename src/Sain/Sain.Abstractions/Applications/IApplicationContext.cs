@@ -107,8 +107,18 @@ public static class IApplicationContextExtensions
       return false;
    }
 
-   /// <summary>Tries to get a <paramref name="unit"/> of the given kind <typeparamref name="T"/>.</summary>
+   /// <summary>Tries to get an application unit of the given kind <typeparamref name="T"/>.</summary>
    /// <typeparam name="T">The kind of the unit to try and get.</typeparam>
+   /// <param name="applicationContext">The application context to use.</param>
+   /// <returns>The obtained unit, or <see langword="null"/> if the unit couldn't be obtained.</returns>
+   public static T? TryGetUnit<T>(this IApplicationContext applicationContext) where T : notnull, IApplicationUnit
+   {
+      TryGetUnit(applicationContext, out T? unit);
+      return unit;
+   }
+
+   /// <summary>Tries to get a <paramref name="unit"/> of the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the general unit to try and get.</typeparam>
    /// <param name="applicationContext">The application context to use.</param>
    /// <param name="unit">The obtained unit, or <see langword="null"/> if the unit couldn't be obtained.</param>
    /// <returns><see langword="true"/> if the <paramref name="unit"/> could be obtained, <see langword="false"/> otherwise.</returns>
@@ -123,6 +133,17 @@ public static class IApplicationContextExtensions
 
       unit = default;
       return false;
+   }
+
+   /// <summary>Tries to get a general unit of the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the general unit to try and get.</typeparam>
+   /// <param name="applicationContext">The application context to use.</param>
+   /// <returns>The obtained unit, or <see langword="null"/> if the unit couldn't be obtained.</returns>
+   /// <remarks>This is excluding context units, and context provider units.</remarks>
+   public static T? TryGetGeneralUnit<T>(this IApplicationContext applicationContext) where T : notnull, IApplicationUnit
+   {
+      TryGetGeneralUnit(applicationContext, out T? unit);
+      return unit;
    }
 
    /// <summary>Tries to get a <paramref name="context"/> unit of the given kind <typeparamref name="T"/>.</summary>
@@ -142,6 +163,16 @@ public static class IApplicationContextExtensions
       return false;
    }
 
+   /// <summary>Tries to get a context unit of the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the context unit to try and get.</typeparam>
+   /// <param name="applicationContext">The application context to use.</param>
+   /// <returns>The obtained context unit, or <see langword="null"/> if the unit couldn't be obtained.</returns>
+   public static T? TryGetContext<T>(this IApplicationContext applicationContext) where T : notnull, IContextUnit
+   {
+      TryGetContext(applicationContext, out T? unit);
+      return unit;
+   }
+
    /// <summary>Tries to get a context <paramref name="provider"/> unit of the given kind <typeparamref name="T"/>.</summary>
    /// <typeparam name="T">The kind of the context provider unit to try and get.</typeparam>
    /// <param name="applicationContext">The application context to use.</param>
@@ -157,6 +188,16 @@ public static class IApplicationContextExtensions
 
       provider = default;
       return false;
+   }
+
+   /// <summary>Tries to get a context provider unit of the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the context provider unit to try and get.</typeparam>
+   /// <param name="applicationContext">The application context to use.</param>
+   /// <returns>The obtained context provider unit, or <see langword="null"/> if the unit couldn't be obtained.</returns>
+   public static T? TryGetContextProvider<T>(this IApplicationContext applicationContext) where T : notnull, IContextProviderUnit
+   {
+      TryGetContextProvider(applicationContext, out T? unit);
+      return unit;
    }
    #endregion
 }

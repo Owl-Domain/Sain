@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace OwlDomain.Sain.Applications;
 
 /// <summary>
@@ -50,6 +48,9 @@ public class ApplicationContext : IApplicationContext
 
    /// <inheritdoc/>
    public ILoggingContextUnit? Logging { get; }
+
+   /// <inheritdoc/>
+   public IStorageContextUnitGroup? Storage { get; }
    #endregion
 
    #region Constructors
@@ -66,8 +67,9 @@ public class ApplicationContext : IApplicationContext
       ContextProviders = [.. allUnits.OfType<IContextProviderUnit>()];
       InitialisationOrder = initialisationOrder;
 
-      if (this.TryGetContext(out ITimeContextUnit? time)) Time = time;
-      if (this.TryGetContext(out ILoggingContextUnit? logging)) Logging = logging;
+      Time = this.TryGetContext<ITimeContextUnit>();
+      Logging = this.TryGetContext<ILoggingContextUnit>();
+      Storage = StorageContextUnitGroup.Create(this);
    }
    #endregion
 
