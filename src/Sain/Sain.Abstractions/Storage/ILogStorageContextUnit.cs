@@ -11,5 +11,8 @@ public interface ILogStorageContextUnit : IContextUnit
 
    /// <summary>The path to the directory in which new logs for the current application should be written to.</summary>
    string WriteTo { get; }
+
+   /// <summary>The directory in which the logs for the current application session should be saved to.</summary>
+   string SessionDirectory { get; }
    #endregion
 }

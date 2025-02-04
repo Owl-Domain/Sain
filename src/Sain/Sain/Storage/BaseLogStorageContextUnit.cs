@@ -15,5 +15,8 @@ public abstract class BaseLogStorageContextUnit(IContextProviderUnit? provider) 
 
    /// <inheritdoc/>
    public abstract string WriteTo { get; }
+
+   /// <inheritdoc/>
+   public abstract string SessionDirectory { get; }
    #endregion
 }

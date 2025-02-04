@@ -329,6 +329,7 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
       TryWithContextOfKind<ILoggingContextUnit>();
 
       // Storage
+      TryWithContextOfKind<IGeneralStorageContextUnit>();
       TryWithContextOfKind<IDataStorageContextUnit>();
       TryWithContextOfKind<IConfigStorageContextUnit>();
       TryWithContextOfKind<ILogStorageContextUnit>();

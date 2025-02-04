@@ -26,10 +26,15 @@ public abstract class BaseLoggingTextFileSinkUnit : BaseLoggingFileSinkUnit
    /// <inheritdoc/>
    protected override void Close()
    {
-      _writer?.Close();
-      _writer = null;
-
-      base.Close();
+      try
+      {
+         _writer?.Close();
+      }
+      finally
+      {
+         _writer = null;
+         base.Close();
+      }
    }
    #endregion
 

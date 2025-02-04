@@ -3,16 +3,21 @@ namespace OwlDomain.Sain.Storage;
 /// <summary>
 ///   Creates a new instance of the <see cref="StorageContextUnitGroup"/>.
 /// </summary>
+/// <param name="general">The context unit that is responsible for general storage operations.</param>
 /// <param name="data">The context unit that is responsible for the application's data storage.</param>
 /// <param name="config">The context unit that is responsible for the application's config storage.</param>
 /// <param name="log">The context unit that is responsible for the application's log storage.</param>
 public sealed class StorageContextUnitGroup(
+   IGeneralStorageContextUnit? general,
    IDataStorageContextUnit? data,
    IConfigStorageContextUnit? config,
    ILogStorageContextUnit? log)
    : IStorageContextUnitGroup
 {
    #region Properties
+   /// <inheritdoc/>
+   public IGeneralStorageContextUnit? General { get; } = general;
+
    /// <inheritdoc/>
    public IDataStorageContextUnit? Data { get; } = data;
 
@@ -29,11 +34,12 @@ public sealed class StorageContextUnitGroup(
    /// <returns>The created storage context unit group.</returns>
    public static StorageContextUnitGroup Create(IApplicationContext applicationContext)
    {
+      applicationContext.TryGetContext(out IGeneralStorageContextUnit? general);
       applicationContext.TryGetContext(out IDataStorageContextUnit? data);
       applicationContext.TryGetContext(out IConfigStorageContextUnit? config);
       applicationContext.TryGetContext(out ILogStorageContextUnit? log);
 
-      return new(data, config, log);
+      return new(general, data, config, log);
    }
    #endregion
 }

@@ -22,17 +22,11 @@ public interface ILoggingContextUnit : IContextUnit
    #region Properties
    /// <summary>The collection of the log path converters that are used to turn the source file paths into project relative ones.</summary>
    IReadOnlyList<ILogPathConverter> PathConverters { get; }
-
-   /// <summary>The collection of paths to the files that have been attached to the current log.</summary>
-   IReadOnlyList<string> Files { get; }
    #endregion
 
    #region Events
    /// <summary>The event that is raised whenever a new log entry is added.</summary>
    event LoggingContextLogEntryEventHandler? LogEntryAdded;
-
-   /// <summary>The event that is raised whenever a new file is attached to the log.</summary>
-   event LoggingContextFileEventHandler? LogFileAttached;
    #endregion
 
    #region Methods
@@ -47,14 +41,6 @@ public interface ILoggingContextUnit : IContextUnit
    /// <returns>The used logging context.</returns>
    /// <remarks>This path should be the entire path of the project that is before the <c>/src/</c> directory.</remarks>
    ILoggingContextUnit WithPathPrefixConverter(string prefix, string project);
-
-   /// <summary>Attaches the file at the given file <paramref name="path"/> to the current log.</summary>
-   /// <param name="path">The path of the file to attach to the log.</param>
-   /// <returns>The used logging context.</returns>
-   /// <exception cref="InvalidOperationException">
-   ///   Might be thrown if the logging context is unavailable, or if it has not been initialised yet.
-   /// </exception>
-   ILoggingContextUnit WithFile(string path);
 
    /// <summary>Tries to get the <paramref name="relativePath"/> from the given <paramref name="fullPath"/>.</summary>
    /// <param name="fullPath">The full path to get the relative path for.</param>

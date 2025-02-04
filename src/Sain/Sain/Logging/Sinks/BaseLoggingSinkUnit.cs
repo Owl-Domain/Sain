@@ -22,8 +22,6 @@ public abstract class BaseLoggingSinkUnit : BaseApplicationUnit, ILoggingSinkUni
       if (Context.Logging is not null)
       {
          Context.Logging.LogEntryAdded += OnLogEntryAdded;
-         Context.Logging.LogFileAttached += OnLogFileAttached;
-
          Open();
       }
    }
@@ -34,8 +32,6 @@ public abstract class BaseLoggingSinkUnit : BaseApplicationUnit, ILoggingSinkUni
       if (Context.Logging is not null)
       {
          Context.Logging.LogEntryAdded -= OnLogEntryAdded;
-         Context.Logging.LogFileAttached -= OnLogFileAttached;
-
          Close();
       }
    }
@@ -50,10 +46,5 @@ public abstract class BaseLoggingSinkUnit : BaseApplicationUnit, ILoggingSinkUni
    /// <param name="context">The logging context that the entry came from.</param>
    /// <param name="entry">The entry that was added.</param>
    protected abstract void OnLogEntryAdded(ILoggingContextUnit context, ILogEntry entry);
-
-   /// <summary>Called when a new file is attached to the log.</summary>
-   /// <param name="context">The logging context that the file was attached to.</param>
-   /// <param name="path">The path of the file that was added.</param>
-   protected virtual void OnLogFileAttached(ILoggingContextUnit context, string path) { }
    #endregion
 }

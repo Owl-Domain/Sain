@@ -11,6 +11,9 @@ public sealed class UnixLogStorageContextUnit(IContextProviderUnit? provider) : 
 
    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
    private string? _writeTo;
+
+   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+   private string? _sessionDirectory;
    #endregion
 
    #region Properties
@@ -37,6 +40,18 @@ public sealed class UnixLogStorageContextUnit(IContextProviderUnit? provider) : 
          return _writeTo;
       }
    }
+
+   /// <inheritdoc/>
+   public override string SessionDirectory
+   {
+      get
+      {
+         ThrowIfNotInitialised();
+         Debug.Assert(_sessionDirectory is not null);
+
+         return _sessionDirectory;
+      }
+   }
    #endregion
 
    #region Methods
@@ -48,6 +63,8 @@ public sealed class UnixLogStorageContextUnit(IContextProviderUnit? provider) : 
       string appName = UnixStorageContextUnitHelper.GetApplicationDirectoryName(Application);
 
       _writeTo = Path.Combine(UnixStorageContextUnitHelper.XdgDataHome, appName, "logs");
+      _sessionDirectory = Path.Combine(_writeTo, Application.StartedOn.ToString("yyyy-MM-dd HH-mm-ss"));
+
       _readFrom = [];
 
       foreach (string baseDirectory in UnixStorageContextUnitHelper.XdgDataDirs)
@@ -64,6 +81,7 @@ public sealed class UnixLogStorageContextUnit(IContextProviderUnit? provider) : 
 
       _readFrom = null;
       _writeTo = null;
+      _sessionDirectory = null;
    }
    #endregion
 }

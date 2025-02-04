@@ -14,11 +14,17 @@ public abstract class BaseLoggingFileSinkUnit : BaseLoggingSinkUnit, ILoggingFil
    public override Type Kind => typeof(ILoggingFileSinkUnit);
 
    /// <inheritdoc/>
+   public override IReadOnlyCollection<Type> RequiresUnits { get; } = [typeof(IGeneralStorageContextUnit), typeof(ILogStorageContextUnit)];
+
+   /// <inheritdoc/>
    public string? FilePath { get; private set; }
 
    /// <summary>The stream for the created log file.</summary>
    /// <exception cref="InvalidOperationException">Thrown if accessed before the stream has been opened, or if accessed after it has been closed.</exception>
    protected FileStream Stream => _stream ?? throw new InvalidOperationException($"The logging sink hasn't been opened yet.");
+
+   /// <summary>The preferred file name for the log file.</summary>
+   protected abstract string PreferredFileName { get; }
    #endregion
 
    #region Methods
@@ -26,30 +32,47 @@ public abstract class BaseLoggingFileSinkUnit : BaseLoggingSinkUnit, ILoggingFil
    protected override void Open()
    {
       Debug.Assert(Context.Logging is not null, $"The {nameof(BaseLoggingSinkUnit)} ensures this method will only be called if logging is available.");
+      Debug.Assert(Context.Storage.Log is not null);
+      Debug.Assert(Context.Storage.General is not null);
 
-      GetLogPath(out string directory, out string preferredFileName);
+      string directory = Context.Storage.Log.SessionDirectory;
+      string fullPath = Path.Combine(directory, PreferredFileName);
 
-      string extension = Path.GetExtension(preferredFileName);
-      preferredFileName = Path.GetFileNameWithoutExtension(preferredFileName);
+      if (TryCreateFile(directory, fullPath, out FileStream? stream) is false)
+      {
+         ReadOnlySpan<char> fileName = Context.Storage.General.GetFileNameWithoutExtension(PreferredFileName);
+         ReadOnlySpan<char> extension = Context.Storage.General.GetExtension(PreferredFileName);
 
-      int attempt = 1;
+         for (int attempt = 2; ; attempt++)
+         {
+            string duplicateFileName = Context.Storage.General.GetDuplicateFileName(fileName, extension, attempt);
+            fullPath = Path.Combine(directory, duplicateFileName);
 
-      FileStream? stream;
-      while (TryCreateFile(directory, preferredFileName, extension, attempt, out stream) is false)
-         attempt++;
-
-      FilePath = stream.Name;
-      Context.Logging.WithFile(FilePath);
+            if (TryCreateFile(directory, fullPath, out stream))
+               break;
+         }
+      }
 
       _stream = stream;
+      FilePath = stream.Name;
    }
 
    /// <inheritdoc/>
    protected override void Close()
    {
-      _stream?.Close();
-      _stream = null;
-      FilePath = null;
+      try
+      {
+         if (_stream is not null)
+         {
+            lock (_stream)
+               _stream.Close();
+         }
+      }
+      finally
+      {
+         _stream = null;
+         FilePath = null;
+      }
    }
 
    /// <inheritdoc/>
@@ -57,8 +80,11 @@ public abstract class BaseLoggingFileSinkUnit : BaseLoggingSinkUnit, ILoggingFil
    {
       Debug.Assert(_stream is not null);
 
-      OnLogEntryAddedCore(context, entry);
-      Flush();
+      lock (_stream)
+      {
+         OnLogEntryAddedCore(context, entry);
+         Flush();
+      }
    }
 
    /// <summary>Called when a new log entry is added.</summary>
@@ -68,69 +94,21 @@ public abstract class BaseLoggingFileSinkUnit : BaseLoggingSinkUnit, ILoggingFil
    #endregion
 
    #region Helpers
-   /// <summary>Gets the path information about where the log file should be created.</summary>
-   /// <param name="directory">The directory in which the file should be created.</param>
-   /// <param name="preferredFileName">The preferred name of the log file (including the extension).</param>
-   /// <remarks>
-   ///   <list type="bullet">
-   ///      <item>
-   ///         The <paramref name="preferredFileName"/> is only a hint, sometimes the file may already
-   ///         exist, in which case <see cref="CreateLogPath"/> is used to derive a new name.
-   ///      </item>
-   ///      <item>The reason the methods are separated is so that <see cref="GetLogPath"/> can perform more expensive operations without having to worry.</item>
-   ///   </list>
-   /// </remarks>
-   protected abstract void GetLogPath(out string directory, out string preferredFileName);
-
-   /// <summary>Creates the path where the log file should be created at.</summary>
-   /// <param name="directory">The directory in which the log file should be placed in.</param>
-   /// <param name="preferredFileName">The preferred name for the log file (without the extension).</param>
-   /// <param name="extension">The extension that should be given to the file.</param>
-   /// <param name="creationAttempt">The amount of times creating the log file has been attempted.</param>
-   /// <returns>The full path where the log file should be created.</returns>
-   protected virtual string CreateLogPath(string directory, string preferredFileName, string extension, int creationAttempt)
+   private bool TryCreateFile(string? directory, string fullPath, [NotNullWhen(true)] out FileStream? stream)
    {
-      if (creationAttempt is 0)
-         return Path.Combine(directory, preferredFileName + extension);
-
-      string name = $"{preferredFileName} ({creationAttempt:n0}){extension}";
-      return Path.Combine(directory, name);
-   }
-
-   /// <summary>Tries to create the log file.</summary>
-   /// <param name="directory">The directory in which the log file should be placed in.</param>
-   /// <param name="preferredFileName">The preferred name for the log file (without the extension).</param>
-   /// <param name="extension">The extension that should be given to the file.</param>
-   /// <param name="creationAttempt">The amount of times creating the log file has been attempted.</param>
-   /// <param name="stream">The stream for the created file, or <see langword="null"/> if creating the file fails.</param>
-   /// <returns><see langword="true"/> if creating the log file was successful, <see langword="false"/> otherwise.</returns>
-   protected virtual bool TryCreateFile(string directory, string preferredFileName, string extension, int creationAttempt, [NotNullWhen(true)] out FileStream? stream)
-   {
-      if (Directory.Exists(directory) is false)
+      if (Directory.Exists(directory) is false && directory is not null)
          Directory.CreateDirectory(directory);
 
-      string path;
-      if (creationAttempt < 2)
-         path = Path.Combine(directory, preferredFileName + extension);
-      else
-         path = CreateLogPath(directory, preferredFileName, extension, creationAttempt);
-
-      if (File.Exists(path))
+      if (File.Exists(fullPath))
       {
-         stream = default;
+         stream = null;
          return false;
       }
 
-      try
-      {
-         stream = TryCreateFile(path);
-         return true;
-      }
-      catch (IOException)
-      {
-         stream = default;
-         return false;
-      }
+      // Todo(Nightowl): Should this bother catching the IOException? Could that result in potential bugs?
+
+      stream = TryCreateFile(fullPath);
+      return true;
    }
 
    /// <summary>Tries to create the log file at the given <paramref name="path"/>.</summary>

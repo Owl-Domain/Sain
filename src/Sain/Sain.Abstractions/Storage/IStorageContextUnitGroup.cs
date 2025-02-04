@@ -6,6 +6,9 @@ namespace OwlDomain.Sain.Storage;
 public interface IStorageContextUnitGroup
 {
    #region Properties
+   /// <summary>The context unit that is responsible for general storage operations.</summary>
+   IGeneralStorageContextUnit? General { get; }
+
    /// <summary>The context unit that is responsible for the application's data storage.</summary>
    IDataStorageContextUnit? Data { get; }
 

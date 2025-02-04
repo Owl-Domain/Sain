@@ -6,8 +6,8 @@ namespace OwlDomain.Sain.Logging;
 public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextUnit
 {
    #region Fields
+   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
    private readonly SortedList<ILogPathConverter, ILogPathConverter> _filePathConverters = [];
-   private readonly List<string> _files = [];
    private readonly List<ILogEntry> _preInitEntries = [];
    private bool _isPreInit = false;
    #endregion
@@ -18,17 +18,11 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
 
    /// <inheritdoc/>
    public IReadOnlyList<ILogPathConverter> PathConverters => [.. _filePathConverters.Values];
-
-   /// <inheritdoc/>
-   public IReadOnlyList<string> Files => _files;
    #endregion
 
    #region Events
    /// <inheritdoc/>
    public event LoggingContextLogEntryEventHandler? LogEntryAdded;
-
-   /// <inheritdoc/>
-   public event LoggingContextFileEventHandler? LogFileAttached;
    #endregion
 
    #region Constructors
@@ -47,7 +41,6 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
       base.OnAttach();
 
       _preInitEntries.Clear();
-      _files.Clear();
       _isPreInit = true;
    }
 
@@ -61,12 +54,6 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
       {
          ILogEntry entry = _preInitEntries[i];
          OnNewEntry(entry);
-      }
-
-      for (int i = 0; i < _files.Count; i++)
-      {
-         string file = _files[i];
-         LogFileAttached?.Invoke(this, file);
       }
 
       _isPreInit = false;
@@ -117,18 +104,6 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
       converter = default;
 
       return false;
-   }
-
-   /// <inheritdoc/>
-   public ILoggingContextUnit WithFile(string path)
-   {
-      _files.Add(path);
-
-      if (_isPreInit || (IsInitialised is false))
-         return this;
-
-      LogFileAttached?.Invoke(this, path);
-      return this;
    }
 
    /// <inheritdoc/>
