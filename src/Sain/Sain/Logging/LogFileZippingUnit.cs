@@ -16,6 +16,9 @@ public class LogFileZippingUnit : BaseApplicationUnit
    /// <inheritdoc/>
    public override IReadOnlyCollection<Type> InitialiseBeforeUnits { get; } = [typeof(ILoggingFileSinkUnit)];
 
+   /// <inheritdoc/>
+   public override bool CanCoexist => false;
+
    /// <summary>The encoding to use for the names in the archive.</summary>
    public Encoding EntryNameEncoding { get; set; } = Encoding.UTF8;
 

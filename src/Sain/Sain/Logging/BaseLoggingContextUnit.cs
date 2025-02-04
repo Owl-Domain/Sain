@@ -109,7 +109,7 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
    /// <inheritdoc/>
    public ILoggingContextUnit Log(LogSeverity severity, string context, string message, [CallerMemberName] string member = "", [CallerFilePath] string file = "", [CallerLineNumber] int line = 0)
    {
-      if (LogEntryAdded is null)
+      if (_isPreInit is false && LogEntryAdded is null)
          return this;
 
       if ((IsInitialised is false) && (_isPreInit is false))
@@ -145,8 +145,6 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
 
       return new LogEntry(date, timestamp, severity, context, message, member, file, converter, line);
    }
-
-   // Todo(Nightowl): This will be replaced once a system time context is added;
 
    /// <summary>Gets the current time.</summary>
    /// <returns>The current time.</returns>
