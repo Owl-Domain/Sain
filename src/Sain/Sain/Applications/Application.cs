@@ -164,15 +164,19 @@ public abstract class Application<TContext>(
    {
       _generalWatch.Restart();
       Iteration?.Invoke(this);
+      TimeSpan actualIterationTime = _generalWatch.Elapsed;
 
-      TimeSpan iterationTime = _generalWatch.Elapsed;
-      if (iterationTime < Configuration.MinimumIterationTime)
+      while (_generalWatch.Elapsed < Configuration.MinimumIterationTime && (IsStopRequested is false))
       {
-         TimeSpan difference = Configuration.MinimumIterationTime - iterationTime;
-         Thread.Sleep(difference);
+         TimeSpan difference = Configuration.MinimumIterationTime - _generalWatch.Elapsed;
+
+         if (difference.TotalMilliseconds > 1)
+            Thread.Sleep(1);
+         else if (difference > TimeSpan.Zero)
+            Thread.Sleep(difference);
       }
 
-      ActualLastIterationTime = iterationTime;
+      ActualLastIterationTime = actualIterationTime;
       LastIterationTime = _generalWatch.Elapsed;
    }
    private void Initialise(ApplicationRunMode mode)
