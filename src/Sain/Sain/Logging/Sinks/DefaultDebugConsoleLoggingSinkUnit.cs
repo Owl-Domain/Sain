@@ -31,9 +31,8 @@ public static class ApplicationBuilderDefaultDebugConsoleLoggingSinkUnitExtensio
    public static TSelf WithDefaultDebugConsoleLoggingSinkUnit<TSelf>(this TSelf builder)
       where TSelf : IApplicationBuilder<TSelf>
    {
-#if DEBUG
-      builder.WithUnit<DefaultDebugConsoleLoggingSinkUnit>();
-#endif
+      if (Debugger.IsAttached)
+         builder.WithUnit<DefaultDebugConsoleLoggingSinkUnit>();
 
       return builder;
    }
