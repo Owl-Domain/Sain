@@ -16,6 +16,12 @@ public sealed class StorageContextUnitGroup(
 {
    #region Properties
    /// <inheritdoc/>
+#if NET5_0_OR_GREATER
+   [MemberNotNullWhen(true, nameof(General), nameof(Data), nameof(Config), nameof(Log))]
+#endif
+   public bool IsFullyAvailable => General is not null && Data is not null && Config is not null && Log is not null;
+
+   /// <inheritdoc/>
    public IGeneralStorageContextUnit? General { get; } = general;
 
    /// <inheritdoc/>

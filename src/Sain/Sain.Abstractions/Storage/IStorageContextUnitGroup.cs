@@ -6,6 +6,12 @@ namespace OwlDomain.Sain.Storage;
 public interface IStorageContextUnitGroup
 {
    #region Properties
+   /// <summary>Whether all of the context units in this group are available.</summary>
+#if NET5_0_OR_GREATER
+   [MemberNotNullWhen(true, nameof(General), nameof(Data), nameof(Config), nameof(Log))]
+#endif
+   bool IsFullyAvailable { get; }
+
    /// <summary>The context unit that is responsible for general storage operations.</summary>
    IGeneralStorageContextUnit? General { get; }
 
