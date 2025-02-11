@@ -34,10 +34,10 @@ public sealed class StorageContextUnitGroup(
    /// <returns>The created storage context unit group.</returns>
    public static StorageContextUnitGroup Create(IApplicationContext applicationContext)
    {
-      applicationContext.TryGetContext(out IGeneralStorageContextUnit? general);
-      applicationContext.TryGetContext(out IDataStorageContextUnit? data);
-      applicationContext.TryGetContext(out IConfigStorageContextUnit? config);
-      applicationContext.TryGetContext(out ILogStorageContextUnit? log);
+      _ = applicationContext.TryGetContextUnit(out IGeneralStorageContextUnit? general);
+      _ = applicationContext.TryGetContextUnit(out IDataStorageContextUnit? data);
+      _ = applicationContext.TryGetContextUnit(out IConfigStorageContextUnit? config);
+      _ = applicationContext.TryGetContextUnit(out ILogStorageContextUnit? log);
 
       return new(general, data, config, log);
    }

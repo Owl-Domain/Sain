@@ -54,150 +54,207 @@ public interface IApplicationContext
    /// <remarks>This will also cleanup (uninitialise) the application units in the reverse <see cref="InitialisationOrder"/>.</remarks>
    /// <exception cref="InvalidOperationException">Thrown if the application context is not initialised.</exception>
    void Cleanup();
+   #endregion
 
-   /// <summary>Tries to get a <paramref name="unit"/> of the given <paramref name="kind"/>.</summary>
-   /// <param name="kind">The kind of the unit to try and get.</param>
-   /// <param name="unit">The obtained unit, or <see langword="null"/> if the unit couldn't be obtained.</param>
-   /// <returns><see langword="true"/> if the <paramref name="unit"/> could be obtained, <see langword="false"/> otherwise.</returns>
-   /// <remarks>This is including general units, context units, and context provider units.</remarks>
+   #region All unit methods
+   /// <summary>Gets an application unit of the given <paramref name="kind"/>.</summary>
+   /// <param name="kind">The kind of the application unit to get.</param>
+   /// <returns>The obtained application unit.</returns>
+   /// <exception cref="ArgumentException">Thrown if the given kind is not of the <see cref="IApplicationUnit"/> type.</exception>
+   /// <exception cref="InvalidOperationException">Thrown if no application unit of the given <paramref name="kind"/> could be obtained.</exception>
+   IApplicationUnit GetUnit(Type kind);
+
+   /// <summary>Tries to get an application unit of the given <paramref name="kind"/>.</summary>
+   /// <param name="kind">The kind of the application unit to try and get.</param>
+   /// <returns>The obtained application unit, or <see langword="null"/> if the unit couldn't be obtained.</returns>
+   /// <exception cref="ArgumentException">Thrown if the given kind is not of the <see cref="IApplicationUnit"/> type.</exception>
+   IApplicationUnit? TryGetUnit(Type kind);
+
+   /// <summary>Tries to get an application unit of the given <paramref name="kind"/>.</summary>
+   /// <param name="kind">The kind of the application unit to try and get.</param>
+   /// <param name="unit">The obtained application unit.</param>
+   /// <returns><see langword="true"/> if the application <paramref name="unit"/> could be obtained, <see langword="false"/> otherwise.</returns>
+   /// <exception cref="ArgumentException">Thrown if the given kind is not of the <see cref="IApplicationUnit"/> type.</exception>
    bool TryGetUnit(Type kind, [NotNullWhen(true)] out IApplicationUnit? unit);
 
-   /// <summary>Tries to get a general <paramref name="unit"/> of the given <paramref name="kind"/>.</summary>
-   /// <param name="kind">The kind of the general unit to try and get.</param>
-   /// <param name="unit">The obtained general unit, or <see langword="null"/> if the unit couldn't be obtained.</param>
-   /// <returns><see langword="true"/> if the general <paramref name="unit"/> could be obtained, <see langword="false"/> otherwise.</returns>
-   /// <remarks>This is excluding context units, and context provider units.</remarks>
-   bool TryGetGeneralUnit(Type kind, [NotNullWhen(true)] out IApplicationUnit? unit);
-
-   /// <summary>Tries to get a <paramref name="context"/> unit of the given <paramref name="kind"/>.</summary>
-   /// <param name="kind">The kind of the context unit to try and get.</param>
-   /// <param name="context">The obtained context unit, or <see langword="null"/> if the unit couldn't be obtained.</param>
-   /// <returns><see langword="true"/> if the <paramref name="context"/> unit could be obtained, <see langword="false"/> otherwise.</returns>
-   bool TryGetContext(Type kind, [NotNullWhen(true)] out IContextUnit? context);
-
-   /// <summary>Tries to get a context <paramref name="provider"/> unit of the given <paramref name="kind"/>.</summary>
-   /// <param name="kind">The kind of the context provider unit to try and get.</param>
-   /// <param name="provider">The obtained context provider unit, or <see langword="null"/> if the unit couldn't be obtained.</param>
-   /// <returns><see langword="true"/> if the context <paramref name="provider"/> unit could be obtained, <see langword="false"/> otherwise.</returns>
-   bool TryGetContextProvider(Type kind, [NotNullWhen(true)] out IContextProviderUnit? provider);
+   /// <summary>Tries to get all of the application units for the given <paramref name="kind"/>.</summary>
+   /// <param name="kind">The kind of the application units to get.</param>
+   /// <returns>A collection of the obtained application units.</returns>
+   /// <exception cref="ArgumentException">Thrown if the given kind is not of the <see cref="IApplicationUnit"/> type.</exception>
+   IReadOnlyCollection<IApplicationUnit> GetUnits(Type kind);
    #endregion
-}
 
-/// <summary>
-///   Contains various extension methods related to the <see cref="IApplicationContext"/>.
-/// </summary>
-public static class IApplicationContextExtensions
-{
-   #region Methods
-   /// <summary>Tries to get a <paramref name="unit"/> of the given kind <typeparamref name="T"/>.</summary>
-   /// <typeparam name="T">The kind of the unit to try and get.</typeparam>
-   /// <param name="applicationContext">The application context to use.</param>
-   /// <param name="unit">The obtained unit, or <see langword="null"/> if the unit couldn't be obtained.</param>
-   /// <returns><see langword="true"/> if the <paramref name="unit"/> could be obtained, <see langword="false"/> otherwise.</returns>
-   /// <remarks>This is including general units, context units, and context provider units.</remarks>
-   public static bool TryGetUnit<T>(this IApplicationContext applicationContext, [NotNullWhen(true)] out T? unit) where T : notnull, IApplicationUnit
-   {
-      if (applicationContext.TryGetUnit(typeof(T), out IApplicationUnit? untyped))
-      {
-         unit = (T)untyped;
-         return true;
-      }
-
-      unit = default;
-      return false;
-   }
+   #region Generic all unit methods
+   /// <summary>Gets an application unit of the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the application unit to get.</typeparam>
+   /// <returns>The obtained application unit.</returns>
+   /// <exception cref="InvalidOperationException">Thrown if no application unit of the given kind <typeparamref name="T"/> could be obtained.</exception>
+   T GetUnit<T>() where T : notnull, IApplicationUnit;
 
    /// <summary>Tries to get an application unit of the given kind <typeparamref name="T"/>.</summary>
-   /// <typeparam name="T">The kind of the unit to try and get.</typeparam>
-   /// <param name="applicationContext">The application context to use.</param>
-   /// <returns>The obtained unit, or <see langword="null"/> if the unit couldn't be obtained.</returns>
-   public static T? TryGetUnit<T>(this IApplicationContext applicationContext) where T : notnull, IApplicationUnit
-   {
-      TryGetUnit(applicationContext, out T? unit);
-      return unit;
-   }
+   /// <typeparam name="T">The kind of the application unit to get.</typeparam>
+   /// <returns>The obtained application unit, or <see langword="null"/> if the unit couldn't be obtained.</returns>
+   T? TryGetUnit<T>() where T : notnull, IApplicationUnit;
 
-   /// <summary>Tries to get a <paramref name="unit"/> of the given kind <typeparamref name="T"/>.</summary>
-   /// <typeparam name="T">The kind of the general unit to try and get.</typeparam>
-   /// <param name="applicationContext">The application context to use.</param>
-   /// <param name="unit">The obtained unit, or <see langword="null"/> if the unit couldn't be obtained.</param>
-   /// <returns><see langword="true"/> if the <paramref name="unit"/> could be obtained, <see langword="false"/> otherwise.</returns>
-   /// <remarks>This is excluding context units, and context provider units.</remarks>
-   public static bool TryGetGeneralUnit<T>(this IApplicationContext applicationContext, [NotNullWhen(true)] out T? unit) where T : notnull, IApplicationUnit
-   {
-      if (applicationContext.TryGetGeneralUnit(typeof(T), out IApplicationUnit? untyped))
-      {
-         unit = (T)untyped;
-         return true;
-      }
+   /// <summary>Tries to get an application unit of the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the application unit to get.</typeparam>
+   /// <param name="unit">The obtained application unit.</param>
+   /// <returns><see langword="true"/> if the application <paramref name="unit"/> could be obtained, <see langword="false"/> otherwise.</returns>
+   bool TryGetUnit<T>([NotNullWhen(true)] out T? unit) where T : notnull, IApplicationUnit;
 
-      unit = default;
-      return false;
-   }
+   /// <summary>Tries to get all of the application units for the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the application units to get.</typeparam>
+   /// <returns>A collection of the obtained application units.</returns>
+   IReadOnlyCollection<T> GetUnits<T>() where T : notnull, IApplicationUnit;
+   #endregion
 
-   /// <summary>Tries to get a general unit of the given kind <typeparamref name="T"/>.</summary>
-   /// <typeparam name="T">The kind of the general unit to try and get.</typeparam>
-   /// <param name="applicationContext">The application context to use.</param>
-   /// <returns>The obtained unit, or <see langword="null"/> if the unit couldn't be obtained.</returns>
-   /// <remarks>This is excluding context units, and context provider units.</remarks>
-   public static T? TryGetGeneralUnit<T>(this IApplicationContext applicationContext) where T : notnull, IApplicationUnit
-   {
-      TryGetGeneralUnit(applicationContext, out T? unit);
-      return unit;
-   }
+   #region General unit methods
+   /// <summary>Gets a general application unit of the given <paramref name="kind"/>.</summary>
+   /// <param name="kind">The kind of the general application unit to get.</param>
+   /// <returns>The obtained general application unit.</returns>
+   /// <exception cref="ArgumentException">
+   ///   Thrown if either:
+   ///   <list type="bullet">
+   ///      <item>The given <paramref name="kind"/> is not of the <see cref="IApplicationUnit"/> type.</item>
+   ///      <item>The given <paramref name="kind"/> is of the <see cref="IContextUnit"/> type.</item>
+   ///      <item>The given <paramref name="kind"/> is of the <see cref="IContextProviderUnit"/> type.</item>
+   ///   </list>
+   /// </exception>
+   /// <exception cref="InvalidOperationException">Thrown if no general application unit of the given <paramref name="kind"/> could be obtained.</exception>
+   IApplicationUnit GetGeneralUnit(Type kind);
 
-   /// <summary>Tries to get a <paramref name="context"/> unit of the given kind <typeparamref name="T"/>.</summary>
-   /// <typeparam name="T">The kind of the context unit to try and get.</typeparam>
-   /// <param name="applicationContext">The application context to use.</param>
-   /// <param name="context">The obtained context unit, or <see langword="null"/> if the unit couldn't be obtained.</param>
-   /// <returns><see langword="true"/> if the <paramref name="context"/> unit could be obtained, <see langword="false"/> otherwise.</returns>
-   public static bool TryGetContext<T>(this IApplicationContext applicationContext, [NotNullWhen(true)] out T? context) where T : notnull, IContextUnit
-   {
-      if (applicationContext.TryGetContext(typeof(T), out IContextUnit? untyped))
-      {
-         context = (T)untyped;
-         return true;
-      }
+   /// <summary>Tries to get a general application unit of the given <paramref name="kind"/>.</summary>
+   /// <param name="kind">The kind of the general application unit to try and get.</param>
+   /// <returns>The obtained general application unit, or <see langword="null"/> if the unit couldn't be obtained.</returns>
+   /// <exception cref="ArgumentException">
+   ///   Thrown if either:
+   ///   <list type="bullet">
+   ///      <item>The given <paramref name="kind"/> is not of the <see cref="IApplicationUnit"/> type.</item>
+   ///      <item>The given <paramref name="kind"/> is of the <see cref="IContextUnit"/> type.</item>
+   ///      <item>The given <paramref name="kind"/> is of the <see cref="IContextProviderUnit"/> type.</item>
+   ///   </list>
+   /// </exception>
+   IApplicationUnit? TryGetGeneralUnit(Type kind);
 
-      context = default;
-      return false;
-   }
+   /// <summary>Tries to get all of the general application units for the given <paramref name="kind"/>.</summary>
+   /// <param name="kind">The kind of the general application units to get.</param>
+   /// <returns>A collection of the obtained general application units.</returns>
+   /// <exception cref="ArgumentException">
+   ///   Thrown if either:
+   ///   <list type="bullet">
+   ///      <item>The given <paramref name="kind"/> is not of the <see cref="IApplicationUnit"/> type.</item>
+   ///      <item>The given <paramref name="kind"/> is of the <see cref="IContextUnit"/> type.</item>
+   ///      <item>The given <paramref name="kind"/> is of the <see cref="IContextProviderUnit"/> type.</item>
+   ///   </list>
+   /// </exception>
+   IReadOnlyCollection<IApplicationUnit> GetGeneralUnits(Type kind);
+   #endregion
+
+   #region Generic general unit methods
+   /// <summary>Gets a general application unit of the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the general application unit to get.</typeparam>
+   /// <returns>The obtained general application unit.</returns>
+   /// <exception cref="InvalidOperationException">Thrown if no general application unit of the given kind <typeparamref name="T"/> could be obtained.</exception>
+   /// <exception cref="ArgumentException">
+   ///   Thrown if the given kind type <typeparamref name="T"/> is either an
+   ///   <see cref="IContextUnit"/> or an <see cref="IContextProviderUnit"/>.
+   /// </exception>
+   T GetGeneralUnit<T>() where T : notnull, IApplicationUnit;
+
+   /// <summary>Tries to get a general application unit of the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the general application unit to get.</typeparam>
+   /// <returns>The obtained general application unit, or <see langword="null"/> if the unit couldn't be obtained.</returns>
+   /// <exception cref="ArgumentException">
+   ///   Thrown if the given kind type <typeparamref name="T"/> is either an
+   ///   <see cref="IContextUnit"/> or an <see cref="IContextProviderUnit"/>.
+   /// </exception>
+   T? TryGetGeneralUnit<T>() where T : notnull, IApplicationUnit;
+
+   /// <summary>Tries to get a general application unit of the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the general application unit to get.</typeparam>
+   /// <param name="unit">The obtained general application unit.</param>
+   /// <returns><see langword="true"/> if the general application <paramref name="unit"/> could be obtained, <see langword="false"/> otherwise.</returns>
+   /// <exception cref="ArgumentException">
+   ///   Thrown if the given kind type <typeparamref name="T"/> is either an
+   ///   <see cref="IContextUnit"/> or an <see cref="IContextProviderUnit"/>.
+   /// </exception>
+   bool TryGetGeneralUnit<T>([NotNullWhen(true)] out T? unit) where T : notnull, IApplicationUnit;
+
+   /// <summary>Tries to get all of the general application units for the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the general application units to get.</typeparam>
+   /// <returns>A collection of the obtained general application units.</returns>
+   /// <exception cref="ArgumentException">
+   ///   Thrown if the given kind type <typeparamref name="T"/> is either an
+   ///   <see cref="IContextUnit"/> or an <see cref="IContextProviderUnit"/>.
+   /// </exception>
+   IReadOnlyCollection<T> GetGeneralUnits<T>() where T : notnull, IApplicationUnit;
+   #endregion
+
+   #region Context unit methods
+   /// <summary>Gets a context unit of the given <paramref name="kind"/>.</summary>
+   /// <param name="kind">The kind of the context unit to get.</param>
+   /// <returns>The obtained context unit.</returns>
+   /// <exception cref="ArgumentException">Thrown if the given kind is not of the <see cref="IContextUnit"/> type.</exception>
+   /// <exception cref="InvalidOperationException">Thrown if no context unit of the given <paramref name="kind"/> could be obtained.</exception>
+   IContextUnit GetContextUnit(Type kind);
+
+   /// <summary>Tries to get a context unit of the given <paramref name="kind"/>.</summary>
+   /// <param name="kind">The kind of the context unit to try and get.</param>
+   /// <returns>The obtained context unit, or <see langword="null"/> if the unit couldn't be obtained.</returns>
+   /// <exception cref="ArgumentException">Thrown if the given kind is not of the <see cref="IContextUnit"/> type.</exception>
+   IContextUnit? TryGetContextUnit(Type kind);
+   #endregion
+
+   #region Generic context unit methods
+   /// <summary>Gets a context unit of the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the context unit to get.</typeparam>
+   /// <returns>The obtained context unit.</returns>
+   /// <exception cref="InvalidOperationException">Thrown if no context unit of the given kind <typeparamref name="T"/> could be obtained.</exception>
+   T GetContextUnit<T>() where T : notnull, IContextUnit;
 
    /// <summary>Tries to get a context unit of the given kind <typeparamref name="T"/>.</summary>
-   /// <typeparam name="T">The kind of the context unit to try and get.</typeparam>
-   /// <param name="applicationContext">The application context to use.</param>
+   /// <typeparam name="T">The kind of the context unit to get.</typeparam>
    /// <returns>The obtained context unit, or <see langword="null"/> if the unit couldn't be obtained.</returns>
-   public static T? TryGetContext<T>(this IApplicationContext applicationContext) where T : notnull, IContextUnit
-   {
-      TryGetContext(applicationContext, out T? unit);
-      return unit;
-   }
+   T? TryGetContextUnit<T>() where T : notnull, IContextUnit;
 
-   /// <summary>Tries to get a context <paramref name="provider"/> unit of the given kind <typeparamref name="T"/>.</summary>
-   /// <typeparam name="T">The kind of the context provider unit to try and get.</typeparam>
-   /// <param name="applicationContext">The application context to use.</param>
-   /// <param name="provider">The obtained context provider unit, or <see langword="null"/> if the unit couldn't be obtained.</param>
-   /// <returns><see langword="true"/> if the context <paramref name="provider"/> unit could be obtained, <see langword="false"/> otherwise.</returns>
-   public static bool TryGetContextProvider<T>(this IApplicationContext applicationContext, [NotNullWhen(true)] out T? provider) where T : notnull, IContextProviderUnit
-   {
-      if (applicationContext.TryGetContextProvider(typeof(T), out IContextProviderUnit? untyped))
-      {
-         provider = (T)untyped;
-         return true;
-      }
+   /// <summary>Tries to get a context unit of the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the context unit to get.</typeparam>
+   /// <param name="unit">The obtained context unit.</param>
+   /// <returns><see langword="true"/> if the context <paramref name="unit"/> could be obtained, <see langword="false"/> otherwise.</returns>
+   bool TryGetContextUnit<T>([NotNullWhen(true)] out T? unit) where T : notnull, IContextUnit;
+   #endregion
 
-      provider = default;
-      return false;
-   }
+   #region Context provider unit methods
+   /// <summary>Gets a context provider unit of the given <paramref name="kind"/>.</summary>
+   /// <param name="kind">The kind of the context provider unit to get.</param>
+   /// <returns>The obtained context provider unit.</returns>
+   /// <exception cref="ArgumentException">Thrown if the given kind is not of the <see cref="IContextProviderUnit"/> type.</exception>
+   /// <exception cref="InvalidOperationException">Thrown if no context provider unit of the given <paramref name="kind"/> could be obtained.</exception>
+   IContextProviderUnit GetContextProviderUnit(Type kind);
+
+   /// <summary>Tries to get a context provider unit of the given <paramref name="kind"/>.</summary>
+   /// <param name="kind">The kind of the context provider unit to try and get.</param>
+   /// <returns>The obtained context provider unit, or <see langword="null"/> if the unit couldn't be obtained.</returns>
+   /// <exception cref="ArgumentException">Thrown if the given kind is not of the <see cref="IContextProviderUnit"/> type.</exception>
+   IContextProviderUnit? TryGetContextProviderUnit(Type kind);
+   #endregion
+
+   #region Generic context provider unit methods
+   /// <summary>Gets a context provider unit of the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the context provider unit to get.</typeparam>
+   /// <returns>The obtained context provider unit.</returns>
+   /// <exception cref="InvalidOperationException">Thrown if no context provider unit of the given kind <typeparamref name="T"/> could be obtained.</exception>
+   T GetContextProviderUnit<T>() where T : notnull, IContextProviderUnit;
 
    /// <summary>Tries to get a context provider unit of the given kind <typeparamref name="T"/>.</summary>
-   /// <typeparam name="T">The kind of the context provider unit to try and get.</typeparam>
-   /// <param name="applicationContext">The application context to use.</param>
+   /// <typeparam name="T">The kind of the context provider unit to get.</typeparam>
    /// <returns>The obtained context provider unit, or <see langword="null"/> if the unit couldn't be obtained.</returns>
-   public static T? TryGetContextProvider<T>(this IApplicationContext applicationContext) where T : notnull, IContextProviderUnit
-   {
-      TryGetContextProvider(applicationContext, out T? unit);
-      return unit;
-   }
+   T? TryGetContextProviderUnit<T>() where T : notnull, IContextProviderUnit;
+
+   /// <summary>Tries to get a context provider unit of the given kind <typeparamref name="T"/>.</summary>
+   /// <typeparam name="T">The kind of the context provider unit to get.</typeparam>
+   /// <param name="unit">The obtained context provider unit.</param>
+   /// <returns><see langword="true"/> if the context provider <paramref name="unit"/> could be obtained, <see langword="false"/> otherwise.</returns>
+   bool TryGetContextProviderUnit<T>([NotNullWhen(true)] out T? unit) where T : notnull, IContextProviderUnit;
    #endregion
 }
