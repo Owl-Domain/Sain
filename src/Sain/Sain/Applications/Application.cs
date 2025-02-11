@@ -118,11 +118,30 @@ public abstract class Application<TContext>(
             IsStopRequested = true;
       }
    }
+
+   /// <inheritdoc/>
+   [DoesNotReturn]
+   public void StopImmediately()
+   {
+      IsStopRequested = true;
+      throw new ApplicationStoppingException();
+   }
+
+   /// <inheritdoc/>
+   public void ThrowIfStopRequested()
+   {
+      if (IsStopRequested)
+         throw new ApplicationStoppingException();
+   }
+
    private void RunOnCurrentThread(ApplicationRunMode mode)
    {
       try
       {
          Initialise(mode);
+
+         if (IsStopRequested)
+            return;
 
          if (mode is ApplicationRunMode.UntilStopped)
          {
@@ -131,6 +150,10 @@ public abstract class Application<TContext>(
          }
          else if (IsStopRequested is false)
             RunIteration();
+      }
+      catch (ApplicationStoppingException)
+      {
+         Context.Logging?.Debug(LogContext, $"Application is stopping due to the {nameof(ApplicationStoppingException)} being thrown.");
       }
       finally
       {

@@ -101,6 +101,23 @@ public interface IApplication
    /// <summary>Requests for the application to stop.</summary>
    /// <remarks>If the application is not currently running then this will do nothing.</remarks>
    void Stop();
+
+   /// <summary>
+   ///   This will request for the application to stop, and thrown the <see cref="ApplicationStoppingException"/>
+   ///   to not require co-operation when stopping.
+   /// </summary>
+   /// <remarks>
+   ///   <list type="bullet">
+   ///      <item>While it is possible for the exception to be manually caught to prevent the application, this is throwned upon and should not be done.</item>
+   ///      <item>Application clean up will still occur.</item>
+   ///   </list>
+   /// </remarks>
+   [DoesNotReturn]
+   void StopImmediately();
+
+   /// <summary>Throws the <see cref="ApplicationStoppingException"/> if the application was requested to be stopped.</summary>
+   /// <remarks>Use this to safely exit from long call stacks when you want the application to clean up gracefully.</remarks>
+   void ThrowIfStopRequested();
    #endregion
 }
 
