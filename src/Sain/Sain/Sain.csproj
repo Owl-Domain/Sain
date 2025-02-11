@@ -48,7 +48,6 @@
   <!-- Repository -->
   <PropertyGroup Label="repository">
     <RepositoryType>git</RepositoryType>
-    <RepositoryBranch>master</RepositoryBranch>
     <RepositoryUrl>https://github.com/Owl-Domain/Sain</RepositoryUrl>
   </PropertyGroup>
 
