@@ -258,7 +258,7 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
          }
       }
 
-      throw new InvalidOperationException($"Couldn't obtain a context unit for the given kind ({kind}) from the added context provider units.");
+      return Instance;
    }
 
    /// <inheritdoc/>
