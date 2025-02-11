@@ -37,10 +37,10 @@ public abstract class BaseLoggingSinkUnit : BaseApplicationUnit, ILoggingSinkUni
    }
 
    /// <summary>Called when the log should be opened.</summary>
-   protected abstract void Open();
+   protected virtual void Open() { }
 
    /// <summary>Called when the log should be closed.</summary>
-   protected abstract void Close();
+   protected virtual void Close() { }
 
    /// <summary>Called when a new log entry is added.</summary>
    /// <param name="context">The logging context that the entry came from.</param>
