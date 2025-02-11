@@ -7,6 +7,7 @@ public interface ILogStorageContextUnit : IContextUnit
 {
    #region Properties
    /// <summary>The collection of the directories where logs for the current application should be read from.</summary>
+   /// <remarks>This collection is ordered from most specific to least specific.</remarks>
    IReadOnlyList<string> ReadFrom { get; }
 
    /// <summary>The path to the directory in which new logs for the current application should be written to.</summary>

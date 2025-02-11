@@ -65,7 +65,7 @@ public sealed class UnixLogStorageContextUnit(IContextProviderUnit? provider) : 
       _writeTo = Path.Combine(UnixStorageContextUnitHelper.XdgDataHome, appName, "logs");
       _sessionDirectory = Path.Combine(_writeTo, Application.StartedOn.ToString("yyyy-MM-dd HH-mm-ss"));
 
-      _readFrom = [];
+      _readFrom = [_writeTo];
 
       foreach (string baseDirectory in UnixStorageContextUnitHelper.XdgDataDirs)
       {

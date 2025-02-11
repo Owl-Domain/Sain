@@ -10,15 +10,19 @@ public static class UnixStorageContextUnitHelper
    public static string Home { get; }
 
    /// <summary>The main directory where data files should be saved to.</summary>
+   /// <remarks>Higher priority than <see cref="XdgDataDirs"/> for reading.</remarks>
    public static string XdgDataHome { get; }
 
    /// <summary>The directories from which data files should be read form.</summary>
+   /// <remarks>Most specific to least specific.</remarks>
    public static IReadOnlyList<string> XdgDataDirs { get; }
 
    /// <summary>The main directory where config files should be saved to.</summary>
+   /// <remarks>Higher priority than <see cref="XdgConfigDirs"/> for reading.</remarks>
    public static string XdgConfigHome { get; }
 
    /// <summary>The directories from which config files should be read from.</summary>
+   /// <remarks>Most specific to least specific.</remarks>
    public static IReadOnlyList<string> XdgConfigDirs { get; }
    #endregion
 

@@ -48,7 +48,7 @@ public sealed class UnixDataStorageContextUnit(IContextProviderUnit? provider) :
       string appName = UnixStorageContextUnitHelper.GetApplicationDirectoryName(Application);
 
       _writeTo = Path.Combine(UnixStorageContextUnitHelper.XdgDataHome, appName, "data");
-      _readFrom = [];
+      _readFrom = [_writeTo];
 
       foreach (string baseDirectory in UnixStorageContextUnitHelper.XdgDataDirs)
       {
