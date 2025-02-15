@@ -552,23 +552,3 @@ public abstract class ApplicationBuilder<TSelf, TApplication, TContext> : IAppli
    }
    #endregion
 }
-
-/// <summary>
-///   Represents the builder for a Sain application.
-/// </summary>
-public sealed class ApplicationBuilder : ApplicationBuilder<ApplicationBuilder, Application, IApplicationContext>
-{
-   #region Methods
-   /// <inheritdoc/>
-   protected override IApplicationContext BuildContext(IReadOnlyCollection<IApplicationUnit> units, IReadOnlyList<IApplicationUnit> initialisationOrder)
-   {
-      return new ApplicationContext(units, initialisationOrder);
-   }
-
-   /// <inheritdoc/>
-   protected override Application BuildApplication(IApplicationInfo info, IApplicationConfiguration configuration, IApplicationContext context)
-   {
-      return new(info, configuration, context);
-   }
-   #endregion
-}

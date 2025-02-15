@@ -34,6 +34,13 @@ public enum ApplicationRunMode : byte
 public delegate void ApplicationEventHandler(IApplication application);
 
 /// <summary>
+///   Represents the event handler for application events.
+/// </summary>
+/// <typeparam name="T">The type of the application.</typeparam>
+/// <param name="application">The application that raised the event.</param>
+public delegate void ApplicationEventHandler<T>(T application) where T : notnull, IApplication;
+
+/// <summary>
 ///   Represents a Sain application.
 /// </summary>
 public interface IApplication
@@ -132,6 +139,33 @@ public interface IApplication<TContext> : IApplication
    /// <summary>The context of the application.</summary>
    new TContext Context { get; }
    IApplicationContext IApplication.Context => Context;
+   #endregion
+}
+
+/// <summary>
+///   Represents a Sain application.
+/// </summary>
+/// <typeparam name="TApplication">The type of the application.</typeparam>
+/// <typeparam name="TContext">The type of the application's context.</typeparam>
+public interface IApplication<TApplication, TContext> : IApplication<TContext>
+   where TApplication : notnull, IApplication<TApplication, TContext>
+   where TContext : notnull, IApplicationContext
+{
+   #region Events
+   /// <summary>Raised when the application is starting.</summary>
+   new event ApplicationEventHandler<TApplication>? Starting;
+
+   /// <summary>Raised when the application has started.</summary>
+   new event ApplicationEventHandler<TApplication>? Started;
+
+   /// <summary>Raised when the application is stopping.</summary>
+   new event ApplicationEventHandler<TApplication>? Stopping;
+
+   /// <summary>Raised when the application has stopped.</summary>
+   new event ApplicationEventHandler<TApplication>? Stopped;
+
+   /// <summary>Raised for every iteration of the application.</summary>
+   new event ApplicationEventHandler<TApplication>? Iteration;
    #endregion
 }
 

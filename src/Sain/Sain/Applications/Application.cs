@@ -3,28 +3,38 @@ namespace OwlDomain.Sain.Applications;
 /// <summary>
 ///   Represents a Sain application.
 /// </summary>
+/// <typeparam name="TApplication">The type of the application.</typeparam>
 /// <typeparam name="TContext">The type of the application <paramref name="context"/>.</typeparam>
 /// <param name="info">The information about the application.</param>
 /// <param name="configuration">The configuration options for the application.</param>
 /// <param name="context">The context of the application.</param>
-public abstract class Application<TContext>(
+public abstract class Application<TApplication, TContext>(
    IApplicationInfo info,
    IApplicationConfiguration configuration,
    TContext context)
-   : IApplication<TContext>
+   : IApplication<TApplication, TContext>
+   where TApplication : notnull, IApplication<TApplication, TContext>
    where TContext : notnull, IApplicationContext
 {
    #region Constants
-   private const string LogContext = nameof(Application);
+   private const string LogContext = nameof(GenericApplication);
    #endregion
 
    #region Fields
    private readonly object _runLock = new();
    private readonly Stopwatch _runTimeWatch = new();
    private readonly Stopwatch _generalWatch = new();
+
+   private ApplicationEventHandler? _untypedStarting;
+   private ApplicationEventHandler? _untypedStarted;
+   private ApplicationEventHandler? _untypedIteration;
+   private ApplicationEventHandler? _untypedStopping;
+   private ApplicationEventHandler? _untypedStopped;
    #endregion
 
    #region Properties
+   private TApplication TypedApplication => (TApplication)(object)this;
+
    /// <inheritdoc/>
    public IApplicationInfo Info { get; } = info;
 
@@ -58,19 +68,45 @@ public abstract class Application<TContext>(
 
    #region Events
    /// <inheritdoc/>
-   public event ApplicationEventHandler? Starting;
+   public event ApplicationEventHandler<TApplication>? Starting;
 
    /// <inheritdoc/>
-   public event ApplicationEventHandler? Started;
+   public event ApplicationEventHandler<TApplication>? Started;
 
    /// <inheritdoc/>
-   public event ApplicationEventHandler? Stopping;
+   public event ApplicationEventHandler<TApplication>? Stopping;
 
    /// <inheritdoc/>
-   public event ApplicationEventHandler? Stopped;
+   public event ApplicationEventHandler<TApplication>? Stopped;
 
    /// <inheritdoc/>
-   public event ApplicationEventHandler? Iteration;
+   public event ApplicationEventHandler<TApplication>? Iteration;
+
+   event ApplicationEventHandler? IApplication.Starting
+   {
+      add => _untypedStarting += value;
+      remove => _untypedStarting -= value;
+   }
+   event ApplicationEventHandler? IApplication.Started
+   {
+      add => _untypedStarted += value;
+      remove => _untypedStarted -= value;
+   }
+   event ApplicationEventHandler? IApplication.Iteration
+   {
+      add => _untypedIteration += value;
+      remove => _untypedIteration -= value;
+   }
+   event ApplicationEventHandler? IApplication.Stopping
+   {
+      add => _untypedStopping += value;
+      remove => _untypedStopping -= value;
+   }
+   event ApplicationEventHandler? IApplication.Stopped
+   {
+      add => _untypedStopped += value;
+      remove => _untypedStopped -= value;
+   }
    #endregion
 
    #region Methods
@@ -186,7 +222,7 @@ public abstract class Application<TContext>(
    private void RunIteration()
    {
       _generalWatch.Restart();
-      Iteration?.Invoke(this);
+      RaiseIteration();
       TimeSpan actualIterationTime = _generalWatch.Elapsed;
 
       while (_generalWatch.Elapsed < Configuration.MinimumIterationTime && (IsStopRequested is false))
@@ -219,10 +255,10 @@ public abstract class Application<TContext>(
          Context.Logging.Trace(LogContext, $"Application is about to start.");
       }
 
-      Starting?.Invoke(this);
+      RaiseStarting();
       Context.Initialise(this);
 
-      Started?.Invoke(this);
+      RaiseStarted();
       StartupTime = _generalWatch.Elapsed;
 
       Context.Logging?.Trace(LogContext, $"Application has finished starting up, took {GetNiceTimeFormat(StartupTime)}.");
@@ -233,7 +269,7 @@ public abstract class Application<TContext>(
       {
          Context.Logging?.Trace(LogContext, $"Application is stopping after running for {GetNiceTimeFormat(RunTime)}.");
 
-         Stopping?.Invoke(this);
+         RaiseStopping();
          IsStopRequested = false;
          IsRunning = false;
 
@@ -250,7 +286,7 @@ public abstract class Application<TContext>(
             _generalWatch.Stop();
             _runTimeWatch.Stop();
 
-            Stopped?.Invoke(this);
+            RaiseStopped();
          }
       }
    }
@@ -387,24 +423,30 @@ public abstract class Application<TContext>(
 
       return string.Join(' ', parts);
    }
-   #endregion
-}
-
-/// <summary>
-///   Represents a Sain application.
-/// </summary>
-/// <param name="info">The information about the application.</param>
-/// <param name="configuration">The configuration options for the application.</param>
-/// <param name="context">The context of the application.</param>
-public sealed class Application(
-   IApplicationInfo info,
-   IApplicationConfiguration configuration,
-   IApplicationContext context)
-   : Application<IApplicationContext>(info, configuration, context)
-{
-   #region Functions
-   /// <summary>Starts building a new Sain application.</summary>
-   /// <returns>The application builder used to build and customise the new application.</returns>
-   public static ApplicationBuilder New() => new();
+   private void RaiseStarting()
+   {
+      Starting?.Invoke(TypedApplication);
+      _untypedStarting?.Invoke(this);
+   }
+   private void RaiseStarted()
+   {
+      Started?.Invoke(TypedApplication);
+      _untypedStarted?.Invoke(this);
+   }
+   private void RaiseIteration()
+   {
+      Iteration?.Invoke(TypedApplication);
+      _untypedIteration?.Invoke(this);
+   }
+   private void RaiseStopping()
+   {
+      Stopping?.Invoke(TypedApplication);
+      _untypedStopping?.Invoke(this);
+   }
+   private void RaiseStopped()
+   {
+      Stopped?.Invoke(TypedApplication);
+      _untypedStopped?.Invoke(this);
+   }
    #endregion
 }
