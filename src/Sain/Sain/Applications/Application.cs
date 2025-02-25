@@ -17,7 +17,7 @@ public abstract class Application<TApplication, TContext>(
    where TContext : notnull, IApplicationContext
 {
    #region Constants
-   private const string LogContext = nameof(GenericApplication);
+   private const string LogContext = "Application";
    #endregion
 
    #region Fields
@@ -415,7 +415,7 @@ public abstract class Application<TApplication, TContext>(
       if (time.Minutes > 0)
          parts.Add($"{time.Minutes}m");
 
-      if (time.Days > 0)
+      if (time.Seconds > 0)
          parts.Add($"{time.Seconds}s");
 
       if (parts.Count is 0 || time.Milliseconds > 0)
