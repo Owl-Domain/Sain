@@ -2,6 +2,9 @@
 
 A simple to use and extensible application framework.
 
+![NuGet Version](https://img.shields.io/nuget/v/OwlDomain.Sain?logo=nuget)
+
+
 
 ## Installation
 
@@ -10,7 +13,6 @@ either from the
 [latest release](https://github.com/Owl-Domain/Sain/releases/latest)
 or directly from
 [nuget.org](https://www.nuget.org/packages/OwlDomain.Sain).
-![NuGet Version](https://img.shields.io/nuget/v/OwlDomain.Sain?logo=nuget)
 
 
 
