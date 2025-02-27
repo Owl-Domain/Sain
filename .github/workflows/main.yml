@@ -1,5 +1,5 @@
 name: Main workflow
-run-name: Main Sain Githun workflow.
+run-name: Main Sain Github workflow.
 
 permissions:
   contents: read # Best to use for actions/setup-dotnet apparently.
@@ -8,7 +8,6 @@ on:
 
   # Run when a new tag commit is pushed to master branch.
   push:
-    branches: [ master ]
     tags: [ 'v[0-9]+.[0-9]+.[0-9]+' ]
       
   # Allow manual runs
@@ -17,6 +16,7 @@ on:
 
 jobs:
   build_package:
+    if: github.ref == "refs/heads/master"
     runs-on: ubuntu-latest
     name: Building the Sain nuget package
     env:
@@ -30,7 +30,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build the solution
-        run: dotnet build src/
+        run: |
+          dotnet build src/Sain/Sain.Abstractions
+          dotnet build src/Sain/Sain
       
       - name: Create the package
         run: |
