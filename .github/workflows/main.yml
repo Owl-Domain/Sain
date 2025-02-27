@@ -1,0 +1,34 @@
+name: Main workflow
+run-name: Main Sain Githun workflow.
+
+permissions:
+  contents: read # Best to use for actions/setup-dotnet apparently.
+
+on:
+
+  # Run when a new tag commit is pushed to master branch.
+  push:
+    branches: [ master ]
+    tags: [ 'v[0-9]+.[0-9]+.[0-9]+' ]
+      
+  # Allow manual runs
+  workflow_dispatch:
+
+
+jobs:
+  build_package:
+    runs-on: ubuntu-latest
+    name: Building the Sain nuget package
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      - name: Install the .NET workflow
+      - uses: actions/setup-dotnet@v4
+
+      - name: Checkout repo
+      - uses: actions/checkout@v4
+      
+      - name: Create the package
+      - run: dotnet pack src/Sain/Sain.Abstractions --configuration RELEASE --include-symbols --include-source --output package_output
+      - run: dotnet pack src/Sain/Sain --configuration RELEASE --include-symbols --include-source --output package_output
