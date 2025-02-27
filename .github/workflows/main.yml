@@ -28,6 +28,9 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Build the solution
+        run: dotnet build src/
       
       - name: Create the package
         run: |
