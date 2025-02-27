@@ -33,8 +33,8 @@ jobs:
 
       - name: Build the solution
         run: |
-          dotnet build src/Sain/Sain.Abstractions
-          dotnet build src/Sain/Sain
+          dotnet build src/Sain/Sain.Abstractions --configuration RELEASE
+          dotnet build src/Sain/Sain --configuration RELEASE
       
       - name: Create the package
         run: |
