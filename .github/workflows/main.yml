@@ -16,7 +16,6 @@ on:
 
 jobs:
   build_package:
-    if:  ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
     name: Building the Sain nuget package
     env:
