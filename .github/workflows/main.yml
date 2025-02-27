@@ -40,3 +40,10 @@ jobs:
         run: |
           dotnet pack src/Sain/Sain.Abstractions --configuration RELEASE --include-symbols --include-source --output package_output
           dotnet pack src/Sain/Sain --configuration RELEASE --include-symbols --include-source --output package_output
+
+      - name: Upload the packages as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nuget packages
+          path: package_output
+          if-no-files-found: error
