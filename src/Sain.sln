@@ -11,9 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{3A7E3795-0
 	ProjectSection(SolutionItems) = preProject
 		..\.gitattributes = ..\.gitattributes
 		..\.gitignore = ..\.gitignore
-		..\llicense.md = ..\llicense.md
 		..\contributing.md = ..\contributing.md
 		..\readme.md = ..\readme.md
+		..\license.md = ..\license.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fixes", "fixes", "{D69D6485-3418-433A-B7FC-3CD35BE0CF27}"

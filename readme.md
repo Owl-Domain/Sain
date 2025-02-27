@@ -3,10 +3,14 @@
 A simple to use and extensible application framework.
 
 
-
 ## Installation
 
-This project is currently in the alpha state, and there are no official releases yet.
+This project is currently in the alpha state, but you can grab the nuget packages
+either from the
+[latest release](https://github.com/Owl-Domain/Sain/releases/latest)
+or directly from
+[nuget.org](https://www.nuget.org/packages/OwlDomain.Sain).
+![NuGet Version](https://img.shields.io/nuget/v/OwlDomain.Sain?logo=nuget)
 
 
 
