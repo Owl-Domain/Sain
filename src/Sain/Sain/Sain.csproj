@@ -26,7 +26,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
     <Title>OwlDomain.Sain</Title>
-    <Version>0.3.4</Version>
+    <Version>0.3.5</Version>
 
     <Description>The main implementation package for the Sain project.</Description>
     <PackageTags>owldomain, sain, application, framework</PackageTags>
