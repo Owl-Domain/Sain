@@ -24,11 +24,12 @@ jobs:
       DOTNET_CLI_TELEMETRY_OPTOUT: true
     steps:
       - name: Install the .NET workflow
-      - uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v4
 
       - name: Checkout repo
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
       
       - name: Create the package
-      - run: dotnet pack src/Sain/Sain.Abstractions --configuration RELEASE --include-symbols --include-source --output package_output
-      - run: dotnet pack src/Sain/Sain --configuration RELEASE --include-symbols --include-source --output package_output
+        run: |
+          dotnet pack src/Sain/Sain.Abstractions --configuration RELEASE --include-symbols --include-source --output package_output
+          dotnet pack src/Sain/Sain --configuration RELEASE --include-symbols --include-source --output package_output
