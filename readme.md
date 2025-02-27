@@ -2,7 +2,7 @@
 
 A simple to use and extensible application framework.
 
-![NuGet Version](https://img.shields.io/nuget/v/OwlDomain.Sain?logo=nuget)
+[<img src="https://img.shields.io/nuget/v/OwlDomain.Sain?logo=nuget" alt="nuget.org package version">](https://www.nuget.org/packages/OwlDomain.Sain)
 
 
 
