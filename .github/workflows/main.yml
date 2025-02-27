@@ -2,7 +2,7 @@ name: Main workflow
 run-name: Main Sain Github workflow.
 
 permissions:
-  contents: read # Best to use for actions/setup-dotnet apparently.
+  contents: write
 
 on:
 
@@ -31,15 +31,15 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Build the solution
+      - name: Build the projects
         run: |
           dotnet build src/Sain/Sain.Abstractions --configuration RELEASE
           dotnet build src/Sain/Sain --configuration RELEASE
       
       - name: Create the package
         run: |
-          dotnet pack src/Sain/Sain.Abstractions --configuration RELEASE --include-symbols --include-source --output package_output
-          dotnet pack src/Sain/Sain --configuration RELEASE --include-symbols --include-source --output package_output
+          dotnet pack src/Sain/Sain.Abstractions --no-build --configuration RELEASE --include-symbols --include-source --output package_output
+          dotnet pack src/Sain/Sain --no-build --configuration RELEASE --include-symbols --include-source --output package_output
 
       - name: Upload the packages as artifacts
         uses: actions/upload-artifact@v4
@@ -47,3 +47,9 @@ jobs:
           name: Nuget packages
           path: package_output
           if-no-files-found: error
+
+      - name: Create the Github release
+        uses: softprops/action-gh-release@v2
+        with:
+          make_latest: true
+          files: package_output
