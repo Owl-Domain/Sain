@@ -21,8 +21,8 @@
 
   <!-- Nuget package -->
   <PropertyGroup Label="nuget">
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
+    <EmbedAllSources>true</EmbedAllSources>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
     <Title>OwlDomain.Sain</Title>
