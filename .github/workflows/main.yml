@@ -48,10 +48,16 @@ jobs:
           if-no-files-found: error
 
       - name: Create the Github release
-        uses: softprops/action-gh-release@v2
-        with:
-          make_latest: true
-          files: package_output
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+        run: |
+          gh release create "$tag" \
+            --repo="$GITHUB_REPOSITORY" \
+            --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
+            --verify-tag \
+            --generate-notes \
+            ./package_output/*
 
       - name: Publish to nuget.org
         run: dotnet nuget push package_output/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
