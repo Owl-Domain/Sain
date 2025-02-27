@@ -26,7 +26,7 @@ jobs:
       - name: Install the .NET workflow
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8
+          dotnet-version: 9
 
       - name: Checkout repo
         uses: actions/checkout@v4
