@@ -6,7 +6,7 @@ permissions:
 
 on:
 
-  # Run when a new tag commit is pushed to master branch.
+  # Run when a version tag commit is pushed.
   push:
     tags: [ 'v[0-9]+.[0-9]+.[0-9]+' ]
       
