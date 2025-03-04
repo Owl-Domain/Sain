@@ -60,6 +60,6 @@ jobs:
             ./package_output/*
 
       - name: Publish to nuget.org
-        run: dotnet nuget push package_output/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push package_output/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json --skip-duplicate
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
