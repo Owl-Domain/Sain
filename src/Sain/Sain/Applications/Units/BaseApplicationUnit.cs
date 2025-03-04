@@ -142,6 +142,9 @@ public class BaseApplicationUnit : IApplicationUnit
          }
          catch
          {
+            Context.Logging?.Debug<BaseApplicationUnit>($"The unit ({this}) is being cleaned up (uninitialised) after a failure during initialisation.");
+            OnCleanup();
+
             IsInitialised = false;
             throw;
          }

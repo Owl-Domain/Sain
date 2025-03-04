@@ -92,6 +92,14 @@ public class ApplicationContext : IApplicationContext
          }
          catch
          {
+            foreach (IApplicationUnit unit in InitialisationOrder)
+            {
+               if (unit.IsInitialised is false)
+                  break;
+
+               unit.Cleanup();
+            }
+
             _application = null;
             IsInitialised = false;
 
