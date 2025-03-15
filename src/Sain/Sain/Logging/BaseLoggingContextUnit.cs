@@ -30,7 +30,8 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
    /// <param name="provider">The context provider that the context unit comes from.</param>
    public BaseLoggingContextUnit(IContextProviderUnit? provider) : base(provider)
    {
-      WithPathPrefixConverter("/home/nightowl/repos/Sain/repo/", "Sain");
+      WithPathPrefixConverter("/home/nightowl/repos/Sain/repo/", "Sain"); // Nightowl local
+      WithPathPrefixConverter("/home/runner/work/Sain/Sain/", "Sain"); // Github Actions
    }
    #endregion
 
