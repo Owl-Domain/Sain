@@ -30,8 +30,10 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
    /// <param name="provider">The context provider that the context unit comes from.</param>
    public BaseLoggingContextUnit(IContextProviderUnit? provider) : base(provider)
    {
-      WithPathPrefixConverter("/home/nightowl/repos/Sain/repo/", "Sain"); // Nightowl local
-      WithPathPrefixConverter("/home/runner/work/Sain/Sain/", "Sain"); // Github Actions
+      string? directory = GetBuildDirectory();
+
+      if (directory is not null)
+         WithPathPrefixConverter(directory, "Sain");
    }
    #endregion
 
@@ -157,6 +159,32 @@ public abstract class BaseLoggingContextUnit : BaseContextUnit, ILoggingContextU
    #endregion
 
    #region Helpers
+   private static string? GetBuildDirectory()
+   {
+      string? path = GetFilePath();
+
+      if (path is null)
+         return null;
+
+      int index = path.LastIndexOf("/src/");
+      if (index < 0)
+      {
+         Debug.Fail("Something in the project was messed with.");
+         return null;
+      }
+
+      string buildDirectory = path[..(index + 1)]; // Note(Nightowl): +1 to include the trailing slash;
+      return buildDirectory;
+   }
+   private static string? GetFilePath([CallerFilePath] string path = "")
+   {
+      const string suffix = $"/{nameof(BaseLoggingContextUnit)}.cs";
+      if (path.EndsWith(suffix))
+         return path;
+
+      Debug.Fail("Something in the project was messed with.");
+      return null;
+   }
    private static string GetNormalisedFilePath(string file)
    {
       if (string.IsNullOrWhiteSpace(file))
